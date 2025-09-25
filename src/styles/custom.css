@@ -178,3 +178,17 @@ section {
   box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
 }
 
+
+
+
+@media (max-width: 768px) {
+  .hud-container {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+
+  .controls-container {
+    font-size: 14px;
+    padding: 10px;
+  }
+}

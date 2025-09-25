@@ -3,12 +3,17 @@ import { useFrame } from "@react-three/fiber";
 import { useGLTF } from "@react-three/drei";
 import { Group, Vector3, Euler, Color, MathUtils } from "three";
 
+
 interface SpaceshipProps {
   setHud: (hud: any) => void;
   paused: boolean;
+  joystickDir?: {x: number, y: number};
+  isMobile?: boolean;
 }
 
-const Spaceship: React.FC<SpaceshipProps> = ({ setHud, paused }) => {
+
+const Spaceship: React.FC<SpaceshipProps> = ({ setHud, paused, joystickDir, isMobile }) => {
+
   const shipRef = useRef<Group>(null!);
   const { scene } = useGLTF("/spaceship.glb");
   
@@ -87,6 +92,18 @@ const Spaceship: React.FC<SpaceshipProps> = ({ setHud, paused }) => {
     let isUsingThrust = false;
     let isUsingBoost = false;
 
+    let forward = keys.current["w"] || keys.current["arrowup"];
+let backward = keys.current["s"] || keys.current["arrowdown"];
+let left = keys.current["a"] || keys.current["arrowleft"];
+let right = keys.current["d"] || keys.current["arrowright"];
+
+// 👇 Override with joystick if mobile
+if (isMobile && joystickDir) {
+  if (joystickDir.y > 0.3) forward = true;
+  if (joystickDir.y < -0.3) backward = true;
+  if (joystickDir.x < -0.3) left = true;
+  if (joystickDir.x > 0.3) right = true;
+}
     // Enhanced movement with acceleration/deceleration
     const forwardPressed = keys.current["w"] || keys.current["arrowup"];
     const backwardPressed = keys.current["s"] || keys.current["arrowdown"];

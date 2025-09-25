@@ -4,6 +4,8 @@ import { Stars, OrbitControls } from "@react-three/drei";
 import { Vector3 } from "three";
 import { motion, AnimatePresence } from "framer-motion";
 import Spaceship from "./Spaceship";
+import { Joystick } from "react-joystick-component";
+
 
 // Your existing components
 import AboutStation from "./stations/AboutStation";
@@ -32,6 +34,27 @@ interface SpaceGameProps {
 }
 
 const SpaceGame: React.FC<SpaceGameProps> = ({ darkMode, setDarkMode }) => {
+
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  const [isPortrait, setIsPortrait] = useState(window.innerHeight > window.innerWidth);
+
+useEffect(() => {
+  const handleResize = () => setIsPortrait(window.innerHeight > window.innerWidth);
+  window.addEventListener("resize", handleResize);
+  return () => window.removeEventListener("resize", handleResize);
+}, []);
+
+
+useEffect(() => {
+  const handleResize = () => setIsMobile(window.innerWidth < 768);
+  window.addEventListener("resize", handleResize);
+  return () => window.removeEventListener("resize", handleResize);
+}, []);
+
+const [joystickDir, setJoystickDir] = useState<{x: number, y: number}>({x: 0, y: 0});
+
+
   const [hud, setHud] = useState<any>({
     speed: "0.00",
     position: new Vector3(),
@@ -153,10 +176,8 @@ const SpaceGame: React.FC<SpaceGameProps> = ({ darkMode, setDarkMode }) => {
         <pointLight position={[0, 0, 0]} intensity={1} color="#00ffff" distance={100} />
 
         {/* Your existing Spaceship */}
-        <Spaceship 
-          setHud={setHud} 
-          paused={paused}
-        />
+        <Spaceship setHud={setHud} paused={paused} joystickDir={joystickDir} isMobile={isMobile} />
+
 
         {/* Your existing stations */}
         <AboutStation
@@ -530,8 +551,50 @@ const SpaceGame: React.FC<SpaceGameProps> = ({ darkMode, setDarkMode }) => {
 </AnimatePresence>
 
 
-    </div>
-  );
+    {/* 🎮 Joystick Control (Mobile Only) */}
+{!paused && gameMode === 'exploration' && isMobile && (
+  <div
+    style={{
+      position: "absolute",
+      bottom: "20px",
+      right: "20px",
+      zIndex: 2000,
+    }}
+  >
+    <Joystick
+      size={100}
+      baseColor="rgba(0,255,255,0.2)"
+      stickColor="#00ffff"
+      move={(e) => setJoystickDir({ x: e.x || 0, y: e.y || 0 })}
+      stop={() => setJoystickDir({ x: 0, y: 0 })}
+    />
+  </div>
+)}
+
+{/* 🔄 Orientation Lock Overlay */}
+{isMobile && isPortrait && (
+  <div
+    style={{
+      position: "absolute",
+      inset: 0,
+      background: "black",
+      color: "white",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      fontSize: "20px",
+      zIndex: 9999,
+      textAlign: "center"
+    }}
+  >
+    🔄 Please rotate your device to landscape
+  </div>
+)}
+
+
+</div>
+);
 };
+
 
 export default SpaceGame;
