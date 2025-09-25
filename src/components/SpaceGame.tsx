@@ -409,25 +409,38 @@ const [joystickDir, setJoystickDir] = useState<{x: number, y: number}>({x: 0, y:
 
       {/* Enhanced Control Instructions */}
       {/* Enhanced Control Instructions (Desktop Only) */}
-{!paused && gameMode === 'exploration' && !isMobile && (
+{/* Enhanced Control Instructions (Desktop only) */}
+{!paused && gameMode === "exploration" && !isMobile && (
   <motion.div
+    key="desktop-controls"
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
+    exit={{ opacity: 0, y: 20 }}
+    transition={{ duration: 0.35, ease: "easeOut" }}
+    role="status"
+    aria-live="polite"
     style={{
       position: "absolute",
-      bottom: "20px",
-      left: "20px",
-      right: "20px",
+      bottom: 20,
+      left: 20,
+      right: 20,
       background: "rgba(0,0,0,0.8)",
       border: "1px solid #00ffff30",
-      borderRadius: "12px",
-      padding: "15px",
+      borderRadius: 12,
+      padding: 15,
       color: "white",
       fontFamily: "'Space Mono', monospace",
-      fontSize: "12px"
+      fontSize: 12,
+      zIndex: 1000,
     }}
   >
-    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: "15px" }}>
+    <div
+      style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
+        gap: 15,
+      }}
+    >
       <div><strong>🎮 NAVIGATION:</strong></div>
       <div>W/↑ - Forward Thrust</div>
       <div>A/← D/→ - Strafe Left/Right</div>
@@ -556,26 +569,29 @@ const [joystickDir, setJoystickDir] = useState<{x: number, y: number}>({x: 0, y:
     {/* 🎮 Joystick Control (Mobile Only) */}
 {/* 🎮 Joystick Control (Mobile Only) */}
 {!paused && gameMode === 'exploration' && isMobile && (
-  <div
-    style={{
-      position: "fixed",   // fixed instead of absolute
-      bottom: "5vh",       // responsive offset
-      right: "5vw",
-      zIndex: 3000,
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      width: "120px",
-      height: "120px",
-    }}
-  >
+ <div
+  style={{
+    position: "fixed",
+    bottom: 0,
+    left: 0,
+    width: "40vw",   // left area
+    height: "100vh", // full height
+    zIndex: 99999,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    pointerEvents: "none" // so other UI still works
+  }}
+>
+
     <Joystick
-      size={100}
-      baseColor="rgba(0,255,255,0.2)"
-      stickColor="#00ffff"
-      move={(e) => setJoystickDir({ x: e.x || 0, y: e.y || 0 })}
-      stop={() => setJoystickDir({ x: 0, y: 0 })}
-    />
+  size={100}
+  baseColor="rgba(0,255,255,0.15)"
+  stickColor="#00ffff"
+  move={(e) => setJoystickDir({ x: e.x || 0, y: e.y || 0 })}
+  stop={() => setJoystickDir({ x: 0, y: 0 })}
+/>
+
   </div>
 )}
 
