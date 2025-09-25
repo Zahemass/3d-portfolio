@@ -35,9 +35,9 @@ interface SpaceGameProps {
 
 const SpaceGame: React.FC<SpaceGameProps> = ({ darkMode, setDarkMode }) => {
 
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-
-  const [isPortrait, setIsPortrait] = useState(window.innerHeight > window.innerWidth);
+  // ✅ Proper mobile detection
+  const [isMobile, setIsMobile] = useState(false);
+  const [isPortrait, setIsPortrait] = useState(false);
 
 useEffect(() => {
   const handleResize = () => setIsPortrait(window.innerHeight > window.innerWidth);
