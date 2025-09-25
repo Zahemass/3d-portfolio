@@ -182,8 +182,8 @@ body.dark .professional-overlay {
 /* ===== Mobile Joystick ===== */
 .mobile-joystick {
   position: fixed;
-  bottom: 5vh;
-  left: 5vw;
+  bottom: 150px;
+  left: 40px;
   z-index: 99999;
   pointer-events: auto;
 }
