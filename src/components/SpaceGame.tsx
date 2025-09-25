@@ -315,7 +315,7 @@ useEffect(() => {
       {/* 🎮 Joystick - Show whenever device is in landscape */}
 {!paused && gameMode === "exploration" && !isPortrait && (
   <div className="mobile-joystick">
-   <Joystick
+      <Joystick
   size={100}
   baseColor="rgba(0,255,255,0.15)"
   stickColor="#00ffff"

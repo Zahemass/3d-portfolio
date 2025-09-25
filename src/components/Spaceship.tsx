@@ -132,19 +132,22 @@ if (isMobile && (Math.abs(joyX) > 0.01 || Math.abs(joyY) > 0.01)) {
   // Disable keyboard if joystick is active
   forward = backward = left = right = false;
 
-  // 🚀 Stronger multiplier so it survives physics damping
-  targetVelocity.set(
-    joyX * speed * 25.0,   // left/right
-    0,
-    -joyY * speed * 25.0   // forward/back
+  // 🚀 Strong multiplier
+  targetVelocity.copy(
+    new Vector3(
+      joyX * speed * 40.0,   // X strafing
+      0,
+      -joyY * speed * 40.0   // Z forward/back
+    )
   );
 
   isUsingThrust = true;
 
+  // Tilt / pitch animations
   setTilt(MathUtils.lerp(tilt, -joyX * 1.2, 0.1));
   setPitch(MathUtils.lerp(pitch, -joyY * 1.0, 0.1));
 
-  console.log("🛰️ Applied joystick thrust:", targetVelocity.toArray());
+  console.log("🛰️ Joystick applied:", targetVelocity.toArray());
 }
 
 
