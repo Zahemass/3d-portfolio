@@ -408,36 +408,38 @@ const [joystickDir, setJoystickDir] = useState<{x: number, y: number}>({x: 0, y:
       </AnimatePresence>
 
       {/* Enhanced Control Instructions */}
-      {!paused && gameMode === 'exploration' && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          style={{
-            position: "absolute",
-            bottom: "20px",
-            left: "20px",
-            right: "20px",
-            background: "rgba(0,0,0,0.8)",
-            border: "1px solid #00ffff30",
-            borderRadius: "12px",
-            padding: "15px",
-            color: "white",
-            fontFamily: "'Space Mono', monospace",
-            fontSize: "12px"
-          }}
-        >
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: "15px" }}>
-            <div><strong>🎮 NAVIGATION:</strong></div>
-            <div>W/↑ - Forward Thrust</div>
-            <div>A/← D/→ - Strafe Left/Right</div>
-            <div>S/↓ - Reverse</div>
-            <div>SPACE - Ascend</div>
-            <div>SHIFT - Descend</div>
-            <div><strong>🎯 INTERACTION:</strong></div>
-            <div>Approach stations to dock</div>
-          </div>
-        </motion.div>
-      )}
+      {/* Enhanced Control Instructions (Desktop Only) */}
+{!paused && gameMode === 'exploration' && !isMobile && (
+  <motion.div
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    style={{
+      position: "absolute",
+      bottom: "20px",
+      left: "20px",
+      right: "20px",
+      background: "rgba(0,0,0,0.8)",
+      border: "1px solid #00ffff30",
+      borderRadius: "12px",
+      padding: "15px",
+      color: "white",
+      fontFamily: "'Space Mono', monospace",
+      fontSize: "12px"
+    }}
+  >
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: "15px" }}>
+      <div><strong>🎮 NAVIGATION:</strong></div>
+      <div>W/↑ - Forward Thrust</div>
+      <div>A/← D/→ - Strafe Left/Right</div>
+      <div>S/↓ - Reverse</div>
+      <div>SPACE - Ascend</div>
+      <div>SHIFT - Descend</div>
+      <div><strong>🎯 INTERACTION:</strong></div>
+      <div>Approach stations to dock</div>
+    </div>
+  </motion.div>
+)}
+
 
       {/* Professional Mode Overlay */}
       {gameMode === "professional" && (
@@ -552,13 +554,19 @@ const [joystickDir, setJoystickDir] = useState<{x: number, y: number}>({x: 0, y:
 
 
     {/* 🎮 Joystick Control (Mobile Only) */}
+{/* 🎮 Joystick Control (Mobile Only) */}
 {!paused && gameMode === 'exploration' && isMobile && (
   <div
     style={{
-      position: "absolute",
-      bottom: "20px",
-      right: "20px",
-      zIndex: 2000,
+      position: "fixed",   // fixed instead of absolute
+      bottom: "5vh",       // responsive offset
+      right: "5vw",
+      zIndex: 3000,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      width: "120px",
+      height: "120px",
     }}
   >
     <Joystick
@@ -570,6 +578,7 @@ const [joystickDir, setJoystickDir] = useState<{x: number, y: number}>({x: 0, y:
     />
   </div>
 )}
+
 
 {/* 🔄 Orientation Lock Overlay */}
 {isMobile && isPortrait && (
