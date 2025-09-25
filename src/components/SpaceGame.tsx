@@ -1,11 +1,9 @@
-// filename: src/components/SpaceGame.tsx
 import React, { useState, useEffect } from "react";
 import { Canvas } from "@react-three/fiber";
 import { Stars, OrbitControls } from "@react-three/drei";
 import { Vector3 } from "three";
 import { motion, AnimatePresence } from "framer-motion";
 import Spaceship from "./Spaceship";
-import { Joystick } from "react-joystick-component";
 
 // Stations
 import AboutStation from "./stations/AboutStation";
@@ -37,19 +35,26 @@ interface SpaceGameProps {
 }
 
 const SpaceGame: React.FC<SpaceGameProps> = ({ darkMode, setDarkMode }) => {
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-  const [isPortrait, setIsPortrait] = useState(window.innerHeight > window.innerWidth);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 1000);
 
   useEffect(() => {
     const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
-      setIsPortrait(window.innerHeight > window.innerWidth);
+      setIsMobile(window.innerWidth < 1000);
     };
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const [joystickDir, setJoystickDir] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  // Mobile control states - all arrow buttons
+  const [mobileControls, setMobileControls] = useState({
+    forward: false,
+    backward: false,
+    left: false,
+    right: false,
+    up: false,
+    down: false,
+    boost: false,
+  });
 
   const [hud, setHud] = useState<any>({
     speed: "0.00",
@@ -111,8 +116,10 @@ const SpaceGame: React.FC<SpaceGameProps> = ({ darkMode, setDarkMode }) => {
 
   // Check proximity
   useEffect(() => {
-    const checkProximity = () => {
-      let closestStation = null;
+    let raf: number;
+
+    const updateProximity = () => {
+      let closestStation: string | null = null;
       let minDistance = Infinity;
 
       stations.forEach((station) => {
@@ -123,11 +130,16 @@ const SpaceGame: React.FC<SpaceGameProps> = ({ darkMode, setDarkMode }) => {
         }
       });
 
-      setNearbyStation(closestStation);
+      setNearbyStation((prev) =>
+        prev !== closestStation ? closestStation : prev
+      );
+
+      raf = requestAnimationFrame(updateProximity);
     };
 
-    checkProximity();
-  }, [hud.position]);
+    raf = requestAnimationFrame(updateProximity);
+    return () => cancelAnimationFrame(raf);
+  }, [hud.position, stations]);
 
   // XP & Levels
   const gainExperience = (amount: number) => {
@@ -141,6 +153,15 @@ const SpaceGame: React.FC<SpaceGameProps> = ({ darkMode, setDarkMode }) => {
   const toggleGameMode = () => {
     setGameMode(gameMode === "exploration" ? "professional" : "exploration");
     setPaused(gameMode === "exploration");
+  };
+
+  // Mobile control handlers
+  const handleControlDown = (control: keyof typeof mobileControls) => {
+    setMobileControls(prev => ({ ...prev, [control]: true }));
+  };
+
+  const handleControlUp = (control: keyof typeof mobileControls) => {
+    setMobileControls(prev => ({ ...prev, [control]: false }));
   };
 
   return (
@@ -157,8 +178,13 @@ const SpaceGame: React.FC<SpaceGameProps> = ({ darkMode, setDarkMode }) => {
         <directionalLight intensity={2} position={[100, 100, -50]} color="#ffffff" castShadow />
         <pointLight position={[0, 0, 0]} intensity={1} color="#00ffff" distance={100} />
 
-        {/* Spaceship */}
-        <Spaceship setHud={setHud} paused={paused} joystickDir={joystickDir} isMobile={isMobile} />
+        {/* Spaceship with mobile controls */}
+        <Spaceship 
+          setHud={setHud} 
+          paused={paused} 
+          isMobile={isMobile}
+          mobileControls={isMobile ? mobileControls : undefined}
+        />
 
         {/* Stations */}
         <AboutStation
@@ -204,7 +230,7 @@ const SpaceGame: React.FC<SpaceGameProps> = ({ darkMode, setDarkMode }) => {
 
       {/* HUD Overlay */}
       <AnimatePresence>
-        {!paused && gameMode === "exploration" && (!isMobile || (isMobile && !isPortrait)) && (
+        {!paused && gameMode === "exploration" && (
           <motion.div className="hud-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
             <div className="hud-topbar">
               {/* Status */}
@@ -302,27 +328,99 @@ const SpaceGame: React.FC<SpaceGameProps> = ({ darkMode, setDarkMode }) => {
         {showContact && <ContactOverlay onClose={() => { setShowContact(false); setPaused(false); }} />}
       </AnimatePresence>
 
-      {/* 🎮 Joystick - Show whenever device is in landscape */}
-{!paused && gameMode === "exploration" && !isPortrait && (
-  <div className="mobile-joystick">
-    <Joystick
-      size={100}
-      baseColor="rgba(0,255,255,0.15)"
-      stickColor="#00ffff"
-      move={(e) => setJoystickDir({ x: e.x || 0, y: e.y || 0 })}
-      stop={() => setJoystickDir({ x: 0, y: 0 })}
-    />
-  </div>
-)}
+      {/* Mobile Arrow Controls - Show on screens < 1000px */}
+      {!paused && gameMode === "exploration" && isMobile && (
+        <div className="mobile-controls-container">
+          {/* Left side: Movement D-Pad */}
+          <div className="mobile-dpad">
+            <button 
+              className="dpad-btn dpad-up"
+              onTouchStart={() => handleControlDown('forward')}
+              onTouchEnd={() => handleControlUp('forward')}
+              onMouseDown={() => handleControlDown('forward')}
+              onMouseUp={() => handleControlUp('forward')}
+              onMouseLeave={() => handleControlUp('forward')}
+            >
+              ▲
+            </button>
+            <button 
+              className="dpad-btn dpad-left"
+              onTouchStart={() => handleControlDown('left')}
+              onTouchEnd={() => handleControlUp('left')}
+              onMouseDown={() => handleControlDown('left')}
+              onMouseUp={() => handleControlUp('left')}
+              onMouseLeave={() => handleControlUp('left')}
+            >
+              ◄
+            </button>
+            <button 
+              className="dpad-btn dpad-center"
+              disabled
+            >
+              ◉
+            </button>
+            <button 
+              className="dpad-btn dpad-right"
+              onTouchStart={() => handleControlDown('right')}
+              onTouchEnd={() => handleControlUp('right')}
+              onMouseDown={() => handleControlDown('right')}
+              onMouseUp={() => handleControlUp('right')}
+              onMouseLeave={() => handleControlUp('right')}
+            >
+              ►
+            </button>
+            <button 
+              className="dpad-btn dpad-down"
+              onTouchStart={() => handleControlDown('backward')}
+              onTouchEnd={() => handleControlUp('backward')}
+              onMouseDown={() => handleControlDown('backward')}
+              onMouseUp={() => handleControlUp('backward')}
+              onMouseLeave={() => handleControlUp('backward')}
+            >
+              ▼
+            </button>
+          </div>
 
+          {/* Right side: Action buttons */}
+          <div className="mobile-action-buttons">
+            {/* Vertical controls */}
+            <button 
+              className="mobile-btn up-btn"
+              onTouchStart={() => handleControlDown('up')}
+              onTouchEnd={() => handleControlUp('up')}
+              onMouseDown={() => handleControlDown('up')}
+              onMouseUp={() => handleControlUp('up')}
+              onMouseLeave={() => handleControlUp('up')}
+            >
+              ↑<span>UP</span>
+            </button>
+            
+            <button 
+              className="mobile-btn down-btn"
+              onTouchStart={() => handleControlDown('down')}
+              onTouchEnd={() => handleControlUp('down')}
+              onMouseDown={() => handleControlDown('down')}
+              onMouseUp={() => handleControlUp('down')}
+              onMouseLeave={() => handleControlUp('down')}
+            >
+              ↓<span>DOWN</span>
+            </button>
 
-      {/* 🔄 Orientation Overlay */}
-{isPortrait && (
-  <div className="orientation-overlay">
-    🔄 Please rotate your device to landscape
-  </div>
-)}
-
+            {/* Boost button */}
+            <button 
+              className={`mobile-btn boost-btn ${hud.fuel < 10 ? 'disabled' : ''}`}
+              onTouchStart={() => hud.fuel >= 10 && handleControlDown('boost')}
+              onTouchEnd={() => handleControlUp('boost')}
+              onMouseDown={() => hud.fuel >= 10 && handleControlDown('boost')}
+              onMouseUp={() => handleControlUp('boost')}
+              onMouseLeave={() => handleControlUp('boost')}
+              disabled={hud.fuel < 10}
+            >
+              ⚡<span>BOOST</span>
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

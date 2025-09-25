@@ -1,4 +1,3 @@
-// filename: src/components/Spaceship.tsx
 import React, { useRef, useEffect, useState } from "react";
 import { useFrame } from "@react-three/fiber";
 import { useGLTF } from "@react-three/drei";
@@ -10,20 +9,28 @@ import { Group, Vector3, Color, MathUtils } from "three";
 interface SpaceshipProps {
   setHud: (hud: any) => void;
   paused: boolean;
-  joystickDir?: { x: number; y: number };
   isMobile?: boolean;
+  mobileControls?: {
+    forward: boolean;
+    backward: boolean;
+    left: boolean;
+    right: boolean;
+    up: boolean;
+    down: boolean;
+    boost: boolean;
+  };
 }
 
 /**
  * Spaceship component
  * - Handles physics, movement, effects, and HUD updates
- * - Accepts both keyboard input and mobile joystick input
+ * - Accepts both keyboard input and mobile arrow controls
  */
 const Spaceship: React.FC<SpaceshipProps> = ({
   setHud,
   paused,
-  joystickDir,
   isMobile,
+  mobileControls,
 }) => {
   /** === Refs === */
   const shipRef = useRef<Group>(null!);
@@ -40,7 +47,6 @@ const Spaceship: React.FC<SpaceshipProps> = ({
   const exhaustRef = useRef<any>(null);
   const leftThrusterRef = useRef<any>(null);
   const rightThrusterRef = useRef<any>(null);
-  const boostTrailRef = useRef<any>(null);
 
   /** === States === */
   const [isThrusting, setIsThrusting] = useState(false);
@@ -59,6 +65,9 @@ const Spaceship: React.FC<SpaceshipProps> = ({
   const keyPressTime = useRef<{ [key: string]: number }>({});
 
   useEffect(() => {
+    // Only add keyboard listeners if not mobile
+    if (isMobile) return;
+    
     const down = (e: KeyboardEvent) => {
       const key = e.key.toLowerCase();
       if (!keys.current[key]) {
@@ -79,7 +88,7 @@ const Spaceship: React.FC<SpaceshipProps> = ({
       window.removeEventListener("keydown", down);
       window.removeEventListener("keyup", up);
     };
-  }, []);
+  }, [isMobile]);
 
   /** === Main Physics Loop === */
   useFrame(({ camera, clock }) => {
@@ -102,36 +111,32 @@ const Spaceship: React.FC<SpaceshipProps> = ({
     let isUsingBoost = false;
 
     /** === Input Detection === */
-    let forward = keys.current["w"] || keys.current["arrowup"];
-    let backward = keys.current["s"] || keys.current["arrowdown"];
-    let left = keys.current["a"] || keys.current["arrowleft"];
-    let right = keys.current["d"] || keys.current["arrowright"];
-    const upPressed = keys.current[" "];
-    const downPressed = keys.current["shift"];
-    const boostPressed = keys.current["q"] || keys.current["e"];
+    let forward = false;
+    let backward = false;
+    let left = false;
+    let right = false;
+    let upPressed = false;
+    let downPressed = false;
+    let boostPressed = false;
 
-    // === Joystick override ===
-    let joyX = 0;
-    let joyY = 0;
-
-    if (isMobile && joystickDir) {
-      joyX = joystickDir.x;
-      joyY = joystickDir.y;
-    }
-
-    if (isMobile && (Math.abs(joyX) > 0.05 || Math.abs(joyY) > 0.05)) {
-      // override keyboard if joystick active
-      forward = false;
-      backward = false;
-      left = false;
-      right = false;
-
-      targetVelocity.x += joyX * speed * 1.2;
-      targetVelocity.z -= joyY * speed * 1.2;
-      isUsingThrust = true;
-
-      setTilt(MathUtils.lerp(tilt, -joyX * 0.6, 0.1));
-      setPitch(MathUtils.lerp(pitch, -joyY * 0.2, 0.1));
+    if (isMobile && mobileControls) {
+      // Use mobile controls
+      forward = mobileControls.forward;
+      backward = mobileControls.backward;
+      left = mobileControls.left;
+      right = mobileControls.right;
+      upPressed = mobileControls.up;
+      downPressed = mobileControls.down;
+      boostPressed = mobileControls.boost;
+    } else {
+      // Use keyboard controls
+      forward = keys.current["w"] || keys.current["arrowup"];
+      backward = keys.current["s"] || keys.current["arrowdown"];
+      left = keys.current["a"] || keys.current["arrowleft"];
+      right = keys.current["d"] || keys.current["arrowright"];
+      upPressed = keys.current[" "]; // space
+      downPressed = keys.current["shift"]; // shift
+      boostPressed = keys.current["q"] || keys.current["e"];
     }
 
     /** === Forward / Backward === */
