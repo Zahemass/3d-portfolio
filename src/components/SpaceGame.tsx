@@ -28,6 +28,9 @@ import Skills from "./Skills";
 import Contact from "./Contact";
 import Footer from "./Footer";
 
+// CSS styles
+import "../styles/spacegame.css";
+
 interface SpaceGameProps {
   darkMode: boolean;
   setDarkMode: React.Dispatch<React.SetStateAction<boolean>>;
@@ -70,6 +73,7 @@ const SpaceGame: React.FC<SpaceGameProps> = ({ darkMode, setDarkMode }) => {
   const [level, setLevel] = useState(1);
   const [firstTimeAbout, setFirstTimeAbout] = useState(true);
 
+  // Station Data
   const stations = [
     {
       id: "about",
@@ -105,6 +109,7 @@ const SpaceGame: React.FC<SpaceGameProps> = ({ darkMode, setDarkMode }) => {
     },
   ];
 
+  // Check proximity
   useEffect(() => {
     const checkProximity = () => {
       let closestStation = null;
@@ -124,6 +129,7 @@ const SpaceGame: React.FC<SpaceGameProps> = ({ darkMode, setDarkMode }) => {
     checkProximity();
   }, [hud.position]);
 
+  // XP & Levels
   const gainExperience = (amount: number) => {
     const newExp = experience + amount;
     const newLevel = Math.floor(newExp / 100) + 1;
@@ -131,28 +137,27 @@ const SpaceGame: React.FC<SpaceGameProps> = ({ darkMode, setDarkMode }) => {
     setLevel(newLevel);
   };
 
+  // Game Mode Toggle
   const toggleGameMode = () => {
     setGameMode(gameMode === "exploration" ? "professional" : "exploration");
     setPaused(gameMode === "exploration");
   };
 
   return (
-    <div style={{ position: "relative", width: "100%", height: "100vh", overflow: "hidden" }}>
+    <div className="spacegame-container">
       {/* 3D Scene */}
       <Canvas
         shadows
-        style={{
-          width: "100%",
-          height: "100%",
-          background: "radial-gradient(ellipse at center, #001122 0%, #000000 100%)",
-        }}
+        style={{ width: "100%", height: "100%" }}
         camera={{ fov: 60, near: 0.1, far: 2000 }}
       >
+        {/* Stars + Lights */}
         <Stars radius={300} depth={80} count={10000} factor={6} fade speed={0.5} />
         <ambientLight intensity={0.4} color="#001122" />
         <directionalLight intensity={2} position={[100, 100, -50]} color="#ffffff" castShadow />
         <pointLight position={[0, 0, 0]} intensity={1} color="#00ffff" distance={100} />
 
+        {/* Spaceship */}
         <Spaceship setHud={setHud} paused={paused} joystickDir={joystickDir} isMobile={isMobile} />
 
         {/* Stations */}
@@ -193,190 +198,87 @@ const SpaceGame: React.FC<SpaceGameProps> = ({ darkMode, setDarkMode }) => {
           }}
         />
 
+        {/* Controls only when paused */}
         {paused && <OrbitControls enablePan={false} enableZoom={true} />}
       </Canvas>
 
-      {/* HUD */}
+      {/* HUD Overlay */}
       <AnimatePresence>
-        {!paused && gameMode === "exploration" && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              right: 0,
-              padding: "20px",
-              background: "linear-gradient(to bottom, rgba(0,0,0,0.8), transparent)",
-              color: "white",
-              fontFamily: "'Space Mono', monospace",
-              zIndex: 100,
-            }}
-          >
-            {/* Top HUD Bar */}
-            <div style={{ display: "flex", justifyContent: "space-between" }}>
-              <div
-                style={{
-                  background: "rgba(0,255,255,0.1)",
-                  border: "1px solid #00ffff",
-                  borderRadius: "12px",
-                  padding: "12px 20px",
-                  display: "flex",
-                  gap: "20px",
-                  alignItems: "center",
-                }}
-              >
+        {!paused && gameMode === "exploration" && (!isMobile || (isMobile && !isPortrait)) && (
+          <motion.div className="hud-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <div className="hud-topbar">
+              {/* Status */}
+              <div className="hud-status">
                 <div>
-                  <div style={{ fontSize: "10px", opacity: 0.7 }}>VELOCITY</div>
-                  <div style={{ fontSize: "16px", color: "#00ffff", fontWeight: "bold" }}>
-                    {parseFloat(hud.speed) > 1 ? parseFloat(hud.speed).toFixed(1) : hud.speed} U/s
+                  <div className="hud-label">VELOCITY</div>
+                  <div className="hud-value">{hud.speed} U/s</div>
+                </div>
+                <div>
+                  <div className="hud-label">FUEL</div>
+                  <div className="hud-fuel-bar">
+                    <div style={{ width: `${hud.fuel}%` }} />
                   </div>
                 </div>
                 <div>
-                  <div style={{ fontSize: "10px", opacity: 0.7 }}>FUEL</div>
-                  <div
-                    style={{
-                      width: "60px",
-                      height: "8px",
-                      background: "#333",
-                      borderRadius: "4px",
-                      overflow: "hidden",
-                    }}
-                  >
-                    <div
-                      style={{
-                        width: `${hud.fuel || 100}%`,
-                        height: "100%",
-                        background: (hud.fuel || 100) > 30 ? "#00ff00" : "#ff4500",
-                        transition: "all 0.3s",
-                      }}
-                    />
-                  </div>
-                </div>
-                <div>
-                  <div style={{ fontSize: "10px", opacity: 0.7 }}>LEVEL</div>
-                  <div style={{ fontSize: "16px", color: "#ffd700", fontWeight: "bold" }}>{level}</div>
+                  <div className="hud-label">LEVEL</div>
+                  <div className="hud-value">{level}</div>
                 </div>
               </div>
 
-              <div style={{ textAlign: "center" }}>
-                <h1 style={{ fontSize: "24px", color: "#00ffff", textShadow: "0 0 10px #00ffff50" }}>
-                  🚀 SPACE PORTFOLIO EXPLORER
-                </h1>
+              {/* Title + Station Info */}
+              <div className="hud-center">
+                <h1 className="hud-center-title">🚀 SPACE PORTFOLIO EXPLORER</h1>
                 {nearbyStation && (
-                  <motion.div
-                    initial={{ scale: 0.8, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    style={{
-                      marginTop: "8px",
-                      padding: "6px 12px",
-                      background: "rgba(255,215,0,0.2)",
-                      border: "1px solid #ffd700",
-                      borderRadius: "20px",
-                      fontSize: "12px",
-                      color: "#ffd700",
-                    }}
-                  >
+                  <motion.div className="hud-nearby" initial={{ scale: 0.8 }} animate={{ scale: 1 }}>
                     📡 APPROACHING: {stations.find((s) => s.id === nearbyStation)?.name.toUpperCase()}
                   </motion.div>
                 )}
               </div>
 
-              <div style={{ display: "flex", gap: "10px" }}>
-                <button
-                  onClick={() => setScannerActive(!scannerActive)}
-                  style={{
-                    padding: "8px 12px",
-                    background: scannerActive ? "rgba(0,255,0,0.2)" : "rgba(0,0,0,0.3)",
-                    border: `1px solid ${scannerActive ? "#00ff00" : "#666"}`,
-                    borderRadius: "8px",
-                    color: scannerActive ? "#00ff00" : "#ccc",
-                    cursor: "pointer",
-                  }}
-                >
-                  📊 SCAN
-                </button>
-                <button
-                  onClick={toggleGameMode}
-                  style={{
-                    padding: "8px 12px",
-                    background: "rgba(255,107,107,0.2)",
-                    border: "1px solid #ff6b6b",
-                    borderRadius: "8px",
-                    color: "#ff6b6b",
-                    cursor: "pointer",
-                  }}
-                >
-                  💼 PROFESSIONAL
-                </button>
+              {/* Controls */}
+              <div className="hud-controls">
+                <button onClick={() => setScannerActive(!scannerActive)}>📊 SCAN</button>
+                <button onClick={toggleGameMode}>💼 PROFESSIONAL</button>
               </div>
             </div>
+
+            {/* Scanner Panel */}
+            {scannerActive && (
+              <motion.div className="hud-scanner" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                {stations.map((station) => {
+                  const distance = hud.position.distanceTo(station.position);
+                  return (
+                    <div key={station.id} className="scanner-item">
+                      <span style={{ color: station.color }}>
+                        {station.icon} {station.name}
+                      </span>
+                      <span>{distance.toFixed(1)}u</span>
+                    </div>
+                  );
+                })}
+              </motion.div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Control Instructions - Only Desktop */}
+      {/* Desktop Controls */}
       {!paused && gameMode === "exploration" && !isMobile && (
-        <motion.div
-          key="desktop-controls"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 20 }}
-          style={{
-            position: "absolute",
-            bottom: 20,
-            left: 20,
-            right: 20,
-            background: "rgba(0,0,0,0.8)",
-            border: "1px solid #00ffff30",
-            borderRadius: 12,
-            padding: 15,
-            color: "white",
-            fontSize: 12,
-            zIndex: 1000,
-          }}
-        >
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
-              gap: 15,
-            }}
-          >
-            <div>
-              <strong>🎮 NAVIGATION:</strong>
-            </div>
-            <div>W/↑ - Forward Thrust</div>
-            <div>A/← D/→ - Strafe Left/Right</div>
-            <div>S/↓ - Reverse</div>
-            <div>SPACE - Ascend</div>
-            <div>SHIFT - Descend</div>
-            <div>
-              <strong>🎯 INTERACTION:</strong>
-            </div>
-            <div>Approach stations to dock</div>
-          </div>
+        <motion.div className="desktop-controls" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+          <div><strong>🎮 NAVIGATION:</strong></div>
+          <div>W/↑ - Forward Thrust</div>
+          <div>A/← D/→ - Strafe Left/Right</div>
+          <div>S/↓ - Reverse</div>
+          <div>SPACE - Ascend</div>
+          <div>SHIFT - Descend</div>
+          <div><strong>🎯 INTERACTION:</strong></div>
+          <div>Approach stations to dock</div>
         </motion.div>
       )}
 
       {/* Professional Mode */}
       {gameMode === "professional" && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          style={{
-            position: "absolute",
-            inset: 0,
-            background: darkMode
-              ? "linear-gradient(135deg, #172435ff, #302b63, #24243e)"
-              : "#fff",
-            color: darkMode ? "white" : "black",
-            overflowY: "auto",
-            zIndex: 2000,
-          }}
-        >
+        <motion.div className="professional-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
           <Header
             darkMode={darkMode}
             toggleDarkMode={() => setDarkMode(!darkMode)}
@@ -394,82 +296,33 @@ const SpaceGame: React.FC<SpaceGameProps> = ({ darkMode, setDarkMode }) => {
 
       {/* Overlays */}
       <AnimatePresence mode="wait">
-        {showSkills && (
-          <SkillsOverlay
-            onClose={() => {
-              setShowSkills(false);
-              setPaused(false);
-            }}
-          />
-        )}
-        {showAbout && (
-          <AboutOverlay
-            onClose={() => {
-              setShowAbout(false);
-              setPaused(false);
-              setFirstTimeAbout(false);
-            }}
-            firstTime={firstTimeAbout}
-            setFirstTime={setFirstTimeAbout}
-          />
-        )}
-        {showProjects && (
-          <ProjectsOverlay
-            onClose={() => {
-              setShowProjects(false);
-              setPaused(false);
-            }}
-          />
-        )}
-        {showContact && (
-          <ContactOverlay
-            onClose={() => {
-              setShowContact(false);
-              setPaused(false);
-            }}
-          />
-        )}
+        {showSkills && <SkillsOverlay onClose={() => { setShowSkills(false); setPaused(false); }} />}
+        {showAbout && <AboutOverlay onClose={() => { setShowAbout(false); setPaused(false); setFirstTimeAbout(false); }} firstTime={firstTimeAbout} setFirstTime={setFirstTimeAbout} />}
+        {showProjects && <ProjectsOverlay onClose={() => { setShowProjects(false); setPaused(false); }} />}
+        {showContact && <ContactOverlay onClose={() => { setShowContact(false); setPaused(false); }} />}
       </AnimatePresence>
 
-      {/* 🎮 Joystick - Only Mobile Landscape */}
-      {!paused && gameMode === "exploration" && isMobile && !isPortrait && (
-        <div
-          style={{
-            position: "fixed",
-            bottom: "5vh",
-            left: "5vw",
-            zIndex: 99999,
-          }}
-        >
-          <Joystick
-            size={100}
-            baseColor="rgba(0,255,255,0.15)"
-            stickColor="#00ffff"
-            move={(e) => setJoystickDir({ x: e.x || 0, y: e.y || 0 })}
-            stop={() => setJoystickDir({ x: 0, y: 0 })}
-          />
-        </div>
-      )}
+      {/* 🎮 Joystick - Show whenever device is in landscape */}
+{!paused && gameMode === "exploration" && !isPortrait && (
+  <div className="mobile-joystick">
+    <Joystick
+      size={100}
+      baseColor="rgba(0,255,255,0.15)"
+      stickColor="#00ffff"
+      move={(e) => setJoystickDir({ x: e.x || 0, y: e.y || 0 })}
+      stop={() => setJoystickDir({ x: 0, y: 0 })}
+    />
+  </div>
+)}
+
 
       {/* 🔄 Orientation Overlay */}
-      {isMobile && isPortrait && (
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            background: "black",
-            color: "white",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontSize: "20px",
-            zIndex: 9999,
-            textAlign: "center",
-          }}
-        >
-          🔄 Please rotate your device to landscape
-        </div>
-      )}
+{isPortrait && (
+  <div className="orientation-overlay">
+    🔄 Please rotate your device to landscape
+  </div>
+)}
+
     </div>
   );
 };
