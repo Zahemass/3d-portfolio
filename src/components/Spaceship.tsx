@@ -1,3 +1,4 @@
+// filename: src/components/Spaceship.tsx
 import React, { useRef, useEffect, useState } from "react";
 import { useFrame } from "@react-three/fiber";
 import { useGLTF } from "@react-three/drei";
@@ -9,28 +10,20 @@ import { Group, Vector3, Color, MathUtils } from "three";
 interface SpaceshipProps {
   setHud: (hud: any) => void;
   paused: boolean;
+  joystickDir?: { x: number; y: number };
   isMobile?: boolean;
-  mobileControls?: {
-    forward: boolean;
-    backward: boolean;
-    left: boolean;
-    right: boolean;
-    up: boolean;
-    down: boolean;
-    boost: boolean;
-  };
 }
 
 /**
  * Spaceship component
  * - Handles physics, movement, effects, and HUD updates
- * - Accepts both keyboard input and mobile arrow controls
+ * - Accepts both keyboard input and mobile joystick input
  */
 const Spaceship: React.FC<SpaceshipProps> = ({
   setHud,
   paused,
+  joystickDir,
   isMobile,
-  mobileControls,
 }) => {
   /** === Refs === */
   const shipRef = useRef<Group>(null!);
@@ -65,9 +58,6 @@ const Spaceship: React.FC<SpaceshipProps> = ({
   const keyPressTime = useRef<{ [key: string]: number }>({});
 
   useEffect(() => {
-    // Only add keyboard listeners if not mobile
-    if (isMobile) return;
-    
     const down = (e: KeyboardEvent) => {
       const key = e.key.toLowerCase();
       if (!keys.current[key]) {
@@ -88,7 +78,14 @@ const Spaceship: React.FC<SpaceshipProps> = ({
       window.removeEventListener("keydown", down);
       window.removeEventListener("keyup", up);
     };
-  }, [isMobile]);
+  }, []);
+
+  /** === Debug joystick === */
+  useEffect(() => {
+    if (isMobile) {
+    console.log("📡 JoystickDir in Spaceship:", joystickDir);
+  }
+  }, [joystickDir, isMobile]);
 
   /** === Main Physics Loop === */
   useFrame(({ camera, clock }) => {
@@ -110,34 +107,48 @@ const Spaceship: React.FC<SpaceshipProps> = ({
     let isUsingThrust = false;
     let isUsingBoost = false;
 
-    /** === Input Detection === */
-    let forward = false;
-    let backward = false;
-    let left = false;
-    let right = false;
-    let upPressed = false;
-    let downPressed = false;
-    let boostPressed = false;
+    /** === Input Detection (keyboard defaults) === */
+    let forward = keys.current["w"] || keys.current["arrowup"];
+    let backward = keys.current["s"] || keys.current["arrowdown"];
+    let left = keys.current["a"] || keys.current["arrowleft"];
+    let right = keys.current["d"] || keys.current["arrowright"];
+    const upPressed = keys.current[" "]; // space
+    const downPressed = keys.current["shift"]; // shift
+    const boostPressed = keys.current["q"] || keys.current["e"];
 
-    if (isMobile && mobileControls) {
-      // Use mobile controls
-      forward = mobileControls.forward;
-      backward = mobileControls.backward;
-      left = mobileControls.left;
-      right = mobileControls.right;
-      upPressed = mobileControls.up;
-      downPressed = mobileControls.down;
-      boostPressed = mobileControls.boost;
-    } else {
-      // Use keyboard controls
-      forward = keys.current["w"] || keys.current["arrowup"];
-      backward = keys.current["s"] || keys.current["arrowdown"];
-      left = keys.current["a"] || keys.current["arrowleft"];
-      right = keys.current["d"] || keys.current["arrowright"];
-      upPressed = keys.current[" "]; // space
-      downPressed = keys.current["shift"]; // shift
-      boostPressed = keys.current["q"] || keys.current["e"];
-    }
+    /** === Joystick override === */
+    /** === Joystick override === */
+/** === Joystick override === */
+/** === Joystick override === */
+let joyX = 0;
+let joyY = 0;
+
+if (isMobile && joystickDir) {
+  joyX = joystickDir.x;
+  joyY = joystickDir.y;
+}
+
+if (isMobile && (Math.abs(joyX) > 0.01 || Math.abs(joyY) > 0.01)) {
+  // Disable keyboard if joystick is active
+  forward = backward = left = right = false;
+
+  // 🚀 Stronger multiplier so it survives physics damping
+  targetVelocity.set(
+    joyX * speed * 25.0,   // left/right
+    0,
+    -joyY * speed * 25.0   // forward/back
+  );
+
+  isUsingThrust = true;
+
+  setTilt(MathUtils.lerp(tilt, -joyX * 1.2, 0.1));
+  setPitch(MathUtils.lerp(pitch, -joyY * 1.0, 0.1));
+
+  console.log("🛰️ Applied joystick thrust:", targetVelocity.toArray());
+}
+
+
+
 
     /** === Forward / Backward === */
     if (forward) {
@@ -182,7 +193,7 @@ const Spaceship: React.FC<SpaceshipProps> = ({
       targetVelocity.y -= speed * 0.8;
       setPitch(MathUtils.lerp(pitch, 0.2, 0.05));
       isUsingThrust = true;
-    } else {
+    } else if (!isMobile) {
       setPitch(MathUtils.lerp(pitch, 0, 0.05));
     }
 
