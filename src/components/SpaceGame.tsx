@@ -364,8 +364,11 @@ const [cameraControl, setCameraControl] = useState({
 
               {/* Controls */}
               <div className="hud-controls">
-                <button onClick={() => setScannerActive(!scannerActive)}>📊 SCAN</button>
-                <button onClick={toggleGameMode}>💼 PROFESSIONAL</button>
+                <button onClick={() => setScannerActive(!scannerActive)} style={{ zIndex: 1000 }}>📊 SCAN</button>
+                <button onClick={toggleGameMode} style={{ zIndex: 9999 }}>
+  💼 PROFESSIONAL
+</button>
+
               </div>
             </div>
 
@@ -444,9 +447,6 @@ const [cameraControl, setCameraControl] = useState({
       background: 'rgba(0,0,0,0.8)',
       padding: '5px'
     }}>
-      Mobile: {isMobileDevice ? 'YES' : 'NO'} | 
-      Landscape: {isLandscape ? 'YES' : 'NO'} | 
-      Size: {window.innerWidth}x{window.innerHeight}
     </div>
 
     {/* Left side: Joystick */}
@@ -587,20 +587,25 @@ const [cameraControl, setCameraControl] = useState({
 )}
 
 {/* Camera Control Overlay - PUBG Style */}
+{/* Camera Control Overlay */}
 {!paused && gameMode === "exploration" && isMobileDevice && isLandscape && (
   <div 
     style={{
       position: 'fixed',
-      top: '0',
-      left: '0',
-      right: '0',
-      bottom: '160px', // leave space for mobile buttons
-      zIndex: '99998',
-      pointerEvents: 'auto',
-      background: 'transparent'
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: '160px',
+      zIndex: 1, // put under HUD
+      background: 'transparent',
+      touchAction: 'none', // ✅ disable native scrolling
+      pointerEvents: 'auto', // needed for touchmove
     }}
     onTouchStart={(e) => {
-      e.preventDefault();
+      // only activate if NOT touching inside HUD
+      const target = e.target as HTMLElement;
+      if (target.closest('.hud-controls')) return; // ✅ don't steal HUD touches
+
       if (e.touches.length === 1) {
         const touch = e.touches[0];
         setCameraControl(prev => ({
@@ -611,7 +616,6 @@ const [cameraControl, setCameraControl] = useState({
       }
     }}
     onTouchMove={(e) => {
-      e.preventDefault();
       if (cameraControl.isDragging && e.touches.length === 1) {
         const touch = e.touches[0];
         const deltaX = touch.clientX - cameraControl.lastTouch.x;
@@ -627,8 +631,7 @@ const [cameraControl, setCameraControl] = useState({
         }));
       }
     }}
-    onTouchEnd={(e) => {
-      e.preventDefault();
+    onTouchEnd={() => {
       setCameraControl(prev => ({
         ...prev,
         isDragging: false
@@ -636,6 +639,7 @@ const [cameraControl, setCameraControl] = useState({
     }}
   />
 )}
+
 
 
 {/* Orientation Overlay - Show on mobile portrait */}
