@@ -13,6 +13,15 @@ interface SpaceshipProps {
   isMobile?: boolean;
   mobileVertical?: 'up' | 'down' | null;
   mobileBoost?: boolean;
+  cameraControl?: {
+    isDragging: boolean;
+    lastTouch: { x: number; y: number };
+    rotation: { horizontal: number; vertical: number };
+    sensitivity: number;
+    distance?: number;
+    minDistance?: number;
+    maxDistance?: number;
+  };
 }
 
 /**
@@ -27,6 +36,7 @@ const Spaceship: React.FC<SpaceshipProps> = ({
   isMobile,
   mobileVertical,
   mobileBoost,
+  cameraControl 
 }) => {
   /** === Refs === */
   const shipRef = useRef<Group>(null!);
@@ -243,12 +253,44 @@ const Spaceship: React.FC<SpaceshipProps> = ({
       shipRef.current.rotation.y += Math.sin(time * 1.5) * 0.005;
     }
 
-    const baseDistance = 12;
-    const baseHeight = 4;
-    const cameraOffset = new Vector3(0, baseHeight, baseDistance);
-    const targetCamPos = shipRef.current.position.clone().add(cameraOffset);
-    camera.position.lerp(targetCamPos, 0.03);
-    camera.lookAt(shipRef.current.position);
+    /** === Enhanced PUBG-Style Camera System === */
+const baseHeight = 4;
+let cameraDistance = 12;
+let cameraAngleH = 0;
+let cameraAngleV = 0;
+
+if (cameraControl) {
+  cameraAngleH = cameraControl.rotation.horizontal;
+  cameraAngleV = cameraControl.rotation.vertical;
+  cameraDistance = cameraControl.distance ?? 12;
+}
+
+const velocityInfluence = velocity.current.length() * 0.5;
+const dynamicDistance = cameraDistance + velocityInfluence;
+
+const cameraOffset = new Vector3(
+  Math.sin(cameraAngleH) * dynamicDistance,
+  baseHeight + Math.sin(cameraAngleV) * 8,
+  Math.cos(cameraAngleH) * dynamicDistance
+);
+
+const targetCamPos = shipRef.current.position.clone().add(cameraOffset);
+camera.position.lerp(targetCamPos, 0.06);
+
+const lookTarget = shipRef.current.position.clone();
+lookTarget.y += Math.sin(cameraAngleV) * 3;
+lookTarget.x += Math.sin(cameraAngleH) * 2;
+camera.lookAt(lookTarget);
+
+if (cameraControl && Math.abs(cameraAngleH) > 0.1) {
+  const shipTargetRotY = cameraAngleH * 0.2;
+  shipRef.current.rotation.y = MathUtils.lerp(
+    shipRef.current.rotation.y,
+    shipTargetRotY,
+    0.03
+  );
+}
+
 
     /** === HUD Update === */
     setIsThrusting(isUsingThrust);

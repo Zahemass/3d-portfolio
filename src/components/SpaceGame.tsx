@@ -134,6 +134,16 @@ useEffect(() => {
   const [mobileVertical, setMobileVertical] = useState<'up' | 'down' | null>(null);
   const [mobileBoost, setMobileBoost] = useState(false);
 
+  // ⬇️ Add here
+const [cameraControl, setCameraControl] = useState({
+  isDragging: false,
+  lastTouch: { x: 0, y: 0 },
+  rotation: { horizontal: 0, vertical: 0 },
+  sensitivity: 0.005,
+  distance: 12, // For zoom support (snippet 3)
+  minDistance: 6,
+  maxDistance: 25
+});
   const [hud, setHud] = useState<any>({
     speed: "0.00",
     position: new Vector3(),
@@ -274,6 +284,7 @@ useEffect(() => {
           isMobile={isMobileDevice}
           mobileVertical={mobileVertical}
           mobileBoost={mobileBoost}
+          cameraControl={cameraControl} 
         />
 
         {/* Stations */}
