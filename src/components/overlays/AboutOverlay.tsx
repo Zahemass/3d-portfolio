@@ -6,6 +6,9 @@ import { OrbitControls, useGLTF, Stars, Text, Html } from "@react-three/drei";
 import { motion, AnimatePresence } from "framer-motion";
 import * as THREE from "three";
 
+import "../../styles/aboutOverlay.css";
+
+
 interface AboutOverlayProps {
   onClose: () => void;
   firstTime: boolean;

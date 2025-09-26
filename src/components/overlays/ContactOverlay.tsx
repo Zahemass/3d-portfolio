@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Github, Linkedin, Mail, FileDown, Phone, MapPin, Calendar, Send, ExternalLink } from "lucide-react";
+import "../../styles/ContactOverlay.css"; // Import the CSS file
 
 interface ContactOverlayProps {
   onClose: () => void;
@@ -108,76 +109,33 @@ const ContactOverlay: React.FC<ContactOverlayProps> = ({ onClose }) => {
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.9 }}
       transition={{ duration: 0.5 }}
-      style={{
-        position: "fixed",
-        inset: 0,
-        background: "linear-gradient(135deg, rgba(40,20,0,0.95), rgba(0,0,0,0.95))",
-        color: "white",
-        fontFamily: "'Space Mono', monospace",
-        zIndex: 2000,
-        overflow: "hidden"
-      }}
+      className="contact-overlay"
     >
       {/* Animated Background */}
-      <div style={{
-        position: "absolute",
-        inset: 0,
-        opacity: 0.1,
-        backgroundImage: `radial-gradient(circle at 20% 80%, #ffd700 0%, transparent 50%),
-                         radial-gradient(circle at 80% 20%, #ff6b6b 0%, transparent 50%),
-                         radial-gradient(circle at 40% 40%, #4ecdc4 0%, transparent 50%)`
-      }} />
+      <div className="contact-background" />
 
       {/* Header */}
       <motion.div
         initial={{ y: -50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.2 }}
-        style={{
-          padding: "30px 50px",
-          background: "linear-gradient(to bottom, rgba(0,0,0,0.8), transparent)",
-          borderBottom: "1px solid rgba(255,215,0,0.3)"
-        }}
+        className="contact-header"
       >
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div className="contact-header-content">
           <div>
-            <h1 style={{ 
-              fontSize: "2.5rem", 
-              margin: 0, 
-              background: "linear-gradient(45deg, #ffd700, #ff6b6b)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              textShadow: "0 0 30px #ffd70050"
-            }}>
-              📡 COMMUNICATION ARRAY
-            </h1>
-            <p style={{ margin: "10px 0 0 0", opacity: 0.8, fontSize: "1.1rem" }}>
+            <h1 className="contact-title">📡 COMMUNICATION ARRAY</h1>
+            <p className="contact-subtitle">
               Establish Contact Protocols • Chennai, India 🇮🇳
             </p>
           </div>
           
-          <div style={{ display: "flex", gap: "20px", alignItems: "center" }}>
-            <div style={{ textAlign: "center" }}>
-              <div style={{ fontSize: "1.2rem", color: "#00ff88", fontWeight: "bold" }}>
-                ONLINE
-              </div>
-              <div style={{ fontSize: "0.8rem", opacity: 0.7 }}>Status</div>
+          <div className="contact-status">
+            <div className="status-indicator">
+              <div className="status-value">ONLINE</div>
+              <div className="status-label">Status</div>
             </div>
             
-            <button
-              onClick={onClose}
-              style={{
-                padding: "12px 24px",
-                background: "linear-gradient(45deg, #ff4757, #ff3838)",
-                border: "none",
-                borderRadius: "8px",
-                color: "white",
-                fontWeight: "bold",
-                cursor: "pointer",
-                fontSize: "14px",
-                boxShadow: "0 0 20px rgba(255,71,87,0.5)"
-              }}
-            >
+            <button onClick={onClose} className="contact-close-btn">
               ✖ CLOSE ARRAY
             </button>
           </div>
@@ -185,31 +143,15 @@ const ContactOverlay: React.FC<ContactOverlayProps> = ({ onClose }) => {
       </motion.div>
 
       {/* Main Content */}
-      <div style={{ 
-        display: "flex", 
-        height: "calc(100vh - 140px)",
-        padding: "20px 50px"
-      }}>
+      <div className="contact-content">
         {/* Contact Methods */}
-        <div style={{ 
-          width: "50%", 
-          paddingRight: "30px",
-          borderRight: "1px solid rgba(255,215,0,0.3)"
-        }}>
-          <h3 style={{ 
-            color: "#ffd700", 
-            marginBottom: "30px",
-            fontSize: "1.3rem",
-            display: "flex",
-            alignItems: "center",
-            gap: "10px"
-          }}>
-            🎯 PRIMARY CHANNELS
-          </h3>
+        <div className="contact-methods-panel">
+          <h3 className="contact-methods-title">🎯 PRIMARY CHANNELS</h3>
           
-          <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+          <div className="contact-methods-list">
             {contactMethods.map((method, index) => {
               const IconComponent = method.icon;
+              const isActive = activeMethod === method.id;
               return (
                 <motion.div
                   key={method.id}
@@ -220,78 +162,51 @@ const ContactOverlay: React.FC<ContactOverlayProps> = ({ onClose }) => {
                   onHoverStart={() => setActiveMethod(method.id)}
                   onHoverEnd={() => setActiveMethod(null)}
                   onClick={() => window.open(method.action, '_blank')}
+                  className={`contact-method ${isActive ? 'active' : ''}`}
                   style={{
-                    padding: "25px",
-                    background: activeMethod === method.id 
+                    background: isActive 
                       ? `linear-gradient(135deg, ${method.color}20, rgba(0,0,0,0.8))`
-                      : "rgba(255,215,0,0.05)",
-                    border: `1px solid ${activeMethod === method.id ? method.color : "rgba(255,215,0,0.2)"}`,
-                    borderRadius: "12px",
-                    cursor: "pointer",
-                    transition: "all 0.3s ease",
-                    transform: activeMethod === method.id ? "translateY(-2px)" : "translateY(0)",
-                    boxShadow: activeMethod === method.id 
+                      : undefined,
+                    borderColor: isActive ? method.color : undefined,
+                    boxShadow: isActive 
                       ? `0 10px 30px ${method.color}30` 
                       : "0 4px 15px rgba(0,0,0,0.2)"
                   }}
                 >
-                  <div style={{ 
-                    display: "flex", 
-                    alignItems: "center", 
-                    justifyContent: "space-between",
-                    marginBottom: "12px"
-                  }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                  <div className="method-header">
+                    <div className="method-info">
                       <IconComponent 
                         size={24} 
                         color={method.color}
                         style={{ filter: `drop-shadow(0 0 10px ${method.color}50)` }}
                       />
-                      <span style={{ fontSize: "1.2rem", fontWeight: "bold", color: method.color }}>
+                      <span className="method-title" style={{ color: method.color }}>
                         {method.title}
                       </span>
                     </div>
                     
-                    <span style={{
-                      fontSize: "0.8rem",
-                      background: `${method.color}20`,
-                      color: method.color,
-                      padding: "4px 8px",
-                      borderRadius: "10px",
-                      border: `1px solid ${method.color}40`
-                    }}>
+                    <span 
+                      className="method-availability"
+                      style={{
+                        background: `${method.color}20`,
+                        color: method.color,
+                        border: `1px solid ${method.color}40`
+                      }}
+                    >
                       {method.available}
                     </span>
                   </div>
 
-                  <div style={{ 
-                    fontSize: "1rem", 
-                    marginBottom: "8px",
-                    fontFamily: "monospace",
-                    color: "#fff"
-                  }}>
-                    {method.value}
-                  </div>
+                  <div className="method-value">{method.value}</div>
 
-                  <div style={{ 
-                    fontSize: "0.9rem", 
-                    opacity: 0.7,
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center"
-                  }}>
+                  <div className="method-footer">
                     <span>{method.description}</span>
-                    {activeMethod === method.id && (
+                    {isActive && (
                       <motion.div
                         initial={{ opacity: 0, scale: 0.8 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        style={{ 
-                          display: "flex", 
-                          alignItems: "center", 
-                          gap: "5px",
-                          color: method.color,
-                          fontWeight: "bold"
-                        }}
+                        className="method-action"
+                        style={{ color: method.color }}
                       >
                         Click to connect <ExternalLink size={14} />
                       </motion.div>
@@ -301,12 +216,10 @@ const ContactOverlay: React.FC<ContactOverlayProps> = ({ onClose }) => {
               );
             })}
           </div>
-
-          
         </div>
 
         {/* Right Panel - Social & Form */}
-        <div style={{ flex: 1, paddingLeft: "30px", overflowY: "auto" }}>
+        <div className="contact-right-panel">
           <AnimatePresence mode="wait">
             {showForm ? (
               <motion.div
@@ -316,22 +229,9 @@ const ContactOverlay: React.FC<ContactOverlayProps> = ({ onClose }) => {
                 exit={{ opacity: 0, x: -50 }}
                 transition={{ duration: 0.4 }}
               >
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "30px" }}>
-                  <h3 style={{ color: "#4ecdc4", fontSize: "1.3rem", margin: 0 }}>
-                    📨 SEND MESSAGE
-                  </h3>
-                  <button
-                    onClick={() => setShowForm(false)}
-                    style={{
-                      background: "transparent",
-                      border: "1px solid #666",
-                      color: "#666",
-                      padding: "8px 12px",
-                      borderRadius: "6px",
-                      cursor: "pointer",
-                      fontSize: "12px"
-                    }}
-                  >
+                <div className="form-header">
+                  <h3 className="form-title">📨 SEND MESSAGE</h3>
+                  <button onClick={() => setShowForm(false)} className="form-cancel-btn">
                     Cancel
                   </button>
                 </div>
@@ -340,31 +240,23 @@ const ContactOverlay: React.FC<ContactOverlayProps> = ({ onClose }) => {
                   <motion.div
                     initial={{ scale: 0.8, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
-                    style={{
-                      textAlign: "center",
-                      padding: "60px 20px",
-                      background: "rgba(0,255,136,0.1)",
-                      border: "1px solid #00ff88",
-                      borderRadius: "12px"
-                    }}
+                    className="message-sent"
                   >
                     <motion.div
                       animate={{ rotate: 360 }}
                       transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                      style={{ fontSize: "4rem", marginBottom: "20px" }}
+                      className="message-sent-icon"
                     >
                       🚀
                     </motion.div>
-                    <h3 style={{ color: "#00ff88", marginBottom: "10px" }}>
-                      MESSAGE TRANSMITTED!
-                    </h3>
-                    <p style={{ opacity: 0.8 }}>
+                    <h3 className="message-sent-title">MESSAGE TRANSMITTED!</h3>
+                    <p className="message-sent-text">
                       Your message has been sent successfully. I'll get back to you soon!
                     </p>
                   </motion.div>
                 ) : (
-                  <form onSubmit={handleFormSubmit} style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-                    <div style={{ display: "flex", gap: "15px" }}>
+                  <form onSubmit={handleFormSubmit} className="contact-form">
+                    <div className="form-row">
                       <input
                         type="text"
                         name="name"
@@ -372,16 +264,7 @@ const ContactOverlay: React.FC<ContactOverlayProps> = ({ onClose }) => {
                         value={formData.name}
                         onChange={handleInputChange}
                         required
-                        style={{
-                          flex: 1,
-                          padding: "12px 16px",
-                          background: "rgba(0,0,0,0.4)",
-                          border: "1px solid #333",
-                          borderRadius: "8px",
-                          color: "white",
-                          fontSize: "14px",
-                          outline: "none"
-                        }}
+                        className="form-input half"
                       />
                       <input
                         type="email"
@@ -390,16 +273,7 @@ const ContactOverlay: React.FC<ContactOverlayProps> = ({ onClose }) => {
                         value={formData.email}
                         onChange={handleInputChange}
                         required
-                        style={{
-                          flex: 1,
-                          padding: "12px 16px",
-                          background: "rgba(0,0,0,0.4)",
-                          border: "1px solid #333",
-                          borderRadius: "8px",
-                          color: "white",
-                          fontSize: "14px",
-                          outline: "none"
-                        }}
+                        className="form-input half"
                       />
                     </div>
                     
@@ -410,15 +284,7 @@ const ContactOverlay: React.FC<ContactOverlayProps> = ({ onClose }) => {
                       value={formData.subject}
                       onChange={handleInputChange}
                       required
-                      style={{
-                        padding: "12px 16px",
-                        background: "rgba(0,0,0,0.4)",
-                        border: "1px solid #333",
-                        borderRadius: "8px",
-                        color: "white",
-                        fontSize: "14px",
-                        outline: "none"
-                      }}
+                      className="form-input full"
                     />
                     
                     <textarea
@@ -428,38 +294,14 @@ const ContactOverlay: React.FC<ContactOverlayProps> = ({ onClose }) => {
                       value={formData.message}
                       onChange={handleInputChange}
                       required
-                      style={{
-                        padding: "12px 16px",
-                        background: "rgba(0,0,0,0.4)",
-                        border: "1px solid #333",
-                        borderRadius: "8px",
-                        color: "white",
-                        fontSize: "14px",
-                        outline: "none",
-                        resize: "vertical",
-                        minHeight: "120px"
-                      }}
+                      className="form-textarea"
                     />
                     
                     <motion.button
                       type="submit"
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
-                      style={{
-                        padding: "15px 30px",
-                        background: "linear-gradient(45deg, #4ecdc4, #44a08d)",
-                        border: "none",
-                        borderRadius: "8px",
-                        color: "white",
-                        fontWeight: "bold",
-                        cursor: "pointer",
-                        fontSize: "16px",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        gap: "10px",
-                        boxShadow: "0 0 30px rgba(78,205,196,0.4)"
-                      }}
+                      className="form-submit-btn"
                     >
                       <Send size={18} /> Send Message
                     </motion.button>
@@ -474,11 +316,9 @@ const ContactOverlay: React.FC<ContactOverlayProps> = ({ onClose }) => {
                 exit={{ opacity: 0, x: -50 }}
                 transition={{ duration: 0.4 }}
               >
-                <h3 style={{ color: "#ff6b6b", marginBottom: "30px", fontSize: "1.3rem" }}>
-                  🌐 SOCIAL CHANNELS
-                </h3>
+                <h3 className="social-title">🌐 SOCIAL CHANNELS</h3>
                 
-                <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+                <div className="social-list">
                   {socialLinks.map((social, index) => (
                     <motion.a
                       key={social.name}
@@ -489,25 +329,18 @@ const ContactOverlay: React.FC<ContactOverlayProps> = ({ onClose }) => {
                       animate={{ x: 0, opacity: 1 }}
                       transition={{ delay: index * 0.1 }}
                       whileHover={{ scale: 1.02, x: 5 }}
+                      className="social-link"
                       style={{
-                        padding: "20px",
                         background: `${social.color}10`,
-                        border: `1px solid ${social.color}40`,
-                        borderRadius: "12px",
-                        textDecoration: "none",
-                        color: "white",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "15px",
-                        transition: "all 0.3s ease"
+                        border: `1px solid ${social.color}40`
                       }}
                     >
-                      <span style={{ fontSize: "2rem" }}>{social.icon}</span>
-                      <div>
-                        <div style={{ fontSize: "1.1rem", fontWeight: "bold", color: social.color }}>
+                      <span className="social-icon">{social.icon}</span>
+                      <div className="social-info">
+                        <div className="social-name" style={{ color: social.color }}>
                           {social.name}
                         </div>
-                        <div style={{ fontSize: "0.9rem", opacity: 0.8, marginTop: "4px" }}>
+                        <div className="social-description">
                           {social.description}
                         </div>
                       </div>
@@ -516,25 +349,44 @@ const ContactOverlay: React.FC<ContactOverlayProps> = ({ onClose }) => {
                   ))}
                 </div>
 
-                <div style={{ 
-                  marginTop: "40px",
-                  padding: "25px",
-                  background: "rgba(255,255,255,0.02)",
-                  border: "1px solid rgba(255,255,255,0.1)",
-                  borderRadius: "12px"
-                }}>
-                  <h4 style={{ color: "#ffd700", marginBottom: "15px", fontSize: "1.1rem" }}>
-                    🏢 BASED IN CHENNAI, INDIA
-                  </h4>
-                  <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "10px" }}>
+                <div className="location-info">
+                  <h4 className="location-title">🏢 BASED IN CHENNAI, INDIA</h4>
+                  <div className="location-item">
                     <MapPin size={16} color="#ffd700" />
-                    <span style={{ opacity: 0.8 }}>Available for remote work worldwide</span>
+                    <span>Available for remote work worldwide</span>
                   </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                  <div className="location-item">
                     <Calendar size={16} color="#ffd700" />
-                    <span style={{ opacity: 0.8 }}>Open to collaborations and opportunities</span>
+                    <span>Open to collaborations and opportunities</span>
                   </div>
                 </div>
+
+                {!showForm && (
+                  <motion.button
+                    onClick={() => setShowForm(true)}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    style={{
+                      marginTop: "30px",
+                      padding: "15px 30px",
+                      background: "linear-gradient(45deg, #4ecdc4, #44a08d)",
+                      border: "none",
+                      borderRadius: "8px",
+                      color: "white",
+                      fontWeight: "bold",
+                      cursor: "pointer",
+                      fontSize: "16px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: "10px",
+                      boxShadow: "0 0 30px rgba(78,205,196,0.4)",
+                      width: "100%"
+                    }}
+                  >
+                    <Send size={18} /> Send Direct Message
+                  </motion.button>
+                )}
               </motion.div>
             )}
           </AnimatePresence>
@@ -542,21 +394,13 @@ const ContactOverlay: React.FC<ContactOverlayProps> = ({ onClose }) => {
       </div>
 
       {/* Floating Elements */}
-      <div style={{
-        position: "absolute",
-        inset: 0,
-        pointerEvents: "none",
-        overflow: "hidden"
-      }}>
+      <div className="floating-elements">
         {[...Array(15)].map((_, i) => (
           <motion.div
             key={i}
+            className="floating-dot"
             style={{
-              position: "absolute",
-              width: "3px",
-              height: "3px",
               background: i % 3 === 0 ? "#ffd700" : i % 3 === 1 ? "#ff6b6b" : "#4ecdc4",
-              borderRadius: "50%",
               left: `${Math.random() * 100}%`,
               top: `${Math.random() * 100}%`,
             }}

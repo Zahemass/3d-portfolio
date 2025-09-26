@@ -1,0 +1,590 @@
+/* ContactOverlay.css */
+.contact-overlay {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(40,20,0,0.95), rgba(0,0,0,0.95));
+  color: white;
+  font-family: 'Space Mono', monospace;
+  z-index: 2000;
+  overflow: hidden;
+}
+
+.contact-background {
+  position: absolute;
+  inset: 0;
+  opacity: 0.1;
+  background-image: radial-gradient(circle at 20% 80%, #ffd700 0%, transparent 50%), 
+                    radial-gradient(circle at 80% 20%, #ff6b6b 0%, transparent 50%), 
+                    radial-gradient(circle at 40% 40%, #4ecdc4 0%, transparent 50%);
+}
+
+.contact-header {
+  padding: 30px 50px;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
+  border-bottom: 1px solid rgba(255,215,0,0.3);
+}
+
+.contact-header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.contact-title {
+  font-size: 2.5rem;
+  margin: 0;
+  background: linear-gradient(45deg, #ffd700, #ff6b6b);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 30px #ffd70050;
+}
+
+.contact-subtitle {
+  margin: 10px 0 0 0;
+  opacity: 0.8;
+  font-size: 1.1rem;
+}
+
+.contact-status {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.status-indicator {
+  text-align: center;
+}
+
+.status-value {
+  font-size: 1.2rem;
+  color: #00ff88;
+  font-weight: bold;
+}
+
+.status-label {
+  font-size: 0.8rem;
+  opacity: 0.7;
+}
+
+.contact-close-btn {
+  padding: 12px 24px;
+  background: linear-gradient(45deg, #ff4757, #ff3838);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 14px;
+  box-shadow: 0 0 20px rgba(255,71,87,0.5);
+}
+
+.contact-content {
+  display: flex;
+  height: calc(100vh - 140px);
+  padding: 20px 50px;
+}
+
+.contact-methods-panel {
+  width: 50%;
+  padding-right: 30px;
+  border-right: 1px solid rgba(255,215,0,0.3);
+}
+
+.contact-methods-title {
+  color: #ffd700;
+  margin-bottom: 30px;
+  font-size: 1.3rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.contact-methods-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.contact-method {
+  padding: 25px;
+  border: 1px solid rgba(255,215,0,0.2);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.contact-method.active {
+  transform: translateY(-2px);
+}
+
+.contact-method:not(.active) {
+  background: rgba(255,215,0,0.05);
+}
+
+.method-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.method-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.method-title {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.method-availability {
+  font-size: 0.8rem;
+  padding: 4px 8px;
+  border-radius: 10px;
+}
+
+.method-value {
+  font-size: 1rem;
+  margin-bottom: 8px;
+  font-family: monospace;
+  color: #fff;
+}
+
+.method-footer {
+  font-size: 0.9rem;
+  opacity: 0.7;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.method-action {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: bold;
+}
+
+.contact-right-panel {
+  flex: 1;
+  padding-left: 30px;
+  overflow-y: auto;
+}
+
+.social-title {
+  color: #ff6b6b;
+  margin-bottom: 30px;
+  font-size: 1.3rem;
+}
+
+.social-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.social-link {
+  padding: 20px;
+  border-radius: 12px;
+  text-decoration: none;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  transition: all 0.3s ease;
+}
+
+.social-icon {
+  font-size: 2rem;
+}
+
+.social-info {
+  flex: 1;
+}
+
+.social-name {
+  font-size: 1.1rem;
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.social-description {
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+.location-info {
+  margin-top: 40px;
+  padding: 25px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px;
+}
+
+.location-title {
+  color: #ffd700;
+  margin-bottom: 15px;
+  font-size: 1.1rem;
+}
+
+.location-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  opacity: 0.8;
+}
+
+.location-item:last-child {
+  margin-bottom: 0;
+}
+
+.form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.form-title {
+  color: #4ecdc4;
+  font-size: 1.3rem;
+  margin: 0;
+}
+
+.form-cancel-btn {
+  background: transparent;
+  border: 1px solid #666;
+  color: #666;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-row {
+  display: flex;
+  gap: 15px;
+}
+
+.form-input,
+.form-textarea {
+  padding: 12px 16px;
+  background: rgba(0,0,0,0.4);
+  border: 1px solid #333;
+  border-radius: 8px;
+  color: white;
+  font-size: 14px;
+  outline: none;
+}
+
+.form-input.half {
+  flex: 1;
+}
+
+.form-input.full {
+  width: 100%;
+}
+
+.form-textarea {
+  width: 100%;
+  resize: vertical;
+  min-height: 120px;
+}
+
+.form-submit-btn {
+  padding: 15px 30px;
+  background: linear-gradient(45deg, #4ecdc4, #44a08d);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  box-shadow: 0 0 30px rgba(78,205,196,0.4);
+}
+
+.message-sent {
+  text-align: center;
+  padding: 60px 20px;
+  background: rgba(0,255,136,0.1);
+  border: 1px solid #00ff88;
+  border-radius: 12px;
+}
+
+.message-sent-icon {
+  font-size: 4rem;
+  margin-bottom: 20px;
+}
+
+.message-sent-title {
+  color: #00ff88;
+  margin-bottom: 10px;
+}
+
+.message-sent-text {
+  opacity: 0.8;
+}
+
+.floating-elements {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.floating-dot {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+}
+
+/* Phone Landscape Responsive Styles */
+@media screen and (max-height: 500px) and (orientation: landscape) {
+  .contact-header {
+    padding: 15px 20px;
+  }
+  
+  .contact-title {
+    font-size: 1.8rem;
+  }
+  
+  .contact-subtitle {
+    font-size: 0.9rem;
+    margin-top: 5px;
+  }
+  
+  .contact-status {
+    gap: 15px;
+  }
+  
+  .status-value {
+    font-size: 1rem;
+  }
+  
+  .status-label {
+    font-size: 0.7rem;
+  }
+  
+  .contact-close-btn {
+    padding: 8px 16px;
+    font-size: 12px;
+  }
+  
+  .contact-content {
+    height: calc(100vh - 90px);
+    padding: 10px 20px;
+    flex-direction: column;
+  }
+  
+  .contact-methods-panel {
+    width: 100%;
+    padding-right: 0;
+    border-right: none;
+    border-bottom: 1px solid rgba(255,215,0,0.3);
+    padding-bottom: 15px;
+    margin-bottom: 15px;
+    max-height: 180px;
+    overflow-y: auto;
+  }
+  
+  .contact-methods-title {
+    font-size: 1.1rem;
+    margin-bottom: 15px;
+  }
+  
+  .contact-methods-list {
+    flex-direction: row;
+    gap: 12px;
+    overflow-x: auto;
+    padding-bottom: 5px;
+  }
+  
+  .contact-method {
+    min-width: 280px;
+    padding: 18px;
+    flex-shrink: 0;
+  }
+  
+  .method-header {
+    margin-bottom: 8px;
+  }
+  
+  .method-title {
+    font-size: 1rem;
+  }
+  
+  .method-availability {
+    font-size: 0.7rem;
+  }
+  
+  .method-value {
+    font-size: 0.9rem;
+    margin-bottom: 6px;
+  }
+  
+  .method-footer {
+    font-size: 0.8rem;
+  }
+  
+  .contact-right-panel {
+    padding-left: 0;
+    flex: 1;
+  }
+  
+  .social-title {
+    font-size: 1.1rem;
+    margin-bottom: 15px;
+  }
+  
+  .social-list {
+    gap: 12px;
+  }
+  
+  .social-link {
+    padding: 15px;
+    gap: 12px;
+  }
+  
+  .social-icon {
+    font-size: 1.5rem;
+  }
+  
+  .social-name {
+    font-size: 1rem;
+  }
+  
+  .social-description {
+    font-size: 0.8rem;
+  }
+  
+  .location-info {
+    margin-top: 20px;
+    padding: 18px;
+  }
+  
+  .location-title {
+    font-size: 1rem;
+    margin-bottom: 12px;
+  }
+  
+  .location-item {
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+  }
+  
+  .form-title {
+    font-size: 1.1rem;
+  }
+  
+  .form-header {
+    margin-bottom: 20px;
+  }
+  
+  .contact-form {
+    gap: 15px;
+  }
+  
+  .form-row {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .form-input,
+  .form-textarea {
+    padding: 10px 14px;
+    font-size: 13px;
+  }
+  
+  .form-textarea {
+    min-height: 80px;
+  }
+  
+  .form-submit-btn {
+    padding: 12px 24px;
+    font-size: 14px;
+  }
+  
+  .message-sent {
+    padding: 40px 15px;
+  }
+  
+  .message-sent-icon {
+    font-size: 3rem;
+    margin-bottom: 15px;
+  }
+}
+
+/* Smaller Phone Landscape */
+@media screen and (max-height: 400px) and (orientation: landscape) {
+  .contact-header {
+    padding: 10px 15px;
+  }
+  
+  .contact-title {
+    font-size: 1.5rem;
+  }
+  
+  .contact-content {
+    height: calc(100vh - 70px);
+    padding: 8px 15px;
+  }
+  
+  .contact-methods-panel {
+    max-height: 150px;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+  }
+  
+  .contact-methods-list {
+    gap: 10px;
+  }
+  
+  .contact-method {
+    min-width: 250px;
+    padding: 15px;
+  }
+  
+  .social-list {
+    gap: 10px;
+  }
+  
+  .social-link {
+    padding: 12px;
+  }
+  
+  .location-info {
+    margin-top: 15px;
+    padding: 15px;
+  }
+  
+  .contact-form {
+    gap: 12px;
+  }
+  
+  .form-textarea {
+    min-height: 60px;
+  }
+  
+  .message-sent {
+    padding: 30px 12px;
+  }
+  
+  .message-sent-icon {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+  }
+}

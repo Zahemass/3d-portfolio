@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import "../../styles/SkillsOverlays.css"; // Import the CSS file
 
 interface SkillsOverlayProps {
   onClose: () => void;
@@ -18,7 +19,6 @@ type SkillCategory = {
   icon: string;
   description: string;
 };
-
 
 // Strongly typed categories object
 const skillCategories = {
@@ -101,7 +101,7 @@ const SkillsOverlay: React.FC<SkillsOverlayProps> = ({ onClose }) => {
     return () => clearTimeout(timer);
   }, []);
 
-    // ✅ Total + average with proper typing
+  // Total + average with proper typing
   const totalSkills = (Object.values(skillCategories) as SkillCategory[]).reduce(
     (acc, cat) => acc + cat.skills.length,
     0
@@ -114,49 +114,25 @@ const SkillsOverlay: React.FC<SkillsOverlayProps> = ({ onClose }) => {
     ) / totalSkills
   );
 
-
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.9 }}
       transition={{ duration: 0.5 }}
-      style={{
-        position: "fixed",
-        inset: 0,
-        background: "linear-gradient(135deg, rgba(0,20,40,0.95), rgba(0,0,0,0.95))",
-        color: "white",
-        fontFamily: "'Space Mono', monospace",
-        zIndex: 2000,
-        overflow: "hidden"
-      }}
+      className="skills-overlay"
     >
       {/* Header */}
       <motion.div
         initial={{ y: -50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.2 }}
-        style={{
-          padding: "30px 50px",
-          background: "linear-gradient(to bottom, rgba(0,0,0,0.8), transparent)",
-          borderBottom: "1px solid rgba(0,255,136,0.3)"
-        }}
+        className="skills-header"
       >
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div className="skills-header-content">
           <div>
-            <h1 style={{ 
-              fontSize: "2.5rem", 
-              margin: 0, 
-              background: "linear-gradient(45deg, #00ff88, #00ffff)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              textShadow: "0 0 30px #00ff8850"
-            }}>
-              ⚡ SKILL MATRIX
-            </h1>
-            <p style={{ margin: "10px 0 0 0", opacity: 0.8, fontSize: "1.1rem" }}>
-              Technology Arsenal & Capabilities
-            </p>
+            <h1 className="skills-title">⚡ SKILL MATRIX</h1>
+            <p className="skills-subtitle">Technology Arsenal & Capabilities</p>
           </div>
 
           {/* Stats + Exit */}
@@ -165,34 +141,17 @@ const SkillsOverlay: React.FC<SkillsOverlayProps> = ({ onClose }) => {
               <motion.div
                 initial={{ x: 100, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
-                style={{ display: "flex", gap: "30px", alignItems: "center" }}
+                className="skills-stats"
               >
-                <div style={{ textAlign: "center" }}>
-                  <div style={{ fontSize: "2rem", color: "#00ff88", fontWeight: "bold" }}>
-                    {totalSkills}
-                  </div>
-                  <div style={{ fontSize: "0.9rem", opacity: 0.7 }}>Total Skills</div>
+                <div className="stat-item">
+                  <div className="stat-value total">{totalSkills}</div>
+                  <div className="stat-label">Total Skills</div>
                 </div>
-                <div style={{ textAlign: "center" }}>
-                  <div style={{ fontSize: "2rem", color: "#00ffff", fontWeight: "bold" }}>
-                    {avgLevel}%
-                  </div>
-                  <div style={{ fontSize: "0.9rem", opacity: 0.7 }}>Avg Proficiency</div>
+                <div className="stat-item">
+                  <div className="stat-value avg">{avgLevel}%</div>
+                  <div className="stat-label">Avg Proficiency</div>
                 </div>
-                <button
-                  onClick={onClose}
-                  style={{
-                    padding: "12px 24px",
-                    background: "linear-gradient(45deg, #ff4757, #ff3838)",
-                    border: "none",
-                    borderRadius: "8px",
-                    color: "white",
-                    fontWeight: "bold",
-                    cursor: "pointer",
-                    fontSize: "14px",
-                    boxShadow: "0 0 20px rgba(255,71,87,0.5)"
-                  }}
-                >
+                <button onClick={onClose} className="exit-button">
                   ✖ EXIT MATRIX
                 </button>
               </motion.div>
@@ -202,13 +161,11 @@ const SkillsOverlay: React.FC<SkillsOverlayProps> = ({ onClose }) => {
       </motion.div>
 
       {/* Categories + Skills */}
-      <div style={{ display: "flex", height: "calc(100vh - 140px)", padding: "20px 50px" }}>
+      <div className="skills-content">
         {/* Category List */}
-        <div style={{ width: "350px", paddingRight: "30px", borderRight: "1px solid rgba(0,255,136,0.3)" }}>
-          <h3 style={{ color: "#00ff88", marginBottom: "20px", fontSize: "1.3rem" }}>
-            🎯 SKILL CATEGORIES
-          </h3>
-          <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+        <div className="categories-panel">
+          <h3 className="categories-title">🎯 SKILL CATEGORIES</h3>
+          <div className="categories-list">
             {Object.entries(skillCategories).map(([category, data], index) => (
               <motion.div
                 key={category}
@@ -217,39 +174,22 @@ const SkillsOverlay: React.FC<SkillsOverlayProps> = ({ onClose }) => {
                 transition={{ delay: index * 0.1 }}
                 whileHover={{ scale: 1.02, x: 5 }}
                 onClick={() => setSelectedCategory(selectedCategory === category ? null : (category as CategoryName))}
-                style={{
-                  padding: "20px",
-                  background: selectedCategory === category 
-                    ? "linear-gradient(135deg, rgba(0,255,136,0.2), rgba(0,255,255,0.1))"
-                    : "rgba(0,255,136,0.05)",
-                  border: `1px solid ${selectedCategory === category ? "#00ff88" : "rgba(0,255,136,0.2)"}`,
-                  borderRadius: "12px",
-                  cursor: "pointer",
-                  transition: "all 0.3s ease"
-                }}
+                className={`category-item ${selectedCategory === category ? 'selected' : ''}`}
               >
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
-                  <span style={{ fontSize: "1.1rem", fontWeight: "bold" }}>
+                <div className="category-header">
+                  <span className="category-name">
                     {data.icon} {category}
                   </span>
-                  <span style={{
-                    fontSize: "0.9rem",
-                    opacity: 0.7,
-                    background: "rgba(0,255,136,0.2)",
-                    padding: "4px 8px",
-                    borderRadius: "10px"
-                  }}>
-                    {data.skills.length} skills
-                  </span>
+                  <span className="category-count">{data.skills.length} skills</span>
                 </div>
-                <p style={{ margin: 0, fontSize: "0.9rem", opacity: 0.8 }}>{data.description}</p>
+                <p className="category-description">{data.description}</p>
               </motion.div>
             ))}
           </div>
         </div>
 
         {/* Skills */}
-        <div style={{ flex: 1, paddingLeft: "30px", overflowY: "auto" }}>
+        <div className="skills-panel">
           <AnimatePresence mode="wait">
             {selectedCategory ? (
               <motion.div
@@ -259,10 +199,16 @@ const SkillsOverlay: React.FC<SkillsOverlayProps> = ({ onClose }) => {
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.4 }}
               >
-                <h3 style={{ color: "#00ffff", marginBottom: "30px", fontSize: "1.5rem", display: "flex", gap: "10px" }}>
+                <h3 style={{ 
+                  color: "#00ffff", 
+                  marginBottom: "30px", 
+                  fontSize: "1.5rem", 
+                  display: "flex", 
+                  gap: "10px" 
+                }}>
                   {skillCategories[selectedCategory].icon} {selectedCategory}
                 </h3>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "20px" }}>
+                <div className="skills-grid">
                   {skillCategories[selectedCategory].skills.map((skill: Skill, index: number) => (
                     <motion.div
                       key={skill.name}
@@ -271,44 +217,44 @@ const SkillsOverlay: React.FC<SkillsOverlayProps> = ({ onClose }) => {
                       transition={{ delay: index * 0.1, type: "spring", stiffness: 200 }}
                       onHoverStart={() => setHoveredSkill(skill.name)}
                       onHoverEnd={() => setHoveredSkill(null)}
+                      className="skill-item"
                       style={{
-                        padding: "20px",
                         background: hoveredSkill === skill.name
                           ? `linear-gradient(135deg, ${skill.color}20, rgba(0,0,0,0.8))`
                           : "rgba(0,0,0,0.4)",
-                        border: `1px solid ${skill.color}40`,
-                        borderRadius: "12px",
-                        cursor: "pointer",
-                        transition: "all 0.3s ease",
+                        borderColor: `${skill.color}40`,
                         transform: hoveredSkill === skill.name ? "translateY(-5px)" : "translateY(0)",
                         boxShadow: hoveredSkill === skill.name ? `0 10px 30px ${skill.color}30` : "0 4px 15px rgba(0,0,0,0.2)"
                       }}
                     >
-                      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "15px" }}>
-                        <h4 style={{ margin: 0, color: skill.color, fontSize: "1.2rem", fontWeight: "bold" }}>
+                      <div className="skill-header">
+                        <h4 className="skill-name" style={{ color: skill.color }}>
                           {skill.name}
                         </h4>
-                        <span style={{ fontSize: "1rem", color: skill.color, fontWeight: "bold" }}>
+                        <span className="skill-level" style={{ color: skill.color }}>
                           {skill.level}%
                         </span>
                       </div>
-                      <div style={{ width: "100%", height: "8px", background: "rgba(255,255,255,0.1)", borderRadius: "4px", marginBottom: "12px" }}>
+                      <div className="skill-progress-container">
                         <motion.div
                           initial={{ width: 0 }}
                           animate={{ width: `${skill.level}%` }}
                           transition={{ delay: index * 0.1 + 0.5, duration: 1 }}
+                          className="skill-progress-bar"
                           style={{
-                            height: "100%",
                             background: `linear-gradient(90deg, ${skill.color}, ${skill.color}80)`,
-                            borderRadius: "4px",
                             boxShadow: `0 0 10px ${skill.color}50`
                           }}
                         />
                       </div>
-                      <div style={{ fontSize: "0.9rem", opacity: 0.7, display: "flex", justifyContent: "space-between" }}>
+                      <div className="skill-footer">
                         <span>Experience: {skill.experience}</span>
                         {hoveredSkill === skill.name && (
-                          <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ color: skill.color, fontWeight: "bold" }}>
+                          <motion.span 
+                            initial={{ opacity: 0 }} 
+                            animate={{ opacity: 1 }} 
+                            style={{ color: skill.color, fontWeight: "bold" }}
+                          >
                             Click to explore
                           </motion.span>
                         )}
@@ -321,17 +267,17 @@ const SkillsOverlay: React.FC<SkillsOverlayProps> = ({ onClose }) => {
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%" }}
+                className="select-prompt"
               >
                 <motion.div
                   animate={{ scale: [1, 1.1, 1], rotate: [0, 5, -5, 0] }}
                   transition={{ duration: 3, repeat: Infinity }}
-                  style={{ fontSize: "4rem", marginBottom: "20px" }}
+                  className="select-icon"
                 >
                   🎯
                 </motion.div>
-                <h3 style={{ color: "#00ffff", fontSize: "1.5rem", marginBottom: "15px" }}>SELECT A SKILL CATEGORY</h3>
-                <p style={{ opacity: 0.7, fontSize: "1.1rem", maxWidth: "400px", lineHeight: 1.6 }}>
+                <h3 className="select-title">SELECT A SKILL CATEGORY</h3>
+                <p className="select-description">
                   Choose a category from the left panel to explore my technical skills,
                   experience levels, and project applications.
                 </p>

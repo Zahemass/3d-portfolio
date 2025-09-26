@@ -1,0 +1,64 @@
+/* --- About Me Content --- */
+.about-content {
+  font-size: clamp(0.85rem, 2vw, 1rem);
+  line-height: 1.6;
+  color: #f0f0f0;
+}
+
+.about-content h2 {
+  font-size: clamp(1.2rem, 4vw, 1.6rem);
+  color: #00ffff;
+  margin-bottom: 12px;
+}
+
+.about-content p {
+  margin-bottom: 12px;
+}
+
+.about-content strong {
+  color: #ffd700;
+}
+
+/* Social Links row */
+.about-social {
+  margin-top: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.about-social a {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #00ffff;
+  border-radius: 10px;
+  background: linear-gradient(45deg, #00ffff20, #0099cc20);
+  box-shadow: 0 0 12px rgba(0, 255, 255, 0.25);
+  color: #00ffff;
+  font-size: 18px;
+  transition: all 0.3s ease;
+}
+
+.about-social a:hover {
+  transform: scale(1.15);
+  box-shadow: 0 0 18px rgba(0, 255, 255, 0.4);
+}
+
+/* --- Mobile Fix --- */
+@media (max-width: 768px) {
+  .about-content {
+    font-size: 0.85rem;
+    line-height: 1.4;
+  }
+
+  .about-content h2 {
+    font-size: 1.2rem;
+  }
+
+  .about-social {
+    justify-content: center;
+  }
+}
