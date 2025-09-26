@@ -27,3 +27,73 @@
     font-size: 9px !important;    /* smaller tech tags */
   }
 }
+
+
+/* Expanded Project Modal (Detail View) */
+@media (max-width: 900px) and (orientation: landscape) {
+  .expanded-project-modal {
+    padding: 20px !important;
+  }
+
+  .expanded-project-modal h1 {
+    font-size: 1.3rem !important; /* shrink main title */
+  }
+
+  .expanded-project-modal h3 {
+    font-size: 1rem !important; /* smaller section titles */
+    margin-bottom: 10px !important;
+  }
+
+  .expanded-project-modal p {
+    font-size: 12px !important; /* body text smaller */
+    line-height: 1.4 !important;
+  }
+
+  .expanded-project-modal iframe {
+    height: 250px !important; /* video smaller */
+  }
+
+  .expanded-project-modal .tech-stack-item {
+    font-size: 11px !important;
+    padding: 8px 12px !important;
+  }
+
+  .expanded-project-modal button {
+    font-size: 11px !important;
+    padding: 8px 14px !important;
+  }
+}
+
+/* Expanded project modal — make it big & responsive */
+.expanded-project-modal {
+  max-width: 1200px;
+  margin: auto;
+}
+
+@media (max-width: 1024px) {
+  .expanded-project-modal {
+    inset: 10px !important;   /* use more screen */
+    padding: 15px !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .expanded-project-modal {
+    inset: 5px !important;    /* nearly full screen on phone */
+    padding: 12px !important;
+    border-radius: 10px !important;
+  }
+
+  .expanded-project-modal h1 {
+    font-size: 1.2rem !important;
+  }
+
+  .expanded-project-modal p {
+    font-size: 12px !important;
+    line-height: 1.4 !important;
+  }
+
+  .expanded-project-modal iframe {
+    height: 200px !important; /* YouTube smaller on phone */
+  }
+}

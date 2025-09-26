@@ -1441,12 +1441,14 @@ const ProjectsOverlay: React.FC<ProjectsOverlayProps> = ({ onClose }) => {
       <AnimatePresence>
         {selectedProject !== null && viewMode === 'expanded' && (
           <motion.div
+           className="expanded-project-modal"
             initial={{ opacity: 0, y: 50, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 30, scale: 0.95 }}
             transition={{ duration: 0.6, ease: "easeOut" }}
             style={{
               position: "fixed",
+              inset: "20px",
               top: "60px",
               left: "50px",
               right: "50px",
