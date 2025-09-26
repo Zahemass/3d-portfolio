@@ -1,4 +1,3 @@
-// filename: src/components/Spaceship.tsx
 import React, { useRef, useEffect, useState } from "react";
 import { useFrame } from "@react-three/fiber";
 import { useGLTF } from "@react-three/drei";
@@ -12,6 +11,8 @@ interface SpaceshipProps {
   paused: boolean;
   joystickDir?: { x: number; y: number };
   isMobile?: boolean;
+  mobileVertical?: 'up' | 'down' | null;
+  mobileBoost?: boolean;
 }
 
 /**
@@ -24,6 +25,8 @@ const Spaceship: React.FC<SpaceshipProps> = ({
   paused,
   joystickDir,
   isMobile,
+  mobileVertical,
+  mobileBoost,
 }) => {
   /** === Refs === */
   const shipRef = useRef<Group>(null!);
@@ -80,13 +83,6 @@ const Spaceship: React.FC<SpaceshipProps> = ({
     };
   }, []);
 
-  /** === Debug joystick === */
-  useEffect(() => {
-    if (isMobile) {
-    console.log("📡 JoystickDir in Spaceship:", joystickDir);
-  }
-  }, [joystickDir, isMobile]);
-
   /** === Main Physics Loop === */
   useFrame(({ camera, clock }) => {
     if (!shipRef.current) return;
@@ -112,48 +108,62 @@ const Spaceship: React.FC<SpaceshipProps> = ({
     let backward = keys.current["s"] || keys.current["arrowdown"];
     let left = keys.current["a"] || keys.current["arrowleft"];
     let right = keys.current["d"] || keys.current["arrowright"];
-    const upPressed = keys.current[" "]; // space
-    const downPressed = keys.current["shift"]; // shift
-    const boostPressed = keys.current["q"] || keys.current["e"];
+    let upPressed = keys.current[" "]; // space
+    let downPressed = keys.current["shift"]; // shift
+    let boostPressed = keys.current["q"] || keys.current["e"];
 
-    /** === Joystick override === */
-    /** === Joystick override === */
-/** === Joystick override === */
-/** === Joystick override === */
-let joyX = 0;
-let joyY = 0;
+    /** === Mobile Controls Override === */
+    if (isMobile) {
+      // Override vertical controls with mobile buttons
+      if (mobileVertical === 'up') {
+        upPressed = true;
+        downPressed = false;
+      } else if (mobileVertical === 'down') {
+        upPressed = false;
+        downPressed = true;
+      }
+      
+      // Override boost with mobile button
+      if (mobileBoost) {
+        boostPressed = true;
+      }
+    }
 
-if (isMobile && joystickDir) {
-  joyX = joystickDir.x;
-  joyY = joystickDir.y;
-}
+    /** === Joystick Movement === */
+    let joyX = 0;
+    let joyY = 0;
 
-if (isMobile && (Math.abs(joyX) > 0.01 || Math.abs(joyY) > 0.01)) {
-  // Disable keyboard if joystick is active
-  forward = backward = left = right = false;
+    if (joystickDir) {
+      joyX = joystickDir.x;
+      joyY = joystickDir.y;
+    }
 
-  // 🚀 Strong multiplier
-  targetVelocity.copy(
-    new Vector3(
-      joyX * speed * 40.0,   // X strafing
-      0,
-      -joyY * speed * 40.0   // Z forward/back
-    )
-  );
+    // Apply joystick input if active (very low threshold for maximum sensitivity)
+    if (Math.abs(joyX) > 0.001 || Math.abs(joyY) > 0.001) {
+      // Disable keyboard movement when joystick is active
+      forward = backward = left = right = false;
 
-  isUsingThrust = true;
+      // Apply joystick to velocity with correct directions
+      targetVelocity.x += joyX * speed * 5.0; // Left/right movement
+      targetVelocity.z += joyY * speed * 5.0; // Forward/back (no negative needed now)
 
-  // Tilt / pitch animations
-  setTilt(MathUtils.lerp(tilt, -joyX * 1.2, 0.1));
-  setPitch(MathUtils.lerp(pitch, -joyY * 1.0, 0.1));
+      // Check if forward movement for boost
+      if (joyY > 0.5 && boostPressed && fuel > 10) {
+        targetVelocity.z -= speed * 1.5;
+        isUsingBoost = true;
+        setFuel((prev) => Math.max(0, prev - 0.8));
+      } else if (joyY > 0.1) {
+        setFuel((prev) => Math.min(100, prev + 0.1));
+      }
 
-  console.log("🛰️ Joystick applied:", targetVelocity.toArray());
-}
+      isUsingThrust = true;
 
+      // Tilt / pitch for ship animation
+      setTilt(MathUtils.lerp(tilt, -joyX * 0.6, 0.1));
+      setPitch(MathUtils.lerp(pitch, -joyY * 0.4, 0.1));
+    }
 
-
-
-    /** === Forward / Backward === */
+    /** === Keyboard Forward / Backward === */
     if (forward) {
       targetVelocity.z -= speed;
       isUsingThrust = true;
@@ -170,7 +180,7 @@ if (isMobile && (Math.abs(joyX) > 0.01 || Math.abs(joyY) > 0.01)) {
       isUsingThrust = true;
     }
 
-    /** === Left / Right Strafing === */
+    /** === Keyboard Left / Right Strafing === */
     if (left) {
       targetVelocity.x -= speed * 0.8;
       setTilt(MathUtils.lerp(tilt, 0.6, 0.1));
@@ -181,7 +191,7 @@ if (isMobile && (Math.abs(joyX) > 0.01 || Math.abs(joyY) > 0.01)) {
       setTilt(MathUtils.lerp(tilt, -0.6, 0.1));
       setRoll(MathUtils.lerp(roll, -0.3, 0.05));
       if (forward) setYaw(-0.015);
-    } else {
+    } else if (!joystickDir || (Math.abs(joyX) < 0.05 && Math.abs(joyY) < 0.05)) {
       setTilt(MathUtils.lerp(tilt, 0, 0.08));
       setRoll(MathUtils.lerp(roll, 0, 0.05));
       setYaw(0);
@@ -190,13 +200,17 @@ if (isMobile && (Math.abs(joyX) > 0.01 || Math.abs(joyY) > 0.01)) {
     /** === Vertical (Ascend/Descend) === */
     if (upPressed) {
       targetVelocity.y += speed * 0.8;
-      setPitch(MathUtils.lerp(pitch, -0.2, 0.05));
+      if (!joystickDir || Math.abs(joyY) < 0.05) {
+        setPitch(MathUtils.lerp(pitch, -0.2, 0.05));
+      }
       isUsingThrust = true;
     } else if (downPressed) {
       targetVelocity.y -= speed * 0.8;
-      setPitch(MathUtils.lerp(pitch, 0.2, 0.05));
+      if (!joystickDir || Math.abs(joyY) < 0.05) {
+        setPitch(MathUtils.lerp(pitch, 0.2, 0.05));
+      }
       isUsingThrust = true;
-    } else if (!isMobile) {
+    } else if (!joystickDir || Math.abs(joyY) < 0.05) {
       setPitch(MathUtils.lerp(pitch, 0, 0.05));
     }
 
@@ -263,13 +277,15 @@ if (isMobile && (Math.abs(joyX) > 0.01 || Math.abs(joyY) > 0.01)) {
     }
 
     if (leftThrusterRef.current) {
-      leftThrusterRef.current.scale.setScalar(left ? 1 : 0.3);
-      leftThrusterRef.current.material.emissiveIntensity = left ? 2 : 0.2;
+      const leftActive = left || (joystickDir && joyX < -0.3);
+      leftThrusterRef.current.scale.setScalar(leftActive ? 1 : 0.3);
+      leftThrusterRef.current.material.emissiveIntensity = leftActive ? 2 : 0.2;
     }
 
     if (rightThrusterRef.current) {
-      rightThrusterRef.current.scale.setScalar(right ? 1 : 0.3);
-      rightThrusterRef.current.material.emissiveIntensity = right ? 2 : 0.2;
+      const rightActive = right || (joystickDir && joyX > 0.3);
+      rightThrusterRef.current.scale.setScalar(rightActive ? 1 : 0.3);
+      rightThrusterRef.current.material.emissiveIntensity = rightActive ? 2 : 0.2;
     }
   });
 

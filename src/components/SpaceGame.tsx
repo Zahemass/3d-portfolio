@@ -1,4 +1,3 @@
-// filename: src/components/SpaceGame.tsx
 import React, { useState, useEffect } from "react";
 import { Canvas } from "@react-three/fiber";
 import { Stars, OrbitControls } from "@react-three/drei";
@@ -37,19 +36,42 @@ interface SpaceGameProps {
 }
 
 const SpaceGame: React.FC<SpaceGameProps> = ({ darkMode, setDarkMode }) => {
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-  const [isPortrait, setIsPortrait] = useState(window.innerHeight > window.innerWidth);
-
+  // Orientation detection - immediately responsive
+  const [isLandscape, setIsLandscape] = useState(false);
+  
   useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
-      setIsPortrait(window.innerHeight > window.innerWidth);
+    // Check orientation on mount and changes
+    const checkOrientation = () => {
+      const landscape = window.innerWidth > window.innerHeight;
+      setIsLandscape(landscape);
+      console.log("Orientation check:", landscape ? "Landscape" : "Portrait");
     };
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+
+    // Initial check
+    checkOrientation();
+
+    // Listen for orientation changes
+    window.addEventListener("orientationchange", checkOrientation);
+    window.addEventListener("resize", checkOrientation);
+    
+    // Also listen for screen orientation API if available (fixed: using window.screen)
+    if (window.screen && window.screen.orientation) {
+      window.screen.orientation.addEventListener("change", checkOrientation);
+    }
+
+    return () => {
+      window.removeEventListener("orientationchange", checkOrientation);
+      window.removeEventListener("resize", checkOrientation);
+      if (window.screen && window.screen.orientation) {
+        window.screen.orientation.removeEventListener("change", checkOrientation);
+      }
+    };
   }, []);
 
+  // Mobile control states
   const [joystickDir, setJoystickDir] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const [mobileVertical, setMobileVertical] = useState<'up' | 'down' | null>(null);
+  const [mobileBoost, setMobileBoost] = useState(false);
 
   const [hud, setHud] = useState<any>({
     speed: "0.00",
@@ -110,34 +132,31 @@ const SpaceGame: React.FC<SpaceGameProps> = ({ darkMode, setDarkMode }) => {
   ];
 
   // Check proximity
-  // Replace your proximity effect with this:
-useEffect(() => {
-  let raf: number;
+  useEffect(() => {
+    let raf: number;
 
-  const updateProximity = () => {
-    let closestStation: string | null = null;
-    let minDistance = Infinity;
+    const updateProximity = () => {
+      let closestStation: string | null = null;
+      let minDistance = Infinity;
 
-    stations.forEach((station) => {
-      const distance = hud.position.distanceTo(station.position);
-      if (distance < 15 && distance < minDistance) {
-        minDistance = distance;
-        closestStation = station.id;
-      }
-    });
+      stations.forEach((station) => {
+        const distance = hud.position.distanceTo(station.position);
+        if (distance < 15 && distance < minDistance) {
+          minDistance = distance;
+          closestStation = station.id;
+        }
+      });
 
-    // ✅ Only update if value actually changes
-    setNearbyStation((prev) =>
-      prev !== closestStation ? closestStation : prev
-    );
+      setNearbyStation((prev) =>
+        prev !== closestStation ? closestStation : prev
+      );
+
+      raf = requestAnimationFrame(updateProximity);
+    };
 
     raf = requestAnimationFrame(updateProximity);
-  };
-
-  raf = requestAnimationFrame(updateProximity);
-
-  return () => cancelAnimationFrame(raf);
-}, [hud.position, stations]);
+    return () => cancelAnimationFrame(raf);
+  }, [hud.position, stations]);
 
   // XP & Levels
   const gainExperience = (amount: number) => {
@@ -153,6 +172,13 @@ useEffect(() => {
     setPaused(gameMode === "exploration");
   };
 
+  // Debug joystick values
+  useEffect(() => {
+    if (joystickDir.x !== 0 || joystickDir.y !== 0) {
+      console.log("Joystick moving:", joystickDir);
+    }
+  }, [joystickDir]);
+
   return (
     <div className="spacegame-container">
       {/* 3D Scene */}
@@ -167,8 +193,15 @@ useEffect(() => {
         <directionalLight intensity={2} position={[100, 100, -50]} color="#ffffff" castShadow />
         <pointLight position={[0, 0, 0]} intensity={1} color="#00ffff" distance={100} />
 
-        {/* Spaceship */}
-        <Spaceship setHud={setHud} paused={paused} joystickDir={joystickDir} isMobile={isMobile} />
+        {/* Spaceship - IMPORTANT: Pass joystick values correctly */}
+        <Spaceship 
+          setHud={setHud} 
+          paused={paused} 
+          joystickDir={joystickDir}
+          isMobile={true} // Always true so joystick works
+          mobileVertical={mobileVertical}
+          mobileBoost={mobileBoost}
+        />
 
         {/* Stations */}
         <AboutStation
@@ -212,9 +245,9 @@ useEffect(() => {
         {paused && <OrbitControls enablePan={false} enableZoom={true} />}
       </Canvas>
 
-      {/* HUD Overlay */}
+      {/* HUD Overlay - show in landscape */}
       <AnimatePresence>
-        {!paused && gameMode === "exploration" && (!isMobile || (isMobile && !isPortrait)) && (
+        {!paused && gameMode === "exploration" && isLandscape && (
           <motion.div className="hud-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
             <div className="hud-topbar">
               {/* Status */}
@@ -272,8 +305,8 @@ useEffect(() => {
         )}
       </AnimatePresence>
 
-      {/* Desktop Controls */}
-      {!paused && gameMode === "exploration" && !isMobile && (
+      {/* Desktop Controls - Hide on portrait, show on landscape desktop */}
+      {!paused && gameMode === "exploration" && isLandscape && window.innerWidth > 1000 && (
         <motion.div className="desktop-controls" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
           <div><strong>🎮 NAVIGATION:</strong></div>
           <div>W/↑ - Forward Thrust</div>
@@ -312,39 +345,77 @@ useEffect(() => {
         {showContact && <ContactOverlay onClose={() => { setShowContact(false); setPaused(false); }} />}
       </AnimatePresence>
 
-      {/* 🎮 Joystick - Show whenever device is in landscape */}
-{!paused && gameMode === "exploration" && !isPortrait && (
-  <div className="mobile-joystick">
-      <Joystick
-  size={100}
-  baseColor="rgba(0,255,255,0.15)"
-  stickColor="#00ffff"
-  move={(e) => {
-    const maxDist = 50;
-    const nx = (e.x ?? 0) / maxDist;
-    const ny = (e.y ?? 0) / maxDist;
-    console.log("🎮 Joystick moved:", nx, ny); // <-- add this
-    setJoystickDir({ x: nx, y: ny });
-  }}
-  stop={() => {
-    console.log("🛑 Joystick released");
-    setJoystickDir({ x: 0, y: 0 });
-  }}
-/>
+      {/* Mobile Controls - Show IMMEDIATELY in landscape */}
+      {!paused && gameMode === "exploration" && isLandscape && (
+        <div className="mobile-controls-container">
+          {/* Left side: Joystick */}
+          <div className="mobile-joystick">
+            <Joystick
+              size={100}
+              baseColor="rgba(0,255,255,0.15)"
+              stickColor="#00ffff"
+              move={(e) => {
+                // Fix TypeScript error and CORRECT DIRECTIONS
+                if (e && e.x !== null && e.y !== null) {
+                  // Correct direction mapping: no inversion needed
+                  const nx = -(e.x / 50) * 10; // Invert X for correct left/right
+                  const ny = (e.y / 50) * 10; // Don't invert Y - positive should be forward
+                  console.log("Joystick raw:", e.x, e.y, "scaled:", nx, ny);
+                  setJoystickDir({ x: nx, y: ny });
+                }
+              }}
+              stop={() => {
+                console.log("Joystick stopped");
+                setJoystickDir({ x: 0, y: 0 });
+              }}
+            />
+          </div>
 
+          {/* Right side: Action buttons */}
+          <div className="mobile-action-buttons">
+            <button 
+              className="mobile-btn up-btn"
+              onTouchStart={() => setMobileVertical('up')}
+              onTouchEnd={() => setMobileVertical(null)}
+              onMouseDown={() => setMobileVertical('up')}
+              onMouseUp={() => setMobileVertical(null)}
+              onMouseLeave={() => setMobileVertical(null)}
+            >
+              ↑<span>UP</span>
+            </button>
+            
+            <button 
+              className="mobile-btn down-btn"
+              onTouchStart={() => setMobileVertical('down')}
+              onTouchEnd={() => setMobileVertical(null)}
+              onMouseDown={() => setMobileVertical('down')}
+              onMouseUp={() => setMobileVertical(null)}
+              onMouseLeave={() => setMobileVertical(null)}
+            >
+              ↓<span>DOWN</span>
+            </button>
 
+            <button 
+              className={`mobile-btn boost-btn ${hud.fuel < 10 ? 'disabled' : ''}`}
+              onTouchStart={() => hud.fuel >= 10 && setMobileBoost(true)}
+              onTouchEnd={() => setMobileBoost(false)}
+              onMouseDown={() => hud.fuel >= 10 && setMobileBoost(true)}
+              onMouseUp={() => setMobileBoost(false)}
+              onMouseLeave={() => setMobileBoost(false)}
+              disabled={hud.fuel < 10}
+            >
+              ⚡<span>BOOST</span>
+            </button>
+          </div>
+        </div>
+      )}
 
-  </div>
-)}
-
-
-      {/* 🔄 Orientation Overlay */}
-{isPortrait && (
-  <div className="orientation-overlay">
-    🔄 Please rotate your device to landscape
-  </div>
-)}
-
+      {/* Orientation Overlay - Show in portrait */}
+      {!isLandscape && (
+        <div className="orientation-overlay">
+          🔄 Please rotate your device to landscape
+        </div>
+      )}
     </div>
   );
 };

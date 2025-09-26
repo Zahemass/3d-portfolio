@@ -179,13 +179,113 @@ body.dark .professional-overlay {
   background: linear-gradient(135deg, #172435ff, #302b63, #24243e);
 }
 
-/* ===== Mobile Joystick ===== */
-.mobile-joystick {
+/* ===== COMPLETE Mobile Controls Container ===== */
+.mobile-controls-container {
   position: fixed;
-  bottom: 150px;
-  left: 40px;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 180px;
+  pointer-events: none;
   z-index: 99999;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding: 0 20px 20px 20px;
+}
+
+/* ===== Mobile Joystick (Left Side) ===== */
+.mobile-joystick {
   pointer-events: auto;
+  position: relative;
+}
+
+/* ===== Mobile Action Buttons (Right Side) ===== */
+.mobile-action-buttons {
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+  pointer-events: auto;
+}
+
+.mobile-btn {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: rgba(0, 255, 255, 0.1);
+  border: 2px solid #00ffff;
+  color: #00ffff;
+  font-size: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: all 0.2s;
+  cursor: pointer;
+  position: relative;
+  backdrop-filter: blur(10px);
+  font-family: 'Space Mono', monospace;
+}
+
+.mobile-btn span {
+  font-size: 8px;
+  margin-top: 2px;
+  font-family: 'Space Mono', monospace;
+}
+
+/* Active state for touch */
+.mobile-btn:active {
+  transform: scale(0.95);
+  background: rgba(0, 255, 255, 0.3);
+  box-shadow: 0 0 20px #00ffff, inset 0 0 10px #00ffff;
+}
+
+/* Up button styling */
+.up-btn {
+  background: rgba(0, 255, 100, 0.1);
+  border-color: #00ff64;
+  color: #00ff64;
+}
+
+.up-btn:active {
+  background: rgba(0, 255, 100, 0.3);
+  box-shadow: 0 0 20px #00ff64, inset 0 0 10px #00ff64;
+}
+
+/* Down button styling */
+.down-btn {
+  background: rgba(100, 100, 255, 0.1);
+  border-color: #6464ff;
+  color: #6464ff;
+}
+
+.down-btn:active {
+  background: rgba(100, 100, 255, 0.3);
+  box-shadow: 0 0 20px #6464ff, inset 0 0 10px #6464ff;
+}
+
+/* Boost button styling */
+.boost-btn {
+  background: rgba(255, 100, 0, 0.1);
+  border-color: #ff6400;
+  color: #ff6400;
+  width: 70px;
+  height: 70px;
+  font-size: 28px;
+}
+
+.boost-btn:active {
+  background: rgba(255, 100, 0, 0.3);
+  box-shadow: 0 0 30px #ff6400, inset 0 0 15px #ff6400;
+}
+
+.boost-btn.disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  pointer-events: none;
 }
 
 /* ===== Orientation Overlay ===== */
@@ -200,12 +300,97 @@ body.dark .professional-overlay {
   font-size: 20px;
   z-index: 9999;
   text-align: center;
+  font-family: 'Space Mono', monospace;
 }
 
-/* ===== Hide ONLY desktop bottom instructions on mobile ===== */
+/* ===== Responsive Adjustments ===== */
+
+/* Hide desktop controls on smaller screens */
 @media (max-width: 1000px) {
   .desktop-controls {
     display: none !important;
   }
 }
 
+/* Force mobile controls based on orientation */
+@media (orientation: landscape) {
+  .mobile-controls-container {
+    display: flex !important;
+  }
+  
+  .orientation-overlay {
+    display: none !important;
+  }
+}
+
+@media (orientation: portrait) {
+  .mobile-controls-container {
+    display: none !important;
+  }
+  
+  .orientation-overlay {
+    display: flex !important;
+  }
+}
+
+/* Adjust for smaller screens */
+@media (max-width: 480px) {
+  .mobile-controls-container {
+    padding: 0 10px 10px 10px;
+    height: 160px;
+  }
+  
+  .mobile-btn {
+    width: 50px;
+    height: 50px;
+    font-size: 20px;
+  }
+  
+  .boost-btn {
+    width: 60px;
+    height: 60px;
+    font-size: 24px;
+  }
+  
+  .mobile-btn span {
+    font-size: 7px;
+  }
+
+  .hud-center-title {
+    font-size: 18px;
+  }
+
+  .hud-status {
+    padding: 8px 12px;
+    gap: 12px;
+  }
+}
+
+/* Adjust for landscape mode with limited height */
+@media (max-height: 500px) {
+  .mobile-controls-container {
+    height: 140px;
+    padding: 0 15px 10px 15px;
+  }
+  
+  .mobile-btn {
+    width: 45px;
+    height: 45px;
+    font-size: 18px;
+  }
+  
+  .boost-btn {
+    width: 55px;
+    height: 55px;
+    font-size: 22px;
+  }
+
+  .hud-overlay {
+    padding: 10px;
+  }
+
+  .hud-topbar {
+    margin-bottom: 8px;
+    gap: 10px;
+  }
+}
