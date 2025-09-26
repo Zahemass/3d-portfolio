@@ -144,7 +144,7 @@ const Spaceship: React.FC<SpaceshipProps> = ({
       forward = backward = left = right = false;
 
       // FIX ALL OPPOSITE DIRECTIONS
-      targetVelocity.x -= joyX * speed * 5.0;  // INVERT X: fixes left/right being opposite
+      targetVelocity.x += joyX * speed * 5.0;  // INVERT X: fixes left/right being opposite
       targetVelocity.z -= joyY * speed * 5.0;  // INVERT Z: fixes forward/back being opposite
 
       // Check if forward movement for boost
