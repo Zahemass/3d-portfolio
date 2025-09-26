@@ -1205,14 +1205,33 @@ const ProjectSatellite: React.FC<{
 };
 
 // 🎮 Enhanced UI with Gaming Elements
+// 🎮 Enhanced UI with Gaming Elements
 const ProjectsOverlay: React.FC<ProjectsOverlayProps> = ({ onClose }) => {
   const [selectedProject, setSelectedProject] = useState<number | null>(null);
   const [viewMode, setViewMode] = useState<'orbit' | 'expanded'>('orbit');
   const [isLoading, setIsLoading] = useState(true);
+  const [isMobileLandscape, setIsMobileLandscape] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 1500);
     return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    const checkOrientation = () => {
+      const isLandscape = window.innerWidth > window.innerHeight;
+      const isMobile = window.innerWidth <= 768;
+      setIsMobileLandscape(isMobile && isLandscape);
+    };
+
+    checkOrientation();
+    window.addEventListener('resize', checkOrientation);
+    window.addEventListener('orientationchange', checkOrientation);
+    
+    return () => {
+      window.removeEventListener('resize', checkOrientation);
+      window.removeEventListener('orientationchange', checkOrientation);
+    };
   }, []);
 
   const handleProjectClick = (index: number) => {

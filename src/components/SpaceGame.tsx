@@ -586,6 +586,58 @@ const [cameraControl, setCameraControl] = useState({
   </div>
 )}
 
+{/* Camera Control Overlay - PUBG Style */}
+{!paused && gameMode === "exploration" && isMobileDevice && isLandscape && (
+  <div 
+    style={{
+      position: 'fixed',
+      top: '0',
+      left: '0',
+      right: '0',
+      bottom: '160px', // leave space for mobile buttons
+      zIndex: '99998',
+      pointerEvents: 'auto',
+      background: 'transparent'
+    }}
+    onTouchStart={(e) => {
+      e.preventDefault();
+      if (e.touches.length === 1) {
+        const touch = e.touches[0];
+        setCameraControl(prev => ({
+          ...prev,
+          isDragging: true,
+          lastTouch: { x: touch.clientX, y: touch.clientY }
+        }));
+      }
+    }}
+    onTouchMove={(e) => {
+      e.preventDefault();
+      if (cameraControl.isDragging && e.touches.length === 1) {
+        const touch = e.touches[0];
+        const deltaX = touch.clientX - cameraControl.lastTouch.x;
+        const deltaY = touch.clientY - cameraControl.lastTouch.y;
+
+        setCameraControl(prev => ({
+          ...prev,
+          rotation: {
+            horizontal: prev.rotation.horizontal + deltaX * prev.sensitivity,
+            vertical: Math.max(-Math.PI/3, Math.min(Math.PI/3, prev.rotation.vertical - deltaY * prev.sensitivity))
+          },
+          lastTouch: { x: touch.clientX, y: touch.clientY }
+        }));
+      }
+    }}
+    onTouchEnd={(e) => {
+      e.preventDefault();
+      setCameraControl(prev => ({
+        ...prev,
+        isDragging: false
+      }));
+    }}
+  />
+)}
+
+
 {/* Orientation Overlay - Show on mobile portrait */}
 {!isLandscape && isMobileDevice && (
   <div style={{
