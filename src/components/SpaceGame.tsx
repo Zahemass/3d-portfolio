@@ -36,53 +36,98 @@ interface SpaceGameProps {
 }
 
 const SpaceGame: React.FC<SpaceGameProps> = ({ darkMode, setDarkMode }) => {
-
+  // Device and orientation detection
   const [isMobileDevice, setIsMobileDevice] = useState(false);
+  const [isLandscape, setIsLandscape] = useState(false);
+
+  useEffect(() => {
+    // Detect if it's a mobile device
+    const checkIfMobile = () => {
+      const isMobile = window.innerWidth <= 1024 || 
+                      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      setIsMobileDevice(isMobile);
+      console.log("Mobile device check:", isMobile);
+    };
+
+    checkIfMobile();
+    window.addEventListener('resize', checkIfMobile);
+    
+    return () => window.removeEventListener('resize', checkIfMobile);
+  }, []);
+
+  // If you're still getting errors, use this even simpler version:
 
 useEffect(() => {
-  // Detect if it's a mobile device
+  // Simple orientation detection based on dimensions only
+  const checkOrientation = () => {
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    const landscape = width > height;
+    
+    setIsLandscape(landscape);
+    
+    console.log("=== SIMPLE ORIENTATION CHECK ===");
+    console.log("Window size:", width, "x", height);
+    console.log("Is landscape:", landscape);
+    console.log("===============================");
+  };
+
+  // Initial check
+  checkOrientation();
+
+  // Debounced version
+  let timeoutId: number | null = null;
+  const debouncedCheck = () => {
+    if (timeoutId) window.clearTimeout(timeoutId);
+    timeoutId = window.setTimeout(checkOrientation, 150);
+  };
+
+  // Listen for resize events
+  window.addEventListener("resize", debouncedCheck);
+  window.addEventListener("orientationchange", debouncedCheck);
+
+  return () => {
+    if (timeoutId) window.clearTimeout(timeoutId);
+    window.removeEventListener("resize", debouncedCheck);
+    window.removeEventListener("orientationchange", debouncedCheck);
+  };
+}, []);
+
+// Mobile detection (also simplified):
+useEffect(() => {
   const checkIfMobile = () => {
-    const isMobile = window.innerWidth <= 1024 || 
-                    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    const userAgent = navigator.userAgent.toLowerCase();
+    const isMobileUA = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent);
+    const isMobileScreen = window.innerWidth <= 1024;
+    const hasTouchScreen = 'ontouchstart' in window;
+    
+    const isMobile = isMobileUA || (isMobileScreen && hasTouchScreen);
+    
     setIsMobileDevice(isMobile);
+    
+    console.log("=== MOBILE CHECK ===");
+    console.log("User agent mobile:", isMobileUA);
+    console.log("Small screen:", isMobileScreen);
+    console.log("Has touch:", hasTouchScreen);
+    console.log("Final mobile result:", isMobile);
+    console.log("==================");
   };
 
   checkIfMobile();
-  window.addEventListener('resize', checkIfMobile);
   
-  return () => window.removeEventListener('resize', checkIfMobile);
+  let timeoutId: number | null = null;
+  const debouncedMobileCheck = () => {
+    if (timeoutId) window.clearTimeout(timeoutId);
+    timeoutId = window.setTimeout(checkIfMobile, 100);
+  };
+  
+  window.addEventListener('resize', debouncedMobileCheck);
+  
+  return () => {
+    if (timeoutId) window.clearTimeout(timeoutId);
+    window.removeEventListener('resize', debouncedMobileCheck);
+  };
 }, []);
-  // Orientation detection - immediately responsive
-  const [isLandscape, setIsLandscape] = useState(false);
-  
-  useEffect(() => {
-    // Check orientation on mount and changes
-    const checkOrientation = () => {
-      const landscape = window.innerWidth > window.innerHeight;
-      setIsLandscape(landscape);
-      console.log("Orientation check:", landscape ? "Landscape" : "Portrait");
-    };
-
-    // Initial check
-    checkOrientation();
-
-    // Listen for orientation changes
-    window.addEventListener("orientationchange", checkOrientation);
-    window.addEventListener("resize", checkOrientation);
-    
-    // Also listen for screen orientation API if available (fixed: using window.screen)
-    if (window.screen && window.screen.orientation) {
-      window.screen.orientation.addEventListener("change", checkOrientation);
-    }
-
-    return () => {
-      window.removeEventListener("orientationchange", checkOrientation);
-      window.removeEventListener("resize", checkOrientation);
-      if (window.screen && window.screen.orientation) {
-        window.screen.orientation.removeEventListener("change", checkOrientation);
-      }
-    };
-  }, []);
 
   // Mobile control states
   const [joystickDir, setJoystickDir] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
@@ -195,6 +240,18 @@ useEffect(() => {
     }
   }, [joystickDir]);
 
+  // Log control visibility conditions
+  useEffect(() => {
+    console.log("Control visibility check:");
+    console.log("- paused:", paused);
+    console.log("- gameMode:", gameMode);
+    console.log("- isLandscape:", isLandscape);
+    console.log("- isMobileDevice:", isMobileDevice);
+    console.log("- Should show mobile controls:", !paused && gameMode === "exploration" && isLandscape && isMobileDevice);
+    console.log("- Should show desktop controls:", !paused && gameMode === "exploration" && isLandscape && !isMobileDevice);
+    console.log("- Should show orientation overlay:", !isLandscape && isMobileDevice);
+  }, [paused, gameMode, isLandscape, isMobileDevice]);
+
   return (
     <div className="spacegame-container">
       {/* 3D Scene */}
@@ -209,12 +266,12 @@ useEffect(() => {
         <directionalLight intensity={2} position={[100, 100, -50]} color="#ffffff" castShadow />
         <pointLight position={[0, 0, 0]} intensity={1} color="#00ffff" distance={100} />
 
-        {/* Spaceship - IMPORTANT: Pass joystick values correctly */}
+        {/* Spaceship */}
         <Spaceship 
           setHud={setHud} 
           paused={paused} 
           joystickDir={joystickDir}
-          isMobile={true} // Always true so joystick works
+          isMobile={isMobileDevice}
           mobileVertical={mobileVertical}
           mobileBoost={mobileBoost}
         />
@@ -321,20 +378,6 @@ useEffect(() => {
         )}
       </AnimatePresence>
 
-      {/* Desktop Controls - Hide on portrait, show on landscape desktop */}
-      {!paused && gameMode === "exploration" && isLandscape && window.innerWidth > 1000 && (
-        <motion.div className="desktop-controls" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-          <div><strong>🎮 NAVIGATION:</strong></div>
-          <div>W/↑ - Forward Thrust</div>
-          <div>A/← D/→ - Strafe Left/Right</div>
-          <div>S/↓ - Reverse</div>
-          <div>SPACE - Ascend</div>
-          <div>SHIFT - Descend</div>
-          <div><strong>🎯 INTERACTION:</strong></div>
-          <div>Approach stations to dock</div>
-        </motion.div>
-      )}
-
       {/* Professional Mode */}
       {gameMode === "professional" && (
         <motion.div className="professional-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
@@ -361,20 +404,51 @@ useEffect(() => {
         {showContact && <ContactOverlay onClose={() => { setShowContact(false); setPaused(false); }} />}
       </AnimatePresence>
 
-      {/* Mobile Controls - Show IMMEDIATELY in landscape */}
-      {!paused && gameMode === "exploration" && isLandscape && isMobileDevice && (
-  <div className="mobile-controls-container">
+      {/* MOBILE CONTROLS - Force show with inline styles for testing */}
+      {/* MOBILE CONTROLS - Simplified with force visibility */}
+{!paused && gameMode === "exploration" && isMobileDevice && (
+  <div 
+    style={{ 
+      position: 'fixed',
+      bottom: '0',
+      left: '0',
+      right: '0',
+      height: '160px',
+      zIndex: '99999',
+      display: isLandscape ? 'flex' : 'none',
+      justifyContent: 'space-between',
+      alignItems: 'flex-end',
+      padding: '0 30px 20px 30px',
+      pointerEvents: 'none',
+      background: 'rgba(0,0,0,0.1)' // Debug background
+    }}
+  >
+    {/* Debug info */}
+    <div style={{
+      position: 'absolute',
+      top: '10px',
+      left: '10px',
+      color: 'white',
+      fontSize: '12px',
+      background: 'rgba(0,0,0,0.8)',
+      padding: '5px'
+    }}>
+      Mobile: {isMobileDevice ? 'YES' : 'NO'} | 
+      Landscape: {isLandscape ? 'YES' : 'NO'} | 
+      Size: {window.innerWidth}x{window.innerHeight}
+    </div>
+
     {/* Left side: Joystick */}
-    <div className="mobile-joystick">
+    <div style={{ pointerEvents: 'auto' }}>
       <Joystick
-        size={100}
-        baseColor="rgba(0,255,255,0.15)"
+        size={80}
+        baseColor="rgba(0,255,255,0.3)"
         stickColor="#00ffff"
         move={(e) => {
           if (e && e.x !== null && e.y !== null) {
             const nx = (e.x / 50) * 10;
             const ny = (e.y / 50) * 10;
-            console.log("Joystick raw:", e.x, e.y, "scaled:", nx, ny);
+            console.log("Joystick:", nx, ny);
             setJoystickDir({ x: nx, y: ny });
           }
         }}
@@ -385,66 +459,175 @@ useEffect(() => {
       />
     </div>
 
-        {/* Right side: Action buttons */}
-    <div className="mobile-action-buttons">
+    {/* Right side: Action buttons */}
+    <div style={{ 
+      display: 'flex', 
+      gap: '10px', 
+      alignItems: 'flex-end',
+      pointerEvents: 'auto'
+    }}>
+      {/* UP Button */}
       <button 
-        className="mobile-btn up-btn"
-        onTouchStart={(e) => { e.preventDefault(); setMobileVertical('up'); }}
-        onTouchEnd={(e) => { e.preventDefault(); setMobileVertical(null); }}
+        style={{
+          width: '50px',
+          height: '50px',
+          borderRadius: '50%',
+          background: 'rgba(0, 255, 100, 0.2)',
+          border: '2px solid #00ff64',
+          color: '#00ff64',
+          fontSize: '20px',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          touchAction: 'none',
+          cursor: 'pointer'
+        }}
+        onTouchStart={(e) => { 
+          e.preventDefault(); 
+          setMobileVertical('up'); 
+          console.log('UP pressed');
+        }}
+        onTouchEnd={(e) => { 
+          e.preventDefault(); 
+          setMobileVertical(null); 
+          console.log('UP released');
+        }}
         onMouseDown={() => setMobileVertical('up')}
         onMouseUp={() => setMobileVertical(null)}
         onMouseLeave={() => setMobileVertical(null)}
       >
-        ↑<span>UP</span>
+        ↑
       </button>
       
+      {/* DOWN Button */}
       <button 
-        className="mobile-btn down-btn"
-        onTouchStart={(e) => { e.preventDefault(); setMobileVertical('down'); }}
-        onTouchEnd={(e) => { e.preventDefault(); setMobileVertical(null); }}
+        style={{
+          width: '50px',
+          height: '50px',
+          borderRadius: '50%',
+          background: 'rgba(100, 100, 255, 0.2)',
+          border: '2px solid #6464ff',
+          color: '#6464ff',
+          fontSize: '20px',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          touchAction: 'none',
+          cursor: 'pointer'
+        }}
+        onTouchStart={(e) => { 
+          e.preventDefault(); 
+          setMobileVertical('down');
+          console.log('DOWN pressed');
+        }}
+        onTouchEnd={(e) => { 
+          e.preventDefault(); 
+          setMobileVertical(null);
+          console.log('DOWN released');
+        }}
         onMouseDown={() => setMobileVertical('down')}
         onMouseUp={() => setMobileVertical(null)}
         onMouseLeave={() => setMobileVertical(null)}
       >
-        ↓<span>DOWN</span>
+        ↓
       </button>
 
+      {/* BOOST Button */}
       <button 
-        className={`mobile-btn boost-btn ${hud.fuel < 10 ? 'disabled' : ''}`}
-        onTouchStart={(e) => { e.preventDefault(); if (hud.fuel >= 10) setMobileBoost(true); }}
-        onTouchEnd={(e) => { e.preventDefault(); setMobileBoost(false); }}
+        style={{
+          width: '60px',
+          height: '60px',
+          borderRadius: '50%',
+          background: 'rgba(255, 100, 0, 0.2)',
+          border: '2px solid #ff6400',
+          color: '#ff6400',
+          fontSize: '24px',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          touchAction: 'none',
+          cursor: 'pointer',
+          opacity: hud.fuel < 10 ? 0.3 : 1
+        }}
+        onTouchStart={(e) => { 
+          e.preventDefault(); 
+          if (hud.fuel >= 10) {
+            setMobileBoost(true);
+            console.log('BOOST pressed');
+          }
+        }}
+        onTouchEnd={(e) => { 
+          e.preventDefault(); 
+          setMobileBoost(false);
+          console.log('BOOST released');
+        }}
         onMouseDown={() => hud.fuel >= 10 && setMobileBoost(true)}
         onMouseUp={() => setMobileBoost(false)}
         onMouseLeave={() => setMobileBoost(false)}
         disabled={hud.fuel < 10}
       >
-        ⚡<span>BOOST</span>
+        ⚡
       </button>
     </div>
   </div>
 )}
 
-{/* Desktop Controls - Show on desktop in landscape */}
-{!paused && gameMode === "exploration" && isLandscape && !isMobileDevice && (
-  <motion.div className="desktop-controls" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-    <div><strong>🎮 NAVIGATION:</strong></div>
-    <div>W/↑ - Forward Thrust</div>
-    <div>A/← D/→ - Strafe Left/Right</div>
-    <div>S/↓ - Reverse</div>
-    <div>SPACE - Ascend</div>
-    <div>SHIFT - Descend</div>
-    <div><strong>🎯 INTERACTION:</strong></div>
-    <div>Approach stations to dock</div>
-  </motion.div>
-)}
-
-
-      {/* Orientation Overlay - Show on mobile portrait */}
+{/* Orientation Overlay - Show on mobile portrait */}
 {!isLandscape && isMobileDevice && (
-  <div className="orientation-overlay">
+  <div style={{
+    position: 'fixed',
+    inset: '0',
+    background: 'black',
+    color: 'white',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: '20px',
+    zIndex: '9999',
+    textAlign: 'center',
+    fontFamily: "'Space Mono', monospace"
+  }}>
     🔄 Please rotate your device to landscape
+    <br />
+    <small style={{ marginTop: '10px', fontSize: '14px' }}>
+      Current: {window.innerWidth}x{window.innerHeight}
+    </small>
   </div>
 )}
+      {/* Desktop Controls - Show on desktop in landscape */}
+      {!paused && gameMode === "exploration" && isLandscape && !isMobileDevice && (
+        <motion.div className="desktop-controls" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+          <div><strong>🎮 NAVIGATION:</strong></div>
+          <div>W/↑ - Forward Thrust</div>
+          <div>A/← D/→ - Strafe Left/Right</div>
+          <div>S/↓ - Reverse</div>
+          <div>SPACE - Ascend</div>
+          <div>SHIFT - Descend</div>
+          <div><strong>🎯 INTERACTION:</strong></div>
+          <div>Approach stations to dock</div>
+        </motion.div>
+      )}
+
+      {/* Orientation Overlay - Show on mobile portrait */}
+      {!isLandscape && isMobileDevice && (
+        <div className="orientation-overlay" style={{
+          position: 'fixed',
+          inset: '0',
+          background: 'black',
+          color: 'white',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: '20px',
+          zIndex: 9999,
+          textAlign: 'center'
+        }}>
+          🔄 Please rotate your device to landscape
+        </div>
+      )}
     </div>
   );
 };

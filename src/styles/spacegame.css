@@ -7,7 +7,7 @@
   height: 180px;
   pointer-events: none;
   z-index: 99999;
-  display: flex;
+  display: none; /* Hidden by default */
   justify-content: space-between;
   align-items: flex-end;
   padding: 0 20px 20px 20px;
@@ -120,7 +120,7 @@
   color: white;
   font-size: 12px;
   z-index: 1000;
-  display: grid;
+  display: none; /* Hidden by default */
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 15px;
 }
@@ -131,7 +131,7 @@
   inset: 0;
   background: black;
   color: white;
-  display: flex;
+  display: none; /* Hidden by default */
   align-items: center;
   justify-content: center;
   font-size: 20px;
@@ -140,35 +140,9 @@
   font-family: 'Space Mono', monospace;
 }
 
-/* ===== Responsive Adjustments ===== */
+/* ===== FIXED RESPONSIVE RULES ===== */
 
-/* Show mobile controls on mobile devices in landscape, hide desktop controls */
-@media (max-width: 1024px) and (orientation: landscape) {
-  .mobile-controls-container {
-    display: flex !important;
-  }
-  
-  .desktop-controls {
-    display: none !important;
-  }
-  
-  .orientation-overlay {
-    display: none !important;
-  }
-}
-
-/* Hide mobile controls on desktop/large screens, show desktop controls */
-@media (min-width: 1025px) {
-  .mobile-controls-container {
-    display: none !important;
-  }
-  
-  .desktop-controls {
-    display: grid !important;
-  }
-}
-
-/* Show orientation overlay on mobile portrait */
+/* Mobile Portrait: Show orientation message */
 @media (max-width: 1024px) and (orientation: portrait) {
   .mobile-controls-container {
     display: none !important;
@@ -183,8 +157,38 @@
   }
 }
 
-/* Adjust for smaller mobile screens */
-@media (max-width: 480px) and (orientation: landscape) {
+/* Mobile Landscape: Show mobile controls ONLY */
+@media (max-width: 1024px) and (orientation: landscape) {
+  .mobile-controls-container {
+    display: flex !important;
+  }
+  
+  .desktop-controls {
+    display: none !important;
+  }
+  
+  .orientation-overlay {
+    display: none !important;
+  }
+}
+
+/* Desktop/Large screens: Show desktop controls ONLY */
+@media (min-width: 1025px) {
+  .mobile-controls-container {
+    display: none !important;
+  }
+  
+  .desktop-controls {
+    display: grid !important;
+  }
+  
+  .orientation-overlay {
+    display: none !important;
+  }
+}
+
+/* Adjust for smaller mobile screens in landscape */
+@media (max-width: 768px) and (orientation: landscape) {
   .mobile-controls-container {
     padding: 0 10px 10px 10px;
     height: 160px;
@@ -207,11 +211,11 @@
   }
 }
 
-/* Adjust for landscape mode with limited height */
-@media (max-height: 500px) and (orientation: landscape) {
+/* Adjust for very small mobile screens in landscape */
+@media (max-width: 480px) and (orientation: landscape) {
   .mobile-controls-container {
+    padding: 0 8px 8px 8px;
     height: 140px;
-    padding: 0 15px 10px 15px;
   }
   
   .mobile-btn {
@@ -224,5 +228,33 @@
     width: 55px;
     height: 55px;
     font-size: 22px;
+  }
+  
+  .mobile-btn span {
+    font-size: 6px;
+  }
+}
+
+/* Adjust for landscape mode with very limited height */
+@media (max-height: 500px) and (orientation: landscape) and (max-width: 1024px) {
+  .mobile-controls-container {
+    height: 120px;
+    padding: 0 10px 5px 10px;
+  }
+  
+  .mobile-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
+  }
+  
+  .boost-btn {
+    width: 50px;
+    height: 50px;
+    font-size: 20px;
+  }
+  
+  .mobile-btn span {
+    font-size: 6px;
   }
 }
