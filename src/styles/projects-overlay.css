@@ -1,0 +1,29 @@
+/* Default card */
+.project-card {
+  width: 280px;
+  padding: 20px;
+  transition: all 0.3s ease;
+}
+
+/* Mobile Landscape Fix */
+@media (max-width: 900px) and (orientation: landscape) {
+  .project-card {
+    width: 200px;
+    padding: 12px;
+    font-size: 0.7rem;   /* ⬅️ shrink overall font */
+    transform: scale(0.85);
+  }
+
+  .project-card h3 {
+    font-size: 13px !important;   /* smaller title */
+  }
+
+  .project-card p {
+    font-size: 10px !important;   /* smaller desc */
+    line-height: 1.2 !important;
+  }
+
+  .project-card span {
+    font-size: 9px !important;    /* smaller tech tags */
+  }
+}

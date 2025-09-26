@@ -4,6 +4,7 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { OrbitControls, Stars, useGLTF, Html, Text } from "@react-three/drei";
 import { ReactTyped } from "react-typed";
 import * as THREE from "three";
+import "../../styles/projects-overlay.css";
 
 interface ProjectsOverlayProps {
   onClose: () => void;
@@ -1106,33 +1107,30 @@ const ProjectSatellite: React.FC<{
       {!isBehindPlanet && (
         <Html center distanceFactor={12}>
           <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ 
-              scale: hovered ? 1.15 : 1, 
-              opacity: isBehindPlanet ? 0.3 : 1,
-            }}
-            onMouseEnter={() => setHovered(true)}
-            onMouseLeave={() => setHovered(false)}
-            onClick={onClick}
-            style={{
-              background: `linear-gradient(135deg, ${project.color}25, rgba(0,0,0,0.95))`,
-              border: `2px solid ${project.color}`,
-              borderRadius: "16px",
-              padding: "20px",
-              width: "280px",
-              textAlign: "center",
-              cursor: "pointer",
-              pointerEvents: "auto",
-              backdropFilter: "blur(15px)",
-              boxShadow: hovered 
-                ? `0 0 40px ${project.color}70, inset 0 0 30px rgba(255,255,255,0.2)` 
-                : `0 0 20px ${project.color}40`,
-              color: "white",
-              fontFamily: "'Space Mono', monospace",
-              transform: isSelected ? "scale(1.1)" : "scale(1)",
-              transition: "all 0.3s ease",
-            }}
-          >
+  className="project-card"
+  initial={{ scale: 0.8, opacity: 0 }}
+  animate={{ scale: hovered ? 1.15 : 1, opacity: isBehindPlanet ? 0.3 : 1 }}
+  onMouseEnter={() => setHovered(true)}
+  onMouseLeave={() => setHovered(false)}
+  onClick={onClick}
+  style={{
+    background: `linear-gradient(135deg, ${project.color}25, rgba(0,0,0,0.95))`,
+    border: `2px solid ${project.color}`,
+    borderRadius: "16px",
+    textAlign: "center",
+    cursor: "pointer",
+    pointerEvents: "auto",
+    backdropFilter: "blur(15px)",
+    boxShadow: hovered 
+      ? `0 0 40px ${project.color}70, inset 0 0 30px rgba(255,255,255,0.2)` 
+      : `0 0 20px ${project.color}40`,
+    color: "white",
+    fontFamily: "'Space Mono', monospace",
+    transform: isSelected ? "scale(1.1)" : "scale(1)",
+    transition: "all 0.3s ease",
+  }}
+>
+
             <motion.h3 
               style={{ 
                 fontSize: "18px", 
@@ -1241,6 +1239,7 @@ const ProjectsOverlay: React.FC<ProjectsOverlayProps> = ({ onClose }) => {
 
   return (
     <motion.div
+     className="projects-overlay"
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.9 }}
