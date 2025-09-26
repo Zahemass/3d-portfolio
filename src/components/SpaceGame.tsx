@@ -36,6 +36,22 @@ interface SpaceGameProps {
 }
 
 const SpaceGame: React.FC<SpaceGameProps> = ({ darkMode, setDarkMode }) => {
+
+  const [isMobileDevice, setIsMobileDevice] = useState(false);
+
+useEffect(() => {
+  // Detect if it's a mobile device
+  const checkIfMobile = () => {
+    const isMobile = window.innerWidth <= 1024 || 
+                    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    setIsMobileDevice(isMobile);
+  };
+
+  checkIfMobile();
+  window.addEventListener('resize', checkIfMobile);
+  
+  return () => window.removeEventListener('resize', checkIfMobile);
+}, []);
   // Orientation detection - immediately responsive
   const [isLandscape, setIsLandscape] = useState(false);
   
@@ -346,76 +362,89 @@ const SpaceGame: React.FC<SpaceGameProps> = ({ darkMode, setDarkMode }) => {
       </AnimatePresence>
 
       {/* Mobile Controls - Show IMMEDIATELY in landscape */}
-      {!paused && gameMode === "exploration" && isLandscape && (
-        <div className="mobile-controls-container">
-          {/* Left side: Joystick */}
-          <div className="mobile-joystick">
-            <Joystick
-              size={100}
-              baseColor="rgba(0,255,255,0.15)"
-              stickColor="#00ffff"
-              move={(e) => {
-                // Fix TypeScript error and properly map joystick to game coordinates
-                if (e && e.x !== null && e.y !== null) {
-                  // Simple direct mapping with proper scaling
-                  const nx = (e.x / 50) * 10;   // Direct X mapping
-                  const ny = (e.y / 50) * 10;   // Direct Y mapping
-                  console.log("Joystick raw:", e.x, e.y, "scaled:", nx, ny);
-                  setJoystickDir({ x: nx, y: ny });
-                }
-              }}
-              stop={() => {
-                console.log("Joystick stopped");
-                setJoystickDir({ x: 0, y: 0 });
-              }}
-            />
-          </div>
+      {!paused && gameMode === "exploration" && isLandscape && isMobileDevice && (
+  <div className="mobile-controls-container">
+    {/* Left side: Joystick */}
+    <div className="mobile-joystick">
+      <Joystick
+        size={100}
+        baseColor="rgba(0,255,255,0.15)"
+        stickColor="#00ffff"
+        move={(e) => {
+          if (e && e.x !== null && e.y !== null) {
+            const nx = (e.x / 50) * 10;
+            const ny = (e.y / 50) * 10;
+            console.log("Joystick raw:", e.x, e.y, "scaled:", nx, ny);
+            setJoystickDir({ x: nx, y: ny });
+          }
+        }}
+        stop={() => {
+          console.log("Joystick stopped");
+          setJoystickDir({ x: 0, y: 0 });
+        }}
+      />
+    </div>
 
-          {/* Right side: Action buttons */}
-          <div className="mobile-action-buttons">
-            <button 
-              className="mobile-btn up-btn"
-              onTouchStart={() => setMobileVertical('up')}
-              onTouchEnd={() => setMobileVertical(null)}
-              onMouseDown={() => setMobileVertical('up')}
-              onMouseUp={() => setMobileVertical(null)}
-              onMouseLeave={() => setMobileVertical(null)}
-            >
-              ↑<span>UP</span>
-            </button>
-            
-            <button 
-              className="mobile-btn down-btn"
-              onTouchStart={() => setMobileVertical('down')}
-              onTouchEnd={() => setMobileVertical(null)}
-              onMouseDown={() => setMobileVertical('down')}
-              onMouseUp={() => setMobileVertical(null)}
-              onMouseLeave={() => setMobileVertical(null)}
-            >
-              ↓<span>DOWN</span>
-            </button>
+        {/* Right side: Action buttons */}
+    <div className="mobile-action-buttons">
+      <button 
+        className="mobile-btn up-btn"
+        onTouchStart={(e) => { e.preventDefault(); setMobileVertical('up'); }}
+        onTouchEnd={(e) => { e.preventDefault(); setMobileVertical(null); }}
+        onMouseDown={() => setMobileVertical('up')}
+        onMouseUp={() => setMobileVertical(null)}
+        onMouseLeave={() => setMobileVertical(null)}
+      >
+        ↑<span>UP</span>
+      </button>
+      
+      <button 
+        className="mobile-btn down-btn"
+        onTouchStart={(e) => { e.preventDefault(); setMobileVertical('down'); }}
+        onTouchEnd={(e) => { e.preventDefault(); setMobileVertical(null); }}
+        onMouseDown={() => setMobileVertical('down')}
+        onMouseUp={() => setMobileVertical(null)}
+        onMouseLeave={() => setMobileVertical(null)}
+      >
+        ↓<span>DOWN</span>
+      </button>
 
-            <button 
-              className={`mobile-btn boost-btn ${hud.fuel < 10 ? 'disabled' : ''}`}
-              onTouchStart={() => hud.fuel >= 10 && setMobileBoost(true)}
-              onTouchEnd={() => setMobileBoost(false)}
-              onMouseDown={() => hud.fuel >= 10 && setMobileBoost(true)}
-              onMouseUp={() => setMobileBoost(false)}
-              onMouseLeave={() => setMobileBoost(false)}
-              disabled={hud.fuel < 10}
-            >
-              ⚡<span>BOOST</span>
-            </button>
-          </div>
-        </div>
-      )}
+      <button 
+        className={`mobile-btn boost-btn ${hud.fuel < 10 ? 'disabled' : ''}`}
+        onTouchStart={(e) => { e.preventDefault(); if (hud.fuel >= 10) setMobileBoost(true); }}
+        onTouchEnd={(e) => { e.preventDefault(); setMobileBoost(false); }}
+        onMouseDown={() => hud.fuel >= 10 && setMobileBoost(true)}
+        onMouseUp={() => setMobileBoost(false)}
+        onMouseLeave={() => setMobileBoost(false)}
+        disabled={hud.fuel < 10}
+      >
+        ⚡<span>BOOST</span>
+      </button>
+    </div>
+  </div>
+)}
 
-      {/* Orientation Overlay - Show in portrait */}
-      {!isLandscape && (
-        <div className="orientation-overlay">
-          🔄 Please rotate your device to landscape
-        </div>
-      )}
+{/* Desktop Controls - Show on desktop in landscape */}
+{!paused && gameMode === "exploration" && isLandscape && !isMobileDevice && (
+  <motion.div className="desktop-controls" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+    <div><strong>🎮 NAVIGATION:</strong></div>
+    <div>W/↑ - Forward Thrust</div>
+    <div>A/← D/→ - Strafe Left/Right</div>
+    <div>S/↓ - Reverse</div>
+    <div>SPACE - Ascend</div>
+    <div>SHIFT - Descend</div>
+    <div><strong>🎯 INTERACTION:</strong></div>
+    <div>Approach stations to dock</div>
+  </motion.div>
+)}
+
+
+      {/* Orientation Overlay - Show on mobile portrait */}
+{!isLandscape && isMobileDevice && (
+  <div className="orientation-overlay">
+    🔄 Please rotate your device to landscape
+  </div>
+)}
     </div>
   );
 };
