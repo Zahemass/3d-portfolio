@@ -143,9 +143,9 @@ const Spaceship: React.FC<SpaceshipProps> = ({
       // Disable keyboard movement when joystick is active
       forward = backward = left = right = false;
 
-      // Apply joystick to velocity with correct directions
-      targetVelocity.x += joyX * speed * 5.0; // Left/right movement
-      targetVelocity.z += joyY * speed * 5.0; // Forward/back (no negative needed now)
+      // FIX ALL OPPOSITE DIRECTIONS
+      targetVelocity.x -= joyX * speed * 5.0;  // INVERT X: fixes left/right being opposite
+      targetVelocity.z -= joyY * speed * 5.0;  // INVERT Z: fixes forward/back being opposite
 
       // Check if forward movement for boost
       if (joyY > 0.5 && boostPressed && fuel > 10) {

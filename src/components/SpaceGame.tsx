@@ -355,11 +355,11 @@ const SpaceGame: React.FC<SpaceGameProps> = ({ darkMode, setDarkMode }) => {
               baseColor="rgba(0,255,255,0.15)"
               stickColor="#00ffff"
               move={(e) => {
-                // Fix TypeScript error and CORRECT DIRECTIONS
+                // Fix TypeScript error and properly map joystick to game coordinates
                 if (e && e.x !== null && e.y !== null) {
-                  // Correct direction mapping: no inversion needed
-                  const nx = -(e.x / 50) * 10; // Invert X for correct left/right
-                  const ny = (e.y / 50) * 10; // Don't invert Y - positive should be forward
+                  // Simple direct mapping with proper scaling
+                  const nx = (e.x / 50) * 10;   // Direct X mapping
+                  const ny = (e.y / 50) * 10;   // Direct Y mapping
                   console.log("Joystick raw:", e.x, e.y, "scaled:", nx, ny);
                   setJoystickDir({ x: nx, y: ny });
                 }
