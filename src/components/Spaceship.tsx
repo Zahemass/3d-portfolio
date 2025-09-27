@@ -12,6 +12,7 @@ interface SpaceshipProps {
   joystickDir?: { x: number; y: number };
   isMobile?: boolean;
   mobileVertical?: 'up' | 'down' | null;
+  mobileRotation?: 'left' | 'right' | null;
   mobileBoost?: boolean;
   cameraControl?: {
     isDragging: boolean;
@@ -30,10 +31,11 @@ interface SpaceshipProps {
 }
 
 /**
- * Spaceship component
- * - Handles physics, movement, effects, and HUD updates
- * - Accepts both keyboard input and mobile joystick input
- * - Enhanced PUBG/Free Fire style TPS camera system
+ * Simplified Spaceship component - PUBG TPS Style
+ * - Clean WASD movement relative to camera
+ * - Mouse handles all camera rotation
+ * - Simplified physics and animations
+ * - Removed complex rotation keys and unnecessary controls
  */
 const Spaceship: React.FC<SpaceshipProps> = ({
   setHud,
@@ -41,6 +43,7 @@ const Spaceship: React.FC<SpaceshipProps> = ({
   joystickDir,
   isMobile,
   mobileVertical,
+  mobileRotation,
   mobileBoost,
   cameraControl 
 }) => {
@@ -48,51 +51,40 @@ const Spaceship: React.FC<SpaceshipProps> = ({
   const shipRef = useRef<Group>(null!);
   const { scene } = useGLTF("/spaceship.glb");
 
-  /** === Physics constants === */
-  const speed = 0.4;
-  const maxSpeed = 3.0;
-  const acceleration = 0.08;
-  const friction = 0.96;
+  /** === Simplified Physics === */
+  const speed = 0.5;
+  const maxSpeed = 2.5;
+  const acceleration = 0.12;
+  const friction = 0.94;
   const velocity = useRef(new Vector3(0, 0, 0));
 
-  /** === Camera tracking refs === */
+  /** === Camera tracking === */
   const cameraPosition = useRef(new Vector3());
   const cameraTarget = useRef(new Vector3());
 
   /** === Effects refs === */
   const exhaustRef = useRef<any>(null);
-  const leftThrusterRef = useRef<any>(null);
-  const rightThrusterRef = useRef<any>(null);
 
   /** === States === */
-  const [isThrusting, setIsThrusting] = useState(false);
-  const [isBoosting, setIsBoosting] = useState(false);
   const [fuel, setFuel] = useState(100);
   const [health, setHealth] = useState(100);
-  const [shieldActive, setShieldActive] = useState(false);
+  const [isThrusting, setIsThrusting] = useState(false);
+  const [isBoosting, setIsBoosting] = useState(false);
 
+  // Simplified animations
   const [tilt, setTilt] = useState(0);
-  const [yaw, setYaw] = useState(0);
   const [pitch, setPitch] = useState(0);
-  const [roll, setRoll] = useState(0);
 
-  /** === Keyboard Tracking === */
+  /** === Simplified Keyboard Tracking === */
   const keys = useRef<{ [key: string]: boolean }>({});
-  const keyPressTime = useRef<{ [key: string]: number }>({});
 
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
-      const key = e.key.toLowerCase();
-      if (!keys.current[key]) {
-        keyPressTime.current[key] = Date.now();
-      }
-      keys.current[key] = true;
+      keys.current[e.key.toLowerCase()] = true;
     };
 
     const up = (e: KeyboardEvent) => {
-      const key = e.key.toLowerCase();
-      keys.current[key] = false;
-      delete keyPressTime.current[key];
+      keys.current[e.key.toLowerCase()] = false;
     };
 
     window.addEventListener("keydown", down);
@@ -109,7 +101,7 @@ const Spaceship: React.FC<SpaceshipProps> = ({
 
     const time = clock.getElapsedTime();
 
-    /** If game paused */
+    /** Pause handling */
     if (paused) {
       velocity.current.set(0, 0, 0);
       setIsThrusting(false);
@@ -118,23 +110,37 @@ const Spaceship: React.FC<SpaceshipProps> = ({
       return;
     }
 
-    /** === Movement Setup === */
-    let targetVelocity = new Vector3();
-    let isUsingThrust = false;
-    let isUsingBoost = false;
+    /** === Camera Direction for Movement === */
+    let cameraAngleH = 0;
+    
+    if (cameraControl) {
+      cameraAngleH = cameraControl.rotation.horizontal;
+    }
 
-    /** === Input Detection (keyboard defaults) === */
-    let forward = keys.current["w"] || keys.current["arrowup"];
-    let backward = keys.current["s"] || keys.current["arrowdown"];
-    let left = keys.current["a"] || keys.current["arrowleft"];
-    let right = keys.current["d"] || keys.current["arrowright"];
-    let upPressed = keys.current["shift"]; // space
-    let downPressed = keys.current["control"]; // shift
-    let boostPressed = keys.current["q"] || keys.current["e"];
+    // Camera-relative directions (PUBG style)
+    const cameraForward = new Vector3(
+      Math.sin(cameraAngleH),
+      0,
+      Math.cos(cameraAngleH)
+    ).normalize();
 
-    /** === Mobile Controls Override === */
+    const cameraRight = new Vector3(
+      Math.cos(cameraAngleH),
+      0,
+      -Math.sin(cameraAngleH)
+    ).normalize();
+
+    /** === Simplified Input Detection === */
+    let forward = keys.current["w"];
+    let backward = keys.current["s"];
+    let left = keys.current["a"];
+    let right = keys.current["d"];
+    let upPressed = keys.current[" "] || keys.current["shift"]; // Space or Shift
+    let downPressed = keys.current["control"];
+    let boostPressed = keys.current["e"];
+
+    /** === Mobile Override === */
     if (isMobile) {
-      // Override vertical controls with mobile buttons
       if (mobileVertical === 'up') {
         upPressed = true;
         downPressed = false;
@@ -143,95 +149,85 @@ const Spaceship: React.FC<SpaceshipProps> = ({
         downPressed = true;
       }
       
-      // Override boost with mobile button
       if (mobileBoost) {
         boostPressed = true;
       }
     }
 
-    /** === Joystick Movement === */
-    let joyX = 0;
-    let joyY = 0;
+    /** === Movement Calculation === */
+    let targetVelocity = new Vector3();
+    let isUsingThrust = false;
+    let isUsingBoost = false;
 
-    if (joystickDir) {
-      joyX = joystickDir.x;
-      joyY = joystickDir.y;
-    }
-
-    // Apply joystick input if active (very low threshold for maximum sensitivity)
-    if (Math.abs(joyX) > 0.001 || Math.abs(joyY) > 0.001) {
-      // Disable keyboard movement when joystick is active
-      forward = backward = left = right = false;
-
-      // FIX ALL OPPOSITE DIRECTIONS
-      targetVelocity.x += joyX * speed * 5.0;  // INVERT X: fixes left/right being opposite
-      targetVelocity.z -= joyY * speed * 5.0;  // INVERT Z: fixes forward/back being opposite
-
-      // Check if forward movement for boost
-      if (joyY > 0.5 && boostPressed && fuel > 10) {
-        targetVelocity.z -= speed * 1.5;
-        isUsingBoost = true;
-        setFuel((prev) => Math.max(0, prev - 0.8));
-      } else if (joyY > 0.1) {
-        setFuel((prev) => Math.min(100, prev + 0.1));
-      }
-
-      isUsingThrust = true;
-
-      // Tilt / pitch for ship animation
-      setTilt(MathUtils.lerp(tilt, -joyX * 0.6, 0.1));
-      setPitch(MathUtils.lerp(pitch, -joyY * 0.4, 0.1));
-    }
-
-    /** === Keyboard Forward / Backward === */
+    /** === WASD Movement (Camera Relative) === */
     if (forward) {
-      targetVelocity.z -= speed;
+      targetVelocity.add(cameraForward.clone().multiplyScalar(speed));
       isUsingThrust = true;
+      setPitch(MathUtils.lerp(pitch, -0.1, 0.1));
 
       if (boostPressed && fuel > 10) {
-        targetVelocity.z -= speed * 1.5;
+        targetVelocity.add(cameraForward.clone().multiplyScalar(speed));
         isUsingBoost = true;
-        setFuel((prev) => Math.max(0, prev - 0.8));
-      } else {
-        setFuel((prev) => Math.min(100, prev + 0.1));
+        setFuel(prev => Math.max(0, prev - 1.0));
       }
-    } else if (backward) {
-      targetVelocity.z += speed * 0.7;
+    }
+
+    if (backward) {
+      targetVelocity.add(cameraForward.clone().multiplyScalar(-speed * 0.6));
       isUsingThrust = true;
+      setPitch(MathUtils.lerp(pitch, 0.1, 0.1));
     }
 
-    /** === Keyboard Left / Right Strafing === */
     if (left) {
-      targetVelocity.x -= speed * 0.8;
-      setTilt(MathUtils.lerp(tilt, 0.6, 0.1));
-      setRoll(MathUtils.lerp(roll, 0.3, 0.05));
-      if (forward) setYaw(0.015);
-    } else if (right) {
-      targetVelocity.x += speed * 0.8;
-      setTilt(MathUtils.lerp(tilt, -0.6, 0.1));
-      setRoll(MathUtils.lerp(roll, -0.3, 0.05));
-      if (forward) setYaw(-0.015);
-    } else if (!joystickDir || (Math.abs(joyX) < 0.05 && Math.abs(joyY) < 0.05)) {
-      setTilt(MathUtils.lerp(tilt, 0, 0.08));
-      setRoll(MathUtils.lerp(roll, 0, 0.05));
-      setYaw(0);
+      targetVelocity.add(cameraRight.clone().multiplyScalar(-speed));
+      setTilt(MathUtils.lerp(tilt, 0.3, 0.1));
     }
 
-    /** === Vertical (Ascend/Descend) === */
+    if (right) {
+      targetVelocity.add(cameraRight.clone().multiplyScalar(speed));
+      setTilt(MathUtils.lerp(tilt, -0.3, 0.1));
+    }
+
+    /** === Joystick Movement (Mobile) === */
+    if (joystickDir && (Math.abs(joystickDir.x) > 0.1 || Math.abs(joystickDir.y) > 0.1)) {
+      const joyForward = cameraForward.clone().multiplyScalar(-joystickDir.y * speed * 4.0);
+      const joyRight = cameraRight.clone().multiplyScalar(joystickDir.x * speed * 4.0);
+      
+      targetVelocity.add(joyForward);
+      targetVelocity.add(joyRight);
+
+      setTilt(MathUtils.lerp(tilt, -joystickDir.x * 0.4, 0.1));
+      setPitch(MathUtils.lerp(pitch, -joystickDir.y * 0.2, 0.1));
+      
+      isUsingThrust = true;
+
+      if (joystickDir.y > 0.5 && mobileBoost && fuel > 10) {
+        targetVelocity.add(cameraForward.clone().multiplyScalar(speed));
+        isUsingBoost = true;
+        setFuel(prev => Math.max(0, prev - 1.0));
+      }
+    }
+
+    /** === Vertical Movement === */
     if (upPressed) {
       targetVelocity.y += speed * 0.8;
-      if (!joystickDir || Math.abs(joyY) < 0.05) {
-        setPitch(MathUtils.lerp(pitch, -0.2, 0.05));
-      }
       isUsingThrust = true;
-    } else if (downPressed) {
+    }
+
+    if (downPressed) {
       targetVelocity.y -= speed * 0.8;
-      if (!joystickDir || Math.abs(joyY) < 0.05) {
-        setPitch(MathUtils.lerp(pitch, 0.2, 0.05));
-      }
       isUsingThrust = true;
-    } else if (!joystickDir || Math.abs(joyY) < 0.05) {
-      setPitch(MathUtils.lerp(pitch, 0, 0.05));
+    }
+
+    /** === Reset animations when no input === */
+    if (!forward && !backward && !left && !right && (!joystickDir || (Math.abs(joystickDir.x) < 0.1 && Math.abs(joystickDir.y) < 0.1))) {
+      setTilt(MathUtils.lerp(tilt, 0, 0.08));
+      setPitch(MathUtils.lerp(pitch, 0, 0.08));
+    }
+
+    /** === Fuel regeneration === */
+    if (!isUsingBoost) {
+      setFuel(prev => Math.min(100, prev + 0.2));
     }
 
     /** === Apply Physics === */
@@ -245,82 +241,54 @@ const Spaceship: React.FC<SpaceshipProps> = ({
 
     shipRef.current.position.add(velocity.current);
 
-    /** === Ship Rotation & Animation === */
-    shipRef.current.rotation.z = MathUtils.lerp(
-      shipRef.current.rotation.z,
-      tilt,
-      0.1
-    );
-    shipRef.current.rotation.y += yaw;
-    shipRef.current.rotation.x = MathUtils.lerp(
-      shipRef.current.rotation.x,
-      pitch,
-      0.1
-    );
+    /** === Ship Rotation (Simplified) === */
+    // Face movement direction naturally
+    if (currentSpeed > 0.1) {
+      const movementDirection = velocity.current.clone().normalize();
+      const targetRotY = Math.atan2(movementDirection.x, movementDirection.z);
+      shipRef.current.rotation.y = MathUtils.lerp(shipRef.current.rotation.y, targetRotY, 0.08);
+    }
+    
+    // Apply tilt and pitch for visual feedback
+    shipRef.current.rotation.z = MathUtils.lerp(shipRef.current.rotation.z, tilt, 0.1);
+    shipRef.current.rotation.x = MathUtils.lerp(shipRef.current.rotation.x, pitch, 0.1);
 
     // Idle floating animation
     if (currentSpeed < 0.1) {
-      shipRef.current.position.y += Math.sin(time * 2) * 0.02;
-      shipRef.current.rotation.y += Math.sin(time * 1.5) * 0.005;
+      shipRef.current.position.y += Math.sin(time * 2) * 0.01;
     }
 
-    /** === Enhanced PUBG/Free Fire Style TPS Camera System === */
-    const baseHeight = 4;
-    let cameraDistance = 12;
-    let cameraAngleH = 0;
-    let cameraAngleV = 0;
-    let smoothing = 0.08; // Default smoothing
+    /** === PUBG Style TPS Camera === */
+    const baseHeight = 3;
+    let cameraDistance = 10;
+    let smoothing = 0.1;
 
-    // Get camera control values
     if (cameraControl) {
-      cameraAngleH = cameraControl.rotation.horizontal;
-      cameraAngleV = cameraControl.rotation.vertical;
-      cameraDistance = cameraControl.distance ?? 12;
-      smoothing = cameraControl.smoothing ?? 0.08;
+      cameraDistance = cameraControl.distance ?? 10;
+      smoothing = cameraControl.smoothing ?? 0.1;
     }
 
-    // Dynamic camera distance based on velocity (for cinematic effect)
-    const velocityInfluence = velocity.current.length() * 0.8;
-    const dynamicDistance = Math.max(8, Math.min(20, cameraDistance + velocityInfluence));
+    // Camera angle from control
+    const cameraAngleV = cameraControl ? cameraControl.rotation.vertical : 0;
 
-    // Calculate camera offset based on spherical coordinates
+    // Calculate camera position
     const cameraOffset = new Vector3(
-      Math.sin(cameraAngleH) * Math.cos(cameraAngleV) * dynamicDistance,
-      baseHeight + Math.sin(cameraAngleV) * dynamicDistance * 0.8,
-      Math.cos(cameraAngleH) * Math.cos(cameraAngleV) * dynamicDistance
+      Math.sin(cameraAngleH) * Math.cos(cameraAngleV) * cameraDistance,
+      baseHeight + Math.sin(cameraAngleV) * cameraDistance * 0.7,
+      Math.cos(cameraAngleH) * Math.cos(cameraAngleV) * cameraDistance
     );
 
-    // Target camera position
     const targetCamPos = shipRef.current.position.clone().add(cameraOffset);
-    
-    // Smooth camera position interpolation
     cameraPosition.current.lerp(targetCamPos, smoothing);
     camera.position.copy(cameraPosition.current);
 
-    // Calculate look target with offset for better view
+    // Look at ship
     const lookTarget = shipRef.current.position.clone();
-    lookTarget.y += 1; // Slightly above the ship
-    
-    // Add camera rotation influence to look target for more dynamic view
-    lookTarget.x += Math.sin(cameraAngleH) * 1.5;
-    lookTarget.z += Math.cos(cameraAngleH) * 1.5;
-    lookTarget.y += Math.sin(cameraAngleV) * 2;
-
-    // Smooth look target interpolation
-    cameraTarget.current.lerp(lookTarget, smoothing * 1.2);
+    lookTarget.y += 1;
+    cameraTarget.current.lerp(lookTarget, smoothing);
     camera.lookAt(cameraTarget.current);
 
-    // Ship rotation follows camera (subtle effect for immersion)
-    if (cameraControl && Math.abs(cameraAngleH) > 0.1) {
-      const shipTargetRotY = cameraAngleH * 0.1; // Reduced influence
-      shipRef.current.rotation.y = MathUtils.lerp(
-        shipRef.current.rotation.y,
-        shipTargetRotY,
-        0.02 // Slower interpolation for smoother effect
-      );
-    }
-
-    /** === HUD Update === */
+    /** === Update HUD === */
     setIsThrusting(isUsingThrust);
     setIsBoosting(isUsingBoost);
     setHud({
@@ -335,34 +303,19 @@ const Spaceship: React.FC<SpaceshipProps> = ({
 
     /** === Exhaust Effects === */
     if (exhaustRef.current) {
-      exhaustRef.current.rotation.y = Math.sin(time * 15) * 0.3;
       exhaustRef.current.scale.setScalar(
-        isUsingThrust ? 1 + Math.sin(time * 25) * 0.3 : 0.5
+        isUsingThrust ? 1 + Math.sin(time * 20) * 0.2 : 0.3
       );
       exhaustRef.current.material.emissiveIntensity = isUsingThrust
-        ? isUsingBoost
-          ? 4
-          : 2
-        : 0.5;
-    }
-
-    if (leftThrusterRef.current) {
-      const leftActive = left || (joystickDir && joyX < -0.3);
-      leftThrusterRef.current.scale.setScalar(leftActive ? 1 : 0.3);
-      leftThrusterRef.current.material.emissiveIntensity = leftActive ? 2 : 0.2;
-    }
-
-    if (rightThrusterRef.current) {
-      const rightActive = right || (joystickDir && joyX > 0.3);
-      rightThrusterRef.current.scale.setScalar(rightActive ? 1 : 0.3);
-      rightThrusterRef.current.material.emissiveIntensity = rightActive ? 2 : 0.2;
+        ? (isUsingBoost ? 4 : 2)
+        : 0.3;
     }
   });
 
   /** === JSX === */
   return (
     <group ref={shipRef} position={[0, 0, 5]}>
-      {/* === Main Ship === */}
+      {/* Main Ship */}
       <group>
         <primitive object={scene} scale={0.3} />
         <mesh scale={1.2}>
@@ -375,62 +328,27 @@ const Spaceship: React.FC<SpaceshipProps> = ({
         </mesh>
       </group>
 
-      {/* === Exhaust === */}
+      {/* Simplified Exhaust */}
       <group position={[0, -0.3, 3]} rotation={[Math.PI, 0, 0]}>
         <mesh ref={exhaustRef}>
           <coneGeometry
-            args={[0.3, isThrusting ? (isBoosting ? 1.2 : 0.8) : 0.3, 16]}
+            args={[0.3, isThrusting ? (isBoosting ? 1.0 : 0.6) : 0.2, 12]}
           />
           <meshStandardMaterial
             emissive={new Color(isBoosting ? "#00ffff" : "#ff4500")}
-            emissiveIntensity={isThrusting ? (isBoosting ? 4 : 2) : 0.5}
+            emissiveIntensity={isThrusting ? (isBoosting ? 4 : 2) : 0.3}
             transparent
             opacity={0.8}
           />
         </mesh>
-        <mesh position={[0, 0, 0.2]}>
-          <coneGeometry
-            args={[0.5, isThrusting ? (isBoosting ? 1.8 : 1.2) : 0.5, 16]}
-          />
-          <meshStandardMaterial
-            emissive={new Color(isBoosting ? "#0088ff" : "#ff6600")}
-            emissiveIntensity={isThrusting ? (isBoosting ? 2 : 1) : 0.3}
-            transparent
-            opacity={0.4}
-          />
-        </mesh>
         <pointLight
-          intensity={isThrusting ? (isBoosting ? 4 : 2) : 0.5}
-          distance={10}
+          intensity={isThrusting ? (isBoosting ? 3 : 1.5) : 0.3}
+          distance={8}
           color={isBoosting ? "#00ffff" : "#ff4500"}
         />
       </group>
 
-      {/* === Side Thrusters === */}
-      <group position={[-1.2, 0, 1]} rotation={[0, Math.PI / 2, 0]}>
-        <mesh ref={leftThrusterRef}>
-          <coneGeometry args={[0.15, 0.6, 8]} />
-          <meshStandardMaterial
-            emissive={new Color("#00ff88")}
-            emissiveIntensity={2}
-            transparent
-            opacity={0.7}
-          />
-        </mesh>
-      </group>
-      <group position={[1.2, 0, 1]} rotation={[0, -Math.PI / 2, 0]}>
-        <mesh ref={rightThrusterRef}>
-          <coneGeometry args={[0.15, 0.6, 8]} />
-          <meshStandardMaterial
-            emissive={new Color("#00ff88")}
-            emissiveIntensity={2}
-            transparent
-            opacity={0.7}
-          />
-        </mesh>
-      </group>
-
-      {/* === Boost Trail === */}
+      {/* Boost Trail */}
       {isBoosting && (
         <group position={[0, 0, 3]}>
           <mesh>
@@ -445,31 +363,17 @@ const Spaceship: React.FC<SpaceshipProps> = ({
         </group>
       )}
 
-      {/* === Shield === */}
-      {shieldActive && (
-        <mesh scale={1.5}>
-          <sphereGeometry args={[2.5, 32, 32]} />
-          <meshStandardMaterial
-            emissive={new Color("#00ffff")}
-            emissiveIntensity={0.3}
-            transparent
-            opacity={0.2}
-            wireframe
-          />
-        </mesh>
-      )}
-
-      {/* === Navigation Lights === */}
+      {/* Navigation Lights */}
       <group>
-        <pointLight position={[-1, 0, 0]} intensity={0.5} color="#ff0000" />
-        <pointLight position={[1, 0, 0]} intensity={0.5} color="#00ff00" />
-        <pointLight position={[0, 0, -2]} intensity={0.3} color="#ffffff" />
+        <pointLight position={[-1, 0, 0]} intensity={0.3} color="#ff0000" />
+        <pointLight position={[1, 0, 0]} intensity={0.3} color="#00ff00" />
+        <pointLight position={[0, 0, -2]} intensity={0.2} color="#ffffff" />
       </group>
 
-      {/* === Damage Sparks === */}
+      {/* Damage Effects */}
       {health < 30 && (
         <group>
-          {[...Array(Math.floor((30 - health) / 5))].map((_, i) => (
+          {[...Array(2)].map((_, i) => (
             <mesh
               key={i}
               position={[

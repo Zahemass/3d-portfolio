@@ -135,6 +135,7 @@ useEffect(() => {
   // Mobile control states
   const [joystickDir, setJoystickDir] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [mobileVertical, setMobileVertical] = useState<'up' | 'down' | null>(null);
+  const [mobileRotation, setMobileRotation] = useState<'left' | 'right' | null>(null);
   const [mobileBoost, setMobileBoost] = useState(false);
 
   // Enhanced camera control for PUBG/Free Fire style TPS
@@ -143,14 +144,14 @@ useEffect(() => {
     lastMouse: { x: 0, y: 0 },
     lastTouch: { x: 0, y: 0 },
     rotation: { horizontal: 0, vertical: 0 },
-    sensitivity: 0.003, // Increased sensitivity for better responsiveness
-    touchSensitivity: 0.004, // Separate sensitivity for touch
-    mouseSensitivity: 0.002, // Separate sensitivity for mouse
-    distance: 12,
+    sensitivity: 0.003,
+    touchSensitivity: 0.004,
+    mouseSensitivity: 0.002,
+    distance: 10,
     minDistance: 6,
-    maxDistance: 25,
-    smoothing: 0.1, // For smooth camera movement
-    verticalLimit: Math.PI / 3 // Limit vertical rotation
+    maxDistance: 20,
+    smoothing: 0.1,
+    verticalLimit: Math.PI / 3
   });
 
   // Mouse controls for desktop
@@ -347,6 +348,7 @@ useEffect(() => {
           joystickDir={joystickDir}
           isMobile={isMobileDevice}
           mobileVertical={mobileVertical}
+          mobileRotation={mobileRotation}
           mobileBoost={mobileBoost}
           cameraControl={cameraControl} 
         />
@@ -507,7 +509,7 @@ useEffect(() => {
         )}
       </AnimatePresence>
 
-      {/* MOBILE CONTROLS - Simplified with force visibility */}
+      {/* MOBILE CONTROLS */}
       {!paused && gameMode === "exploration" && isMobileDevice && (
         <div 
           style={{ 
@@ -714,15 +716,13 @@ useEffect(() => {
         />
       )}
 
-      {/* Desktop Controls - Show on desktop in landscape */}
+      {/* Desktop Controls - Simplified PUBG Style */}
       {!paused && gameMode === "exploration" && isLandscape && !isMobileDevice && (
         <motion.div className="desktop-controls" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-          <div><strong>🎮 NAVIGATION:</strong></div>
-          <div>W/↑ - Forward Thrust</div>
-          <div>A/← D/→ - Strafe Left/Right</div>
-          <div>S/↓ - Reverse</div>
-          <div>SHIFT - Ascend</div>
-          <div>CONTROL - Descend</div>
+          <div><strong>🎮 PUBG-STYLE CONTROLS:</strong></div>
+          <div>W A S D - Move (Camera Relative)</div>
+          <div>SPACE/SHIFT - Ascend</div>
+          <div>CTRL - Descend</div>
           <div>E - BOOST</div>
           <div><strong>📹 CAMERA:</strong></div>
           <div>Right Mouse - Look Around</div>
