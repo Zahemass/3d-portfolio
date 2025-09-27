@@ -32,6 +32,22 @@ const SpaceGame: React.FC<SpaceGameProps> = ({ darkMode, setDarkMode }) => {
   // Device and orientation detection
   const [isMobileDevice, setIsMobileDevice] = useState(false);
   const [isLandscape, setIsLandscape] = useState(false);
+  const [musicOn, setMusicOn] = useState(false);
+
+  useEffect(() => {
+  const audio = document.getElementById("bg-music") as HTMLAudioElement | null;
+  if (audio) {
+    const playMusic = () => {
+      audio.play().catch(() => {
+        console.log("Autoplay blocked until user interacts.");
+      });
+      document.removeEventListener("click", playMusic);
+    };
+    document.addEventListener("click", playMusic);
+  }
+}, []);
+
+
 
   useEffect(() => {
     // Detect if it's a mobile device
@@ -254,6 +270,9 @@ const [cameraControl, setCameraControl] = useState({
   }, [paused, gameMode, isLandscape, isMobileDevice]);
 
   return (
+
+    
+
     <div className="spacegame-container">
       {/* 3D Scene */}
       <Canvas
@@ -320,9 +339,21 @@ const [cameraControl, setCameraControl] = useState({
 />
 
 
+
         {/* Controls only when paused */}
         {paused && <OrbitControls enablePan={false} enableZoom={true} />}
       </Canvas>
+
+{/* Background Music */}
+<audio
+  id="bg-music"
+  loop
+  hidden
+  autoPlay
+>
+  <source src="/sounds/Interstellar-Theme.mp3" type="audio/mpeg" />
+  Your browser does not support the audio element.
+</audio>
 
       {/* HUD Overlay - show in landscape */}
       <AnimatePresence>
@@ -360,7 +391,31 @@ const [cameraControl, setCameraControl] = useState({
               {/* Controls */}
               <div className="hud-controls">
                 <button onClick={() => setScannerActive(!scannerActive)} style={{ zIndex: 1000 }}>📊 SCAN</button>
-                
+               <button
+  onClick={() => {
+    const audio = document.getElementById("bg-music") as HTMLAudioElement | null;
+    if (!audio) return;
+
+    if (musicOn) {
+      // Turn OFF
+      audio.pause();
+      setMusicOn(false);
+    } else {
+      // Turn ON (this counts as user interaction)
+      audio.muted = false;
+      audio.play()
+        .then(() => console.log("🎵 Music started"))
+        .catch(err => console.warn("⚠️ Could not play audio:", err));
+      setMusicOn(true);
+    }
+  }}
+>
+  {musicOn ? "🔊 Music ON" : "🔇 Music OFF"}
+</button>
+
+
+
+
               </div>
             </div>
 
@@ -660,8 +715,9 @@ const [cameraControl, setCameraControl] = useState({
           <div>W/↑ - Forward Thrust</div>
           <div>A/← D/→ - Strafe Left/Right</div>
           <div>S/↓ - Reverse</div>
-          <div>SPACE - Ascend</div>
-          <div>SHIFT - Descend</div>
+          <div>SHIFT - Ascend</div>
+          <div>CONTROL - Descend</div>
+          <div>E - BOOST</div>
           <div><strong>🎯 INTERACTION:</strong></div>
           <div>Approach stations to dock</div>
         </motion.div>

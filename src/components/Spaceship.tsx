@@ -118,8 +118,8 @@ const Spaceship: React.FC<SpaceshipProps> = ({
     let backward = keys.current["s"] || keys.current["arrowdown"];
     let left = keys.current["a"] || keys.current["arrowleft"];
     let right = keys.current["d"] || keys.current["arrowright"];
-    let upPressed = keys.current[" "]; // space
-    let downPressed = keys.current["shift"]; // shift
+    let upPressed = keys.current["shift"]; // space
+    let downPressed = keys.current["control"]; // shift
     let boostPressed = keys.current["q"] || keys.current["e"];
 
     /** === Mobile Controls Override === */
