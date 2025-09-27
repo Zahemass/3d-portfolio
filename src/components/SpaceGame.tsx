@@ -478,20 +478,11 @@ const [cameraControl, setCameraControl] = useState({
       alignItems: 'flex-end',
       padding: '0 30px 20px 30px',
       pointerEvents: 'none',
-      background: 'rgba(0,0,0,0.1)' // Debug background
+     // Debug background
     }}
   >
     {/* Debug info */}
-    <div style={{
-      position: 'absolute',
-      top: '10px',
-      left: '10px',
-      color: 'white',
-      fontSize: '12px',
-      background: 'rgba(0,0,0,0.8)',
-      padding: '5px'
-    }}>
-    </div>
+    
 
     {/* Left side: Joystick */}
     <div style={{ pointerEvents: 'auto' }}>

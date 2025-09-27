@@ -51,19 +51,27 @@ const ProjectsStation: React.FC<ProjectsStationProps> = ({
 
   return (
     <group ref={ref} position={stationPos} scale={5}>
-      {/* 3D Station */}
-      <primitive object={scene} />
+      {/* 3D Station (only load when ship is close) */}
+{dist < 100 ? (
+  <primitive object={scene} />
+) : (
+  <mesh>
+    <sphereGeometry args={[10, 32, 32]} />
+    <meshBasicMaterial color="magenta" wireframe transparent opacity={0.2} />
+  </mesh>
+)}
 
-      {/* Dynamic glow aura */}
-      <mesh>
-        <sphereGeometry args={[18, 64, 64]} />
-        <meshStandardMaterial
-          emissive="magenta"
-          emissiveIntensity={isHovered ? 0.8 : 0.5}
-          transparent
-          opacity={0.08}
-        />
-      </mesh>
+{/* Dynamic glow aura (always visible so user sees station “signal”) */}
+<mesh>
+  <sphereGeometry args={[18, 64, 64]} />
+  <meshStandardMaterial
+    emissive="magenta"
+    emissiveIntensity={isHovered ? 0.8 : 0.5}
+    transparent
+    opacity={0.08}
+  />
+</mesh>
+
 
       {/* Secondary pulse ring */}
       {isHovered && (
