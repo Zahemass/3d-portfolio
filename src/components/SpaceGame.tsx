@@ -160,7 +160,7 @@ useEffect(() => {
   if (cameraJoystickDir.x !== 0 || cameraJoystickDir.y !== 0) {
     setCameraControl(prev => {
       // PUBG-style camera sensitivity - Much more aggressive
-      const horizontalSensitivity = 0.25; // Increased from 0.25 to 2.5 (10x more)
+      const horizontalSensitivity = 0.15; // Increased from 0.25 to 2.5 (10x more)
       const verticalSensitivity = 0.2;   // Increased from 0.2 to 2.0 (10x more)
       
       // Reduced deadzone for immediate response
