@@ -6,16 +6,16 @@ import { useFrame } from "@react-three/fiber";
 
 interface ProjectsStationProps {
   shipPos: Vector3;
-  showProjects: boolean;
+  activeStation: string | null; 
   onOpen: () => void;
 }
 
 const ProjectsStation: React.FC<ProjectsStationProps> = ({
   shipPos,
-  showProjects,
+  activeStation,
   onOpen,
 }) => {
-  const stationPos: [number, number, number] = [50, 0, -120];
+  const stationPos: [number, number, number] = [35, 0, -100];
   const dist = shipPos.distanceTo(new Vector3(...stationPos));
   const { scene } = useGLTF("/models/projects_station.glb");
   const ref = useRef<any>(null);
@@ -47,7 +47,7 @@ const ProjectsStation: React.FC<ProjectsStationProps> = ({
     }
   }, [isHovered]);
 
-  if (dist > 150) return null;
+  
 
   return (
     <group ref={ref} position={stationPos} scale={5}>
@@ -78,7 +78,7 @@ const ProjectsStation: React.FC<ProjectsStationProps> = ({
       )}
 
       {/* 🚀 SUPER CARD DESIGN */}
-      {dist < 80 && !showProjects && (
+      {activeStation === null && (
         <Html distanceFactor={10} position={[0, 2.5, 2]}>
           <div
             onClick={onOpen}
@@ -86,8 +86,8 @@ const ProjectsStation: React.FC<ProjectsStationProps> = ({
             onMouseLeave={() => setIsHovered(false)}
             style={{
               position: "relative",
-              width: "600px",
-              height: "600px",
+             width: isHovered ? "850px" : "800px",  // wider
+  height: isHovered ? "650px" : "600px",
               cursor: "pointer",
               perspective: "1000px",
               transformStyle: "preserve-3d",

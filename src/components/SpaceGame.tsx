@@ -155,10 +155,8 @@ const [cameraControl, setCameraControl] = useState({
   const [paused, setPaused] = useState(false);
   const [gameMode, setGameMode] = useState<"exploration" | "professional">("exploration");
 
-  const [showAbout, setShowAbout] = useState(false);
-  const [showProjects, setShowProjects] = useState(false);
-  const [showSkills, setShowSkills] = useState(false);
-  const [showContact, setShowContact] = useState(false);
+  const [activeStation, setActiveStation] = useState<string | null>(null);
+
 
   const [nearbyStation, setNearbyStation] = useState<string | null>(null);
   const [scannerActive, setScannerActive] = useState(false);
@@ -289,41 +287,45 @@ const [cameraControl, setCameraControl] = useState({
 
         {/* Stations */}
         <AboutStation
-          shipPos={hud.position}
-          showAbout={showAbout}
-          onOpen={() => {
-            setPaused(true);
-            setShowAbout(true);
-            gainExperience(25);
-          }}
-        />
-        <ProjectsStation
-          shipPos={hud.position}
-          showProjects={showProjects}
-          onOpen={() => {
-            setPaused(true);
-            setShowProjects(true);
-            gainExperience(25);
-          }}
-        />
-        <SkillsStation
-          shipPos={hud.position}
-          showSkills={showSkills}
-          onOpen={() => {
-            setPaused(true);
-            setShowSkills(true);
-            gainExperience(25);
-          }}
-        />
-        <ContactStation
-          shipPos={hud.position}
-          showContact={showContact}
-          onOpen={() => {
-            setPaused(true);
-            setShowContact(true);
-            gainExperience(25);
-          }}
-        />
+  shipPos={hud.position}
+  activeStation={activeStation}
+  onOpen={() => {
+    setPaused(true);
+    setActiveStation("about");
+    gainExperience(25);
+  }}
+/>
+
+<ProjectsStation
+  shipPos={hud.position}
+  activeStation={activeStation}
+  onOpen={() => {
+    setPaused(true);
+    setActiveStation("projects");
+    gainExperience(25);
+  }}
+/>
+
+<SkillsStation
+  shipPos={hud.position}
+  activeStation={activeStation}
+  onOpen={() => {
+    setPaused(true);
+    setActiveStation("skills");
+    gainExperience(25);
+  }}
+/>
+
+<ContactStation
+  shipPos={hud.position}
+  activeStation={activeStation}
+  onOpen={() => {
+    setPaused(true);
+    setActiveStation("contact");
+    gainExperience(25);
+  }}
+/>
+
 
         {/* Controls only when paused */}
         {paused && <OrbitControls enablePan={false} enableZoom={true} />}
@@ -412,11 +414,24 @@ const [cameraControl, setCameraControl] = useState({
 
       {/* Overlays */}
       <AnimatePresence mode="wait">
-        {showSkills && <SkillsOverlay onClose={() => { setShowSkills(false); setPaused(false); }} />}
-        {showAbout && <AboutOverlay onClose={() => { setShowAbout(false); setPaused(false); setFirstTimeAbout(false); }} firstTime={firstTimeAbout} setFirstTime={setFirstTimeAbout} />}
-        {showProjects && <ProjectsOverlay onClose={() => { setShowProjects(false); setPaused(false); }} />}
-        {showContact && <ContactOverlay onClose={() => { setShowContact(false); setPaused(false); }} />}
-      </AnimatePresence>
+  {activeStation === "skills" && (
+    <SkillsOverlay onClose={() => { setActiveStation(null); setPaused(false); }} />
+  )}
+  {activeStation === "about" && (
+    <AboutOverlay 
+      onClose={() => { setActiveStation(null); setPaused(false); setFirstTimeAbout(false); }}
+      firstTime={firstTimeAbout}
+      setFirstTime={setFirstTimeAbout}
+    />
+  )}
+  {activeStation === "projects" && (
+    <ProjectsOverlay onClose={() => { setActiveStation(null); setPaused(false); }} />
+  )}
+  {activeStation === "contact" && (
+    <ContactOverlay onClose={() => { setActiveStation(null); setPaused(false); }} />
+  )}
+</AnimatePresence>
+
 
       {/* MOBILE CONTROLS - Force show with inline styles for testing */}
       {/* MOBILE CONTROLS - Simplified with force visibility */}

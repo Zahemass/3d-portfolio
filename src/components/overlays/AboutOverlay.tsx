@@ -356,20 +356,30 @@ My journey into tech started with **Quality Assurance (QA)**, where I spent over
                 />
               ) : (
                 <div style={{ fontSize: "16px", lineHeight: "1.8", color: "#f0f0f0" }}>
-                  <p>
-                    Hi, I'm <strong style={{ color: "#00ffff" }}>Mohammed Zameer</strong> — a passionate 
-                    <strong> Full Stack Developer & App Developer</strong> based in <strong>Chennai, India</strong>. 
-                  </p>
-                  <p>
-                    I specialize in building <strong style={{ color: "#ffd700" }}>scalable web applications, 
-                    mobile apps, and 3D interactive experiences</strong> that merge creativity with functionality.
-                  </p>
-                  <p>
-                    My journey into tech started with <strong>Quality Assurance (QA)</strong>, where I spent over 
-                    2.5 years honing my skills in manual and automation testing, working with tools like 
-                    Selenium, JMeter, and SQL databases.
-                  </p>
-                </div>
+  <p>
+    Hi, I'm <strong style={{ color: "#00ffff" }}>Mohammed Zaheer</strong> — a passionate 
+    <strong> Full Stack Developer & App Developer</strong> based in <strong>Chennai, India</strong>, 
+    currently pursuing my <strong>B.Sc. in Information Technology (Final Year)</strong>.
+  </p>
+  <p>
+    I specialize in building <strong style={{ color: "#ffd700" }}>scalable web applications, 
+    mobile apps, and 3D interactive experiences</strong> that merge creativity with functionality.
+  </p>
+  <p>
+    Alongside development, I’ve gained hands-on exposure to 
+    <strong> Quality Assurance (QA)</strong>, which strengthened my skills in 
+    <strong> debugging, problem-solving, and delivering reliable applications</strong>. 
+    This foundation helps me ensure that the products I build are both <strong>quality-driven</strong> 
+    and <strong>user-focused</strong>.
+  </p>
+  <p>
+    I’ve also participated in multiple <strong>hackathons</strong>, earning recognition 
+    for innovative projects in <strong>AI, full-stack development, and interactive apps</strong>. 
+    My goal is to leverage my skills to build <strong>impactful products</strong> while exploring 
+    emerging technologies like <strong>AI, 3D Web, and Blockchain</strong>.
+  </p>
+</div>
+
               )}
 
               {/* Social Links with Gaming Style */}
@@ -379,9 +389,9 @@ My journey into tech started with **Quality Assurance (QA)**, where I spent over
                 gap: "15px",
               }}>
                 {[
-                  { icon: <Github size={24} />, href: "https://github.com/zaheer", label: "GitHub" },
-                  { icon: <Linkedin size={24} />, href: "https://linkedin.com/in/zaheer", label: "LinkedIn" },
-                  { icon: <Mail size={24} />, href: "mailto:zaheer@example.com", label: "Email" },
+                  { icon: <Github size={24} />, href: "https://github.com/Zahemass", label: "GitHub" },
+                  { icon: <Linkedin size={24} />, href: "https://www.linkedin.com/in/mohammed-zaheer-m-425793215", label: "LinkedIn" },
+                  { icon: <Mail size={24} />, href: "mailto:zaheemass009@gmail.com", label: "Email" },
                 ].map((social, i) => (
                   <motion.a
                     key={i}

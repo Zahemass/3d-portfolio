@@ -5,16 +5,16 @@ import { useFrame } from "@react-three/fiber";
 
 interface SkillsStationProps {
   shipPos: Vector3;
-  showSkills: boolean;
+  activeStation: string | null; 
   onOpen: () => void;
 }
 
 const SkillsStation: React.FC<SkillsStationProps> = ({
   shipPos,
-  showSkills,
+  activeStation,
   onOpen,
 }) => {
-  const stationPos: [number, number, number] = [-60, 0, -200];
+  const stationPos: [number, number, number] = [-40, 0, -130];
   const dist = shipPos.distanceTo(new Vector3(...stationPos));
   const { scene } = useGLTF("/models/skills_station.glb");
   const ref = useRef<any>(null);
@@ -56,7 +56,7 @@ const SkillsStation: React.FC<SkillsStationProps> = ({
     })));
   });
 
-  if (dist > 150) return null;
+  
 
   return (
     <group ref={ref} position={stationPos} scale={5}>
@@ -84,7 +84,7 @@ const SkillsStation: React.FC<SkillsStationProps> = ({
         />
       </mesh>
 
-      {dist < 80 && !showSkills && (
+      {activeStation === null && (
         <Html distanceFactor={10} position={[0, 2.5, 2]}>
           <div
             onClick={onOpen}
@@ -105,8 +105,8 @@ const SkillsStation: React.FC<SkillsStationProps> = ({
               fontWeight: "bold",
               fontSize: "24px",
               textAlign: "center",
-              width: "320px",
-              height: "280px",
+              width: "850px" ,  // wider
+              height: "650px" ,
               boxShadow: isHovering 
                 ? "0 0 50px rgba(255,255,0,0.8), inset 0 0 20px rgba(255,255,0,0.1)"
                 : "0 0 30px rgba(255,255,0,0.5)",
@@ -184,6 +184,7 @@ const SkillsStation: React.FC<SkillsStationProps> = ({
                 backgroundSize: "200% 200%",
                 animation: isHovering ? "gradientShift 2s ease-in-out infinite" : "none",
                 lineHeight: "1.2",
+                fontSize: "72px",
               }}
             >
               Skills Archive
@@ -192,7 +193,7 @@ const SkillsStation: React.FC<SkillsStationProps> = ({
             {/* Subtitle */}
             <div
               style={{
-                fontSize: "14px",
+                fontSize: "30px",
                 opacity: 0.8,
                 fontWeight: "normal",
                 zIndex: 2,

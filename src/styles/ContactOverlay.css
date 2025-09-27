@@ -67,13 +67,15 @@
 }
 
 .contact-close-btn {
+  z-index: 9999;
+  position: relative; /* or absolute if needed */
+  cursor: pointer;
   padding: 12px 24px;
   background: linear-gradient(45deg, #ff4757, #ff3838);
   border: none;
   border-radius: 8px;
   color: white;
   font-weight: bold;
-  cursor: pointer;
   font-size: 14px;
   box-shadow: 0 0 20px rgba(255,71,87,0.5);
 }

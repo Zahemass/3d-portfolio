@@ -5,16 +5,16 @@ import { useFrame } from "@react-three/fiber";
 
 interface ContactStationProps {
   shipPos: Vector3;
-  showContact: boolean;
+  activeStation: string | null; 
   onOpen: () => void;
 }
 
 const ContactStation: React.FC<ContactStationProps> = ({
   shipPos,
-  showContact,
+  activeStation,
   onOpen,
 }) => {
-  const stationPos: [number, number, number] = [0, -40, -280];
+  const stationPos: [number, number, number] = [20, 10, -170];
   const dist = shipPos.distanceTo(new Vector3(...stationPos));
   const { scene } = useGLTF("/models/contact_station.glb");
   const ref = useRef<any>(null);
@@ -92,7 +92,7 @@ const ContactStation: React.FC<ContactStationProps> = ({
     })));
   });
 
-  if (dist > 180) return null;
+ 
 
   return (
     <group ref={ref} position={stationPos} scale={5}>
@@ -121,7 +121,7 @@ const ContactStation: React.FC<ContactStationProps> = ({
 
       {/* Signal transmission rings */}
       <mesh>
-        <sphereGeometry args={[35, 16, 16]} />
+        <sphereGeometry args={[3, 16, 16]} />
         <meshStandardMaterial
           emissive="#0088cc"
           emissiveIntensity={pulseIntensity * 0.2}
@@ -130,7 +130,7 @@ const ContactStation: React.FC<ContactStationProps> = ({
         />
       </mesh>
 
-      {dist < 100 && !showContact && (
+      {activeStation === null && (
         <Html distanceFactor={10} position={[0, 2.5, 2]}>
           <div
             onClick={onOpen}
@@ -149,10 +149,10 @@ const ContactStation: React.FC<ContactStationProps> = ({
               color: "#88ffff",
               cursor: "pointer",
               fontWeight: "bold",
-              fontSize: "20px",
+              fontSize: "40px",
               textAlign: "center",
-              width: "340px",
-              height: "300px",
+              width: "640px",
+              height: "600px",
               boxShadow: isHovering 
                 ? "0 0 60px rgba(0,255,255,0.8), inset 0 0 30px rgba(0,255,255,0.1)"
                 : "0 0 35px rgba(0,255,255,0.5)",
