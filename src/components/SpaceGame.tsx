@@ -134,25 +134,58 @@ useEffect(() => {
 
   // Mobile control states
   const [joystickDir, setJoystickDir] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const [cameraJoystickDir, setCameraJoystickDir] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [mobileVertical, setMobileVertical] = useState<'up' | 'down' | null>(null);
   const [mobileRotation, setMobileRotation] = useState<'left' | 'right' | null>(null);
   const [mobileBoost, setMobileBoost] = useState(false);
 
   // Enhanced camera control for PUBG/Free Fire style TPS
   const [cameraControl, setCameraControl] = useState({
-    isDragging: false,
-    lastMouse: { x: 0, y: 0 },
-    lastTouch: { x: 0, y: 0 },
-    rotation: { horizontal: 0, vertical: 0 },
-    sensitivity: 0.003,
-    touchSensitivity: 0.004,
-    mouseSensitivity: 0.002,
-    distance: 10,
-    minDistance: 6,
-    maxDistance: 20,
-    smoothing: 0.1,
-    verticalLimit: Math.PI / 3
-  });
+  isDragging: false,
+  lastMouse: { x: 0, y: 0 },
+  lastTouch: { x: 0, y: 0 },
+  rotation: { horizontal: 0, vertical: 0 },
+  sensitivity: 0.003,
+  touchSensitivity: 0.006,      // Increased for mobile
+  mouseSensitivity: 0.004,      // Increased for desktop
+  distance: 10,
+  minDistance: 6,
+  maxDistance: 20,
+  smoothing: 0.15,              // Slightly more responsive
+  verticalLimit: Math.PI / 2.5  // Slightly more vertical range
+});
+
+  // Update camera rotation from mobile camera joystick - ENHANCED FOR PUBG STYLE
+  useEffect(() => {
+  if (cameraJoystickDir.x !== 0 || cameraJoystickDir.y !== 0) {
+    setCameraControl(prev => {
+      // PUBG-style camera sensitivity - Much more aggressive
+      const horizontalSensitivity = 1.5; // Increased from 0.25 to 2.5 (10x more)
+      const verticalSensitivity = 1.0;   // Increased from 0.2 to 2.0 (10x more)
+      
+      // Reduced deadzone for immediate response
+      const deadzone = 0.05; // Reduced from 0.1 to 0.05
+      const adjustedX = Math.abs(cameraJoystickDir.x) > deadzone ? cameraJoystickDir.x : 0;
+      const adjustedY = Math.abs(cameraJoystickDir.y) > deadzone ? cameraJoystickDir.y : 0;
+      
+      // Linear scaling for more predictable movement (removed exponential)
+      const scaledX = adjustedX * horizontalSensitivity;
+      const scaledY = adjustedY * verticalSensitivity;
+      
+      console.log("Camera movement - Input:", { x: cameraJoystickDir.x, y: cameraJoystickDir.y });
+      console.log("Camera movement - Scaled:", { x: scaledX, y: scaledY });
+      
+      return {
+        ...prev,
+        rotation: {
+          horizontal: prev.rotation.horizontal + scaledX,
+          vertical: Math.max(-prev.verticalLimit, Math.min(prev.verticalLimit, 
+            prev.rotation.vertical - scaledY)) // Negative for natural feel
+        }
+      };
+    });
+  }
+}, [cameraJoystickDir]);
 
   // Mouse controls for desktop
   useEffect(() => {
@@ -311,9 +344,15 @@ useEffect(() => {
   // Debug joystick values
   useEffect(() => {
     if (joystickDir.x !== 0 || joystickDir.y !== 0) {
-      console.log("Joystick moving:", joystickDir);
+      console.log("Movement Joystick:", joystickDir);
     }
   }, [joystickDir]);
+
+  useEffect(() => {
+    if (cameraJoystickDir.x !== 0 || cameraJoystickDir.y !== 0) {
+      console.log("Camera Joystick:", cameraJoystickDir);
+    }
+  }, [cameraJoystickDir]);
 
   // Log control visibility conditions
   useEffect(() => {
@@ -526,8 +565,11 @@ useEffect(() => {
             pointerEvents: 'none',
           }}
         >
-          {/* Left side: Joystick */}
+          {/* Left side: Movement Joystick */}
           <div style={{ pointerEvents: 'auto' }}>
+            <div style={{ marginBottom: '5px', fontSize: '12px', color: '#00ffff', textAlign: 'center' }}>
+              MOVE
+            </div>
             <Joystick
               size={80}
               baseColor="rgba(0,255,255,0.3)"
@@ -536,18 +578,18 @@ useEffect(() => {
                 if (e && e.x !== null && e.y !== null) {
                   const nx = (e.x / 50) * 10;
                   const ny = (e.y / 50) * 10;
-                  console.log("Joystick:", nx, ny);
+                  console.log("Movement Joystick:", nx, ny);
                   setJoystickDir({ x: nx, y: ny });
                 }
               }}
               stop={() => {
-                console.log("Joystick stopped");
+                console.log("Movement Joystick stopped");
                 setJoystickDir({ x: 0, y: 0 });
               }}
             />
           </div>
 
-          {/* Right side: Action buttons */}
+          {/* Center: Action buttons */}
           <div style={{ 
             display: 'flex', 
             gap: '10px', 
@@ -660,60 +702,40 @@ useEffect(() => {
               ⚡
             </button>
           </div>
+
+          {/* Right side: Camera Rotation Joystick - ENHANCED */}
+          <div style={{ pointerEvents: 'auto' }}>
+            <div style={{ marginBottom: '5px', fontSize: '12px', color: '#ff6b6b', textAlign: 'center' }}>
+              CAMERA
+            </div>
+           <Joystick
+  size={80}
+  baseColor="rgba(255,107,107,0.3)"
+  stickColor="#ff6b6b"
+  move={(e) => {
+    if (e && e.x !== null && e.y !== null) {
+      // PUBG-style camera joystick - Much more aggressive scaling
+      // Normalize to -1 to 1 range
+      const normalizedX = e.x / 50; // -1 to 1
+      const normalizedY = e.y / 50; // -1 to 1
+      
+      // Massive scaling increase for PUBG-style responsiveness
+      const scaledX = normalizedX * 25; // Increased from 5 to 25 (5x more responsive)
+      const scaledY = normalizedY * 25; // Increased from 5 to 25 (5x more responsive)
+      
+      console.log("Camera Joystick Raw:", e.x, e.y);
+      console.log("Camera Joystick Normalized:", normalizedX, normalizedY);
+      console.log("Camera Joystick Final Scaled:", scaledX, scaledY);
+      setCameraJoystickDir({ x: scaledX, y: scaledY });
+    }
+  }}
+  stop={() => {
+    console.log("Camera Joystick stopped");
+    setCameraJoystickDir({ x: 0, y: 0 });
+  }}
+/>
+          </div>
         </div>
-      )}
-
-      {/* Camera Control Overlay for Mobile - PUBG Style */}
-      {!paused && gameMode === "exploration" && isMobileDevice && isLandscape && (
-        <div 
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: '160px',
-            zIndex: 1,
-            background: 'transparent',
-            touchAction: 'none',
-            pointerEvents: 'auto',
-          }}
-          onTouchStart={(e) => {
-            const target = e.target as HTMLElement;
-            if (target.closest('.hud-controls') || target.closest('button')) return;
-
-            if (e.touches.length === 1) {
-              const touch = e.touches[0];
-              setCameraControl(prev => ({
-                ...prev,
-                isDragging: true,
-                lastTouch: { x: touch.clientX, y: touch.clientY }
-              }));
-            }
-          }}
-          onTouchMove={(e) => {
-            if (cameraControl.isDragging && e.touches.length === 1) {
-              const touch = e.touches[0];
-              const deltaX = touch.clientX - cameraControl.lastTouch.x;
-              const deltaY = touch.clientY - cameraControl.lastTouch.y;
-
-              setCameraControl(prev => ({
-                ...prev,
-                rotation: {
-                  horizontal: prev.rotation.horizontal + deltaX * prev.touchSensitivity,
-                  vertical: Math.max(-prev.verticalLimit, Math.min(prev.verticalLimit, 
-                    prev.rotation.vertical - deltaY * prev.touchSensitivity))
-                },
-                lastTouch: { x: touch.clientX, y: touch.clientY }
-              }));
-            }
-          }}
-          onTouchEnd={() => {
-            setCameraControl(prev => ({
-              ...prev,
-              isDragging: false
-            }));
-          }}
-        />
       )}
 
       {/* Desktop Controls - Simplified PUBG Style */}
@@ -750,6 +772,7 @@ useEffect(() => {
       )}
     </div>
   );
+  
 };
 
 export default SpaceGame;
