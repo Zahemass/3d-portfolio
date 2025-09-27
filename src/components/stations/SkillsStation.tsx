@@ -60,32 +60,18 @@ const SkillsStation: React.FC<SkillsStationProps> = ({
 
   return (
     <group ref={ref} position={stationPos} scale={5}>
-      {/* 3D Station (lazy render: only load when ship is near) */}
-{dist < 100 ? (
-  <primitive object={scene} />
-) : (
-  <mesh>
-    <sphereGeometry args={[12, 32, 32]} />
-    <meshBasicMaterial 
-      color="cyan" 
-      wireframe 
-      transparent 
-      opacity={0.15} 
-    />
-  </mesh>
-)}
+      <primitive object={scene} />
 
-{/* Multi-layered glow system (always visible) */}
-<mesh ref={glowRef}>
-  <sphereGeometry args={[20, 64, 64]} />
-  <meshStandardMaterial
-    emissive="cyan"
-    emissiveIntensity={pulseIntensity}
-    transparent
-    opacity={0.07}
-  />
-</mesh>
-
+      {/* Enhanced glow aura with multiple layers */}
+      <mesh ref={glowRef}>
+        <sphereGeometry args={[18, 64, 64]} />
+        <meshStandardMaterial
+          emissive="yellow"
+          emissiveIntensity={pulseIntensity}
+          transparent
+          opacity={0.07}
+        />
+      </mesh>
       
       {/* Outer glow ring */}
       <mesh>
