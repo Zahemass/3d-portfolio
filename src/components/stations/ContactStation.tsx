@@ -96,19 +96,30 @@ const ContactStation: React.FC<ContactStationProps> = ({
 
   return (
     <group ref={ref} position={stationPos} scale={5}>
-      <primitive object={scene} />
+      {dist < 70 ? (
+  <primitive object={scene} />
+) : (
+  <mesh>
+    <sphereGeometry args={[12, 32, 32]} />
+    <meshBasicMaterial 
+      color="cyan" 
+      wireframe 
+      transparent 
+      opacity={0.15} 
+    />
+  </mesh>
+)}
 
-      {/* Multi-layered glow system */}
-      <mesh ref={glowRef}>
-        <sphereGeometry args={[20, 64, 64]} />
-        <meshStandardMaterial
-          emissive="cyan"
-          emissiveIntensity={pulseIntensity}
-          transparent
-          opacity={0.07}
-        />
-      </mesh>
-      
+{/* Multi-layered glow system (always visible) */}
+<mesh ref={glowRef}>
+  <sphereGeometry args={[20, 64, 64]} />
+  <meshStandardMaterial
+    emissive="cyan"
+    emissiveIntensity={pulseIntensity}
+    transparent
+    opacity={0.07}
+  />
+</mesh>
       <mesh ref={outerGlowRef}>
         <sphereGeometry args={[25, 32, 32]} />
         <meshStandardMaterial

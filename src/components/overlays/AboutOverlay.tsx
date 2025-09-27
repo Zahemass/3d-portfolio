@@ -112,18 +112,25 @@ const AboutOverlay: React.FC<AboutOverlayProps> = ({
   firstTime,
   setFirstTime,
 }) => {
-  const [currentSection, setCurrentSection] = useState<'intro' | 'journey' | 'achievements'>('intro');
+   const [currentSection, setCurrentSection] = useState<'intro' | 'journey' | 'achievements'>('intro');
   const [experience, setExperience] = useState(2850);
   const [level, setLevel] = useState(12);
   const [showStats, setShowStats] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [isVerySmall, setIsVerySmall] = useState(false);
+  const [isLandscape, setIsLandscape] = useState(false);
 
   useEffect(() => {
     const checkMobile = () => {
       const width = window.innerWidth;
+      const height = window.innerHeight;
+      
       setIsMobile(width <= 768);
       setIsVerySmall(width <= 480);
+      
+      // Detect landscape mode on mobile devices
+      // Consider it landscape if width > height AND screen is relatively small (indicating phone)
+      setIsLandscape(width > height && width <= 1024);
     };
     
     checkMobile();
@@ -137,8 +144,7 @@ const AboutOverlay: React.FC<AboutOverlayProps> = ({
     };
   }, []);
 
-  const show3D = !isMobile && (currentSection === 'intro' || currentSection === 'journey');
-
+  const show3D = !isMobile && !isLandscape && (currentSection === 'intro' || currentSection === 'journey');
   const containerStyle: React.CSSProperties = {
     position: "fixed",
     inset: 0,

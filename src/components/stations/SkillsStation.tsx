@@ -60,18 +60,30 @@ const SkillsStation: React.FC<SkillsStationProps> = ({
 
   return (
     <group ref={ref} position={stationPos} scale={5}>
-      <primitive object={scene} />
+      {dist < 80 ? (
+  <primitive object={scene} />
+) : (
+  <mesh>
+    <sphereGeometry args={[12, 32, 32]} />
+    <meshBasicMaterial 
+      color="yellow" 
+      wireframe 
+      transparent 
+      opacity={0.15} 
+    />
+  </mesh>
+)}
 
-      {/* Enhanced glow aura with multiple layers */}
-      <mesh ref={glowRef}>
-        <sphereGeometry args={[18, 64, 64]} />
-        <meshStandardMaterial
-          emissive="yellow"
-          emissiveIntensity={pulseIntensity}
-          transparent
-          opacity={0.07}
-        />
-      </mesh>
+{/* Enhanced glow aura with multiple layers */}
+<mesh ref={glowRef}>
+  <sphereGeometry args={[18, 64, 64]} />
+  <meshStandardMaterial
+    emissive="yellow"
+    emissiveIntensity={pulseIntensity}
+    transparent
+    opacity={0.07}
+  />
+</mesh>
       
       {/* Outer glow ring */}
       <mesh>
