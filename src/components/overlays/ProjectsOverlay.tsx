@@ -976,7 +976,7 @@ $ apitest post https://api.example.com/users \\
     fullDesc: `A secure online voting platform designed for college and organizational elections. 
     It ensures transparency, prevents duplicate votes, and provides real-time results while keeping votes encrypted and anonymous.
     Features OTP-based authentication, tamper-proof storage, and real-time dashboard.`,
-    youtube: "https://www.youtube.com/embed/YOUR_VIDEO_ID_4",
+    
     tech: ["React", "Node.js", "PostgreSQL", "JWT", "WebSockets", "Encryption", "OTP Auth"],
     github: "https://github.com/zaheer/secure-voting",
     color: "#F39C12",
@@ -989,7 +989,7 @@ $ apitest post https://api.example.com/users \\
     fullDesc: `A comprehensive digital platform built for MEASI Institute to simplify student management, event updates, and academic tracking. 
     It bridges communication between students, faculty, and administration through a mobile-first approach.
     Features real-time notifications, role-based access, and cross-platform compatibility.`,
-    youtube: "https://www.youtube.com/embed/YOUR_VIDEO_ID_5",
+
     tech: ["Flutter", "React", "Node.js", "Firebase", "PostgreSQL", "FCM", "RBAC"],
     github: "https://github.com/zaheer/measi-management",
     color: "#9B59B6",

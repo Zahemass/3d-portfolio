@@ -23,8 +23,8 @@ const ContactOverlay: React.FC<ContactOverlayProps> = ({ onClose }) => {
       id: "email",
       icon: Mail,
       title: "Email",
-      value: "zaheer.dev@example.com",
-      action: "mailto:zaheer.dev@example.com",
+      value: "zaheemass009@gmail.com",
+      action: "mailto:zaheemass009@gmail.com",
       description: "Best for detailed discussions",
       color: "#4FC3F7",
       available: "24/7"
@@ -33,8 +33,8 @@ const ContactOverlay: React.FC<ContactOverlayProps> = ({ onClose }) => {
       id: "linkedin",
       icon: Linkedin,
       title: "LinkedIn",
-      value: "/in/mohammed-zaheer-dev",
-      action: "https://linkedin.com/in/mohammed-zaheer-dev",
+      value: "/in/mohammed-zaheer-m",
+      action: "https://www.linkedin.com/in/mohammed-zaheer-m-425793215",
       description: "Professional networking",
       color: "#0077B5",
       available: "Active daily"
@@ -43,8 +43,8 @@ const ContactOverlay: React.FC<ContactOverlayProps> = ({ onClose }) => {
       id: "github",
       icon: Github,
       title: "GitHub",
-      value: "@mohammed-zaheer",
-      action: "https://github.com/mohammed-zaheer",
+      value: "@Mohammed-zaheer",
+      action: "https://github.com/Zahemass",
       description: "Check out my code",
       color: "#fff",
       available: "Updated daily"
@@ -53,7 +53,7 @@ const ContactOverlay: React.FC<ContactOverlayProps> = ({ onClose }) => {
       id: "phone",
       icon: Phone,
       title: "Phone",
-      value: "+91 98765 43210",
+      value: "+91 97898 93978",
       action: "tel:+919876543210",
       description: "Available for calls",
       color: "#00ff88",
@@ -64,21 +64,15 @@ const ContactOverlay: React.FC<ContactOverlayProps> = ({ onClose }) => {
   const socialLinks = [
     {
       name: "YouTube",
-      url: "https://youtube.com/@konnichiwa-music",
-      icon: "🎵",
-      description: "Kon'nichiwa Music Channel",
+      url: "https://www.youtube.com/@twingalatta7499",
+      icon: "",
+      description: "Twin Galatta Channel",
       color: "#FF0000"
     },
-    {
-      name: "Twitter",
-      url: "https://twitter.com/zaheer_dev",
-      icon: "🐦",
-      description: "Tech updates & thoughts",
-      color: "#1DA1F2"
-    },
+   
     {
       name: "Discord",
-      url: "https://discord.gg/zaheer",
+      url: "https://discordapp.com/users/917482611176251393",
       icon: "💬",
       description: "Let's chat about projects",
       color: "#5865F2"
@@ -350,7 +344,7 @@ const ContactOverlay: React.FC<ContactOverlayProps> = ({ onClose }) => {
                 </div>
 
                 <div className="location-info">
-                  <h4 className="location-title">🏢 BASED IN CHENNAI, INDIA</h4>
+                  <h4 className="location-title">🏢 CHENNAI, INDIA</h4>
                   <div className="location-item">
                     <MapPin size={16} color="#ffd700" />
                     <span>Available for remote work worldwide</span>
@@ -361,32 +355,7 @@ const ContactOverlay: React.FC<ContactOverlayProps> = ({ onClose }) => {
                   </div>
                 </div>
 
-                {!showForm && (
-                  <motion.button
-                    onClick={() => setShowForm(true)}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    style={{
-                      marginTop: "30px",
-                      padding: "15px 30px",
-                      background: "linear-gradient(45deg, #4ecdc4, #44a08d)",
-                      border: "none",
-                      borderRadius: "8px",
-                      color: "white",
-                      fontWeight: "bold",
-                      cursor: "pointer",
-                      fontSize: "16px",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      gap: "10px",
-                      boxShadow: "0 0 30px rgba(78,205,196,0.4)",
-                      width: "100%"
-                    }}
-                  >
-                    <Send size={18} /> Send Direct Message
-                  </motion.button>
-                )}
+                
               </motion.div>
             )}
           </AnimatePresence>

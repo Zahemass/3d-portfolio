@@ -26,7 +26,7 @@ const skillCategories = {
     skills: [
       { name: "React", level: 95, color: "#61DAFB", experience: "3+ years" },
       { name: "TypeScript", level: 90, color: "#3178C6", experience: "2+ years" },
-      { name: "Next.js", level: 85, color: "#000000", experience: "2+ years" },
+      { name: "Next.js", level: 85, color: "#9e0202ff", experience: "2+ years" },
       { name: "CSS/SCSS", level: 90, color: "#1572B6", experience: "4+ years" },
       { name: "Framer Motion", level: 80, color: "#0055FF", experience: "1+ year" },
       { name: "Tailwind CSS", level: 88, color: "#06B6D4", experience: "2+ years" }
@@ -231,9 +231,6 @@ const SkillsOverlay: React.FC<SkillsOverlayProps> = ({ onClose }) => {
                         <h4 className="skill-name" style={{ color: skill.color }}>
                           {skill.name}
                         </h4>
-                        <span className="skill-level" style={{ color: skill.color }}>
-                          {skill.level}%
-                        </span>
                       </div>
                       <div className="skill-progress-container">
                         <motion.div
@@ -255,7 +252,6 @@ const SkillsOverlay: React.FC<SkillsOverlayProps> = ({ onClose }) => {
                             animate={{ opacity: 1 }} 
                             style={{ color: skill.color, fontWeight: "bold" }}
                           >
-                            Click to explore
                           </motion.span>
                         )}
                       </div>

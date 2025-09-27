@@ -18,14 +18,7 @@ import ProjectsOverlay from "./overlays/ProjectsOverlay";
 import SkillsOverlay from "./overlays/SkillsOverlay";
 import ContactOverlay from "./overlays/ContactOverlay";
 
-// Professional sections
-import Header from "./Header";
-import Hero from "./Hero";
-import About from "./About";
-import Projects from "./Projects";
-import Skills from "./Skills";
-import Contact from "./Contact";
-import Footer from "./Footer";
+
 
 // CSS styles
 import "../styles/spacegame.css";
@@ -367,10 +360,7 @@ const [cameraControl, setCameraControl] = useState({
               {/* Controls */}
               <div className="hud-controls">
                 <button onClick={() => setScannerActive(!scannerActive)} style={{ zIndex: 1000 }}>📊 SCAN</button>
-                <button onClick={toggleGameMode} style={{ zIndex: 9999 }}>
-  💼 PROFESSIONAL
-</button>
-
+                
               </div>
             </div>
 
@@ -395,23 +385,7 @@ const [cameraControl, setCameraControl] = useState({
       </AnimatePresence>
 
       {/* Professional Mode */}
-      {gameMode === "professional" && (
-        <motion.div className="professional-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-          <Header
-            darkMode={darkMode}
-            toggleDarkMode={() => setDarkMode(!darkMode)}
-            gameMode={gameMode}
-            toggleGameMode={toggleGameMode}
-          />
-          <Hero />
-          <About />
-          <Projects />
-          <Skills />
-          <Contact />
-          <Footer />
-        </motion.div>
-      )}
-
+      
       {/* Overlays */}
       <AnimatePresence mode="wait">
   {activeStation === "skills" && (
