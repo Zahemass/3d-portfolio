@@ -379,34 +379,58 @@ My journey into tech started with **Quality Assurance (QA)**, where I spent over
                     }}
                   />
                 ) : (
-                  <div style={{ 
-                    fontSize: isVerySmall ? "13px" : isMobile ? "15px" : "16px", 
-                    lineHeight: isMobile ? "1.6" : "1.8", 
-                    color: "#f0f0f0",
-                  }}>
-                    <p style={{ marginBottom: isMobile ? "15px" : "20px" }}>
-                      Hi, I'm <strong style={{ color: "#00ffff" }}>Mohammed Zaheer</strong> — a passionate 
-                      <strong> Full Stack Developer & App Developer</strong> based in <strong>Chennai, India</strong>, 
-                      currently pursuing my <strong>B.Sc. in Information Technology (Final Year)</strong>.
-                    </p>
-                    <p style={{ marginBottom: isMobile ? "15px" : "20px" }}>
-                      I specialize in building <strong style={{ color: "#ffd700" }}>scalable web applications, 
-                      mobile apps, and 3D interactive experiences</strong> that merge creativity with functionality.
-                    </p>
-                    <p style={{ marginBottom: isMobile ? "15px" : "20px" }}>
-                      Alongside development, I've gained hands-on exposure to 
-                      <strong> Quality Assurance (QA)</strong>, which strengthened my skills in 
-                      <strong> debugging, problem-solving, and delivering reliable applications</strong>. 
-                      This foundation helps me ensure that the products I build are both <strong>quality-driven</strong> 
-                      and <strong>user-focused</strong>.
-                    </p>
-                    <p style={{ marginBottom: isMobile ? "15px" : "20px" }}>
-                      I've also participated in multiple <strong>hackathons</strong>, earning recognition 
-                      for innovative projects in <strong>AI, full-stack development, and interactive apps</strong>. 
-                      My goal is to leverage my skills to build <strong>impactful products</strong> while exploring 
-                      emerging technologies like <strong>AI, 3D Web, and Blockchain</strong>.
-                    </p>
-                  </div>
+                 <div
+  style={{
+    fontSize: isVerySmall ? "13px" : isMobile ? "15px" : "16px",
+    lineHeight: isMobile ? "1.6" : "1.8",
+    color: "#f0f0f0",
+  }}
+>
+  <p style={{ marginBottom: isMobile ? "15px" : "20px" }}>
+    Hi, I'm{" "}
+    <strong style={{ color: "#00ffff" }}>Mohammed Zaheer</strong> — a passionate{" "}
+    <strong>Computer Science Student</strong> and aspiring{" "}
+    <strong>Software Engineer</strong> based in{" "}
+    <strong>Chennai, India</strong>, currently in my{" "}
+    <strong>Final Year of B.Sc. Information Technology</strong>.
+  </p>
+
+  <p style={{ marginBottom: isMobile ? "15px" : "20px" }}>
+    I specialize in building{" "}
+    <strong style={{ color: "#ffd700" }}>
+      scalable web applications, mobile apps, and 3D interactive experiences
+    </strong>{" "}
+    that merge creativity with cutting-edge technology.
+  </p>
+
+  <p style={{ marginBottom: isMobile ? "15px" : "20px" }}>
+    🏆 <strong>Hackathon Achievements:</strong>
+    <br />
+    🥈 Semi-Finalist – Inde-Hub Hackathon (Swift Community)
+    <br />
+    🥉 2nd Runner-Up – BTI Ignite Incubation Council
+    <br />
+    🚀 Active Participant – Multiple inter-college hackathons with recognition
+    for innovative projects in <strong>AI</strong>,{" "}
+    <strong>full-stack development</strong>, and{" "}
+    <strong>interactive applications</strong>.
+  </p>
+
+  <p style={{ marginBottom: isMobile ? "15px" : "20px" }}>
+    Beyond academics, I've gained hands-on experience in{" "}
+     strengthening my skills in{" "}
+    <strong>debugging, problem-solving, and delivering reliable applications</strong>.{" "}
+    This foundation ensures that every product I build is both{" "}
+    <strong>innovative</strong> and <strong>production-ready</strong>.
+  </p>
+
+  <p style={{ marginBottom: isMobile ? "15px" : "20px" }}>
+    💡 My goal is to leverage my student perspective and fresh ideas to build{" "}
+    <strong>impactful products</strong> while exploring emerging technologies like{" "}
+    <strong>AI</strong>, <strong>3D Web</strong>, and <strong>Blockchain</strong>.
+  </p>
+</div>
+
                 )}
 
                 {/* Social Links */}
@@ -468,8 +492,7 @@ My journey into tech started with **Quality Assurance (QA)**, where I spent over
                 
                 <div style={{ display: "flex", flexDirection: "column", gap: isMobile ? "15px" : "20px" }}>
                   {[
-                    { phase: "QA Engineer", years: "2.5+", desc: "Manual & Automation Testing", color: "#ff6b6b" },
-                    { phase: "Full Stack Dev", years: "Current", desc: "React, Node.js, Flutter", color: "#4ecdc4" },
+                    { phase: "Full Stack Developer", years: "Current", desc: "React, Node.js, Flutter", color: "#4ecdc4" },
                     { phase: "3D Creator", years: "Ongoing", desc: "Three.js & Blender", color: "#45b7d1" },
                     { phase: "AI Explorer", years: "Latest", desc: "Python, OpenCV, ML", color: "#96ceb4" },
                   ].map((item, i) => (

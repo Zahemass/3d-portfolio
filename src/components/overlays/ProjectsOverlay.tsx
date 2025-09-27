@@ -46,14 +46,14 @@ const CLIDemo: React.FC<{ codeDemo: string }> = ({ codeDemo }) => {
           <div style={{ width: "12px", height: "12px", background: "#27ca3f", borderRadius: "50%" }} />
         </div>
         <div style={{ marginLeft: "15px", color: "#666", fontSize: "12px" }}>
-          terminal — CLI API Tester Demo
+          terminal — DUDE CODE API demo
         </div>
       </div>
 
       {/* Typing Animation */}
       <ReactTyped
         strings={[codeDemo]}
-        typeSpeed={30}
+        typeSpeed={8}
         backSpeed={0}
         showCursor={true}
         cursorChar="▊"
@@ -922,11 +922,11 @@ const projects = [
     tech: ["Flutter", "Dart", "Firebase", "Google Maps API", "SQLite", "Real-time Sync"],
     github: "https://github.com/zaheer/local-lens",
     color: "#FF6B6B",
-    impact: "10K+ downloads, 500+ communities",
+    impact: "Social Impact",
     demoType: "app",
   },
   {
-    title: "⚡ CLI API Tester",
+    title: "⚡ DUDE CODE",
     desc: "Lightweight CLI tool to test REST APIs without Postman.",
     fullDesc: `A command-line tool that simplifies REST API testing for developers. Instead of relying on heavy tools like Postman, 
     this lightweight solution allows devs to quickly test endpoints, headers, and request bodies directly from the terminal.
@@ -935,10 +935,10 @@ const projects = [
     tech: ["Python", "Click", "Requests", "PyTest", "JSON Parser", "OAuth"],
     github: "https://github.com/zaheer/cli-api-tester",
     color: "#4ECDC4",
-    impact: "2K+ GitHub stars, 500+ weekly downloads",
+    impact: "Tools & Automation",
     demoType: "cli",
     codeDemo: `$ apitest get https://jsonplaceholder.typicode.com/posts/1
-> Initializing API request...
+> Initializing Dude Code API request...
 > Method: GET
 > URL: https://jsonplaceholder.typicode.com/posts/1
 > Headers: {"Content-Type": "application/json"}
@@ -967,7 +967,7 @@ $ apitest post https://api.example.com/users \\
     tech: ["React", "Node.js", "TensorFlow.js", "OpenCV", "Flask", "WebRTC", "Emotion AI"],
     github: "https://github.com/zaheer/mental-health-ai",
     color: "#845EC2",
-    impact: "Featured in TechCrunch, 15K+ users helped",
+    impact: "Healthcare",
     demoType: "ai",
   },
   {
@@ -980,11 +980,11 @@ $ apitest post https://api.example.com/users \\
     tech: ["React", "Node.js", "PostgreSQL", "JWT", "WebSockets", "Encryption", "OTP Auth"],
     github: "https://github.com/zaheer/secure-voting",
     color: "#F39C12",
-    impact: "Used in 50+ college elections, 10K+ voters",
+    impact: "Blockchain",
     demoType: "voting",
   },
   {
-    title: "🎓 MEASI College Management",
+    title: "🎓 MEASI FOOD SCHOLAR",
     desc: "Digital platform for student management & event updates.",
     fullDesc: `A comprehensive digital platform built for MEASI Institute to simplify student management, event updates, and academic tracking. 
     It bridges communication between students, faculty, and administration through a mobile-first approach.
@@ -993,7 +993,7 @@ $ apitest post https://api.example.com/users \\
     tech: ["Flutter", "React", "Node.js", "Firebase", "PostgreSQL", "FCM", "RBAC"],
     github: "https://github.com/zaheer/measi-management",
     color: "#9B59B6",
-    impact: "Serving 5K+ students & 200+ faculty",
+    impact: "Human Resources",
     demoType: "platform",
   },
 ];
@@ -1323,7 +1323,7 @@ const ProjectsOverlay: React.FC<ProjectsOverlayProps> = ({ onClose }) => {
         <div style={{ display: "flex", gap: "15px", alignItems: "center" }}>
           {/* View Mode Toggle */}
           <button
-            onClick={() => setViewMode(viewMode === 'orbit' ? 'expanded' : 'orbit')}
+            
             style={{
               padding: "8px 16px",
               background: "rgba(0,188,212,0.2)",

@@ -24,65 +24,59 @@ type SkillCategory = {
 const skillCategories = {
   "Frontend Development": {
     skills: [
-      { name: "React", level: 95, color: "#61DAFB", experience: "3+ years" },
-      { name: "TypeScript", level: 90, color: "#3178C6", experience: "2+ years" },
-      { name: "Next.js", level: 85, color: "#9e0202ff", experience: "2+ years" },
-      { name: "CSS/SCSS", level: 90, color: "#1572B6", experience: "4+ years" },
-      { name: "Framer Motion", level: 80, color: "#0055FF", experience: "1+ year" },
-      { name: "Tailwind CSS", level: 88, color: "#06B6D4", experience: "2+ years" }
+      { name: "React", level: 75, color: "#61DAFB", experience: "Intermediate" },
+      { name: "Javascript", level: 75, color: "#f6ee00", experience: "Advanced" },
+      { name: "TypeScript", level: 65, color: "#8a2de7", experience: "Intermediate" },
+      { name: "CSS", level: 90, color: "#da1919", experience: "Advanced" },
     ],
     icon: "🎨",
     description: "Creating beautiful, responsive user interfaces"
   },
   "Backend Development": {
     skills: [
-      { name: "Node.js", level: 92, color: "#339933", experience: "3+ years" },
-      { name: "Express.js", level: 88, color: "#000000", experience: "3+ years" },
-      { name: "Supabase", level: 85, color: "#3ECF8E", experience: "1+ year" },
-      { name: "Firebase", level: 90, color: "#FFCA28", experience: "2+ years" },
-      { name: "MongoDB", level: 82, color: "#47A248", experience: "2+ years" },
-      { name: "PostgreSQL", level: 80, color: "#4169E1", experience: "1+ year" }
+      { name: "Node.js", level: 92, color: "#339933", experience: "Advanced" },
+      { name: "Express.js", level: 88, color: "#00ffea", experience: "Advanced" },
+      { name: "Supabase", level: 85, color: "#3ECF8E", experience: "Advanced" },
+      { name: "Firebase", level: 70, color: "#FFCA28", experience: "Intermediate" },
+      { name: "PostgreSQL", level: 78, color: "#4169E1", experience: "Intermediate" }
     ],
     icon: "⚙️",
     description: "Building scalable server-side applications"
   },
   "Mobile Development": {
     skills: [
-      { name: "Flutter", level: 92, color: "#02569B", experience: "2+ years" },
-      { name: "Dart", level: 90, color: "#0175C2", experience: "2+ years" },
-      { name: "React Native", level: 75, color: "#61DAFB", experience: "1+ year" },
-      { name: "Android SDK", level: 70, color: "#3DDC84", experience: "1+ year" }
+      { name: "Flutter", level: 80, color: "#00ffea", experience: "Intermediate" },
+      { name: "Dart", level: 75, color: "#ffd001", experience: "Intermediate" }
     ],
     icon: "📱",
     description: "Cross-platform mobile applications"
   },
   "3D & Game Development": {
     skills: [
-      { name: "Three.js", level: 85, color: "#000000", experience: "1+ year" },
-      { name: "Blender", level: 78, color: "#F5792A", experience: "2+ years" },
-      { name: "WebGL", level: 70, color: "#990000", experience: "1+ year" },
-      { name: "Unity", level: 65, color: "#000000", experience: "6 months" }
+      { name: "Three.js", level: 65, color: "#00ff33", experience: "Intermediate" },
+      { name: "Blender", level: 85, color: "#F5792A", experience: "Intermediate" },
+      { name: "React Fiber", level: 80, color: "#0697ff", experience: "Intermediate" }
     ],
     icon: "🎮",
-    description: "Immersive 3D experiences and games"
+    description: "Immersive 3D experiences"
   },
   "AI & Machine Learning": {
     skills: [
-      { name: "Python", level: 88, color: "#3776AB", experience: "3+ years" },
-      { name: "TensorFlow", level: 75, color: "#FF6F00", experience: "1+ year" },
-      { name: "OpenCV", level: 80, color: "#5C3EE8", experience: "1+ year" },
-      { name: "Scikit-learn", level: 70, color: "#F7931E", experience: "1+ year" }
+      { name: "Python", level: 95, color: "#00ffea", experience: "Advanced" },
+      { name: "TensorFlow", level: 75, color: "#FF6F00", experience: "Intermediate" },
+      { name: "Scikit-learn", level: 30, color: "#d71ddb", experience: "Beginner" },
+      { name: "Natural Language Processing", level: 60, color: "#F7931E", experience: "Intermediate" },
+      { name: "Computer Vision", level: 65, color: "#00ef90", experience: "Intermediate" }
     ],
     icon: "🤖",
     description: "Intelligent systems and data analysis"
   },
   "DevOps & Tools": {
     skills: [
-      { name: "Git", level: 95, color: "#F05032", experience: "4+ years" },
-      { name: "Docker", level: 75, color: "#2496ED", experience: "1+ year" },
-      { name: "Vercel", level: 90, color: "#000000", experience: "2+ years" },
-      { name: "AWS", level: 70, color: "#FF9900", experience: "1+ year" },
-      { name: "Linux", level: 82, color: "#FCC624", experience: "2+ years" }
+      { name: "Git", level: 75, color: "#F05032", experience: "Intermediate" },
+      { name: "Netlify", level: 75, color: "#2496ED", experience: "Intermediate" },
+      { name: "Vercel", level: 90, color: "#48ff00", experience: "Intermediate" },
+      { name: "Linux", level: 30, color: "#FCC624", experience: "Beginner" }
     ],
     icon: "🛠️",
     description: "Development tools and deployment"
@@ -245,7 +239,7 @@ const SkillsOverlay: React.FC<SkillsOverlayProps> = ({ onClose }) => {
                         />
                       </div>
                       <div className="skill-footer">
-                        <span>Experience: {skill.experience}</span>
+                        <span> {skill.experience}</span>
                         {hoveredSkill === skill.name && (
                           <motion.span 
                             initial={{ opacity: 0 }} 
