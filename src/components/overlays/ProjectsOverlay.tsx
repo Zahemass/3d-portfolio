@@ -918,7 +918,7 @@ const projects = [
     fullDesc: `Local Lens empowers communities by helping people discover hidden spots and local gems.
     Features offline-first architecture with SQLite caching, real-time sync with Firebase, and community-driven discovery.
     Built with performance optimization and seamless user experience in mind.`,
-    youtube: "https://www.youtube.com/embed/YOUR_VIDEO_ID",
+    youtube: "https://www.youtube.com/embed/H9KO_E6jXW0",
     tech: ["Flutter", "Dart", "Firebase", "Google Maps API", "SQLite", "Real-time Sync"],
     github: "https://github.com/zaheer/local-lens",
     color: "#FF6B6B",
@@ -931,7 +931,7 @@ const projects = [
     fullDesc: `A command-line tool that simplifies REST API testing for developers. Instead of relying on heavy tools like Postman, 
     this lightweight solution allows devs to quickly test endpoints, headers, and request bodies directly from the terminal.
     Features support for GET, POST, PUT, DELETE requests with custom headers and authentication.`,
-    youtube: "https://www.youtube.com/embed/YOUR_VIDEO_ID_2",
+    youtube: "https://www.youtube.com/embed/9VhiTQuhDLw",
     tech: ["Python", "Click", "Requests", "PyTest", "JSON Parser", "OAuth"],
     github: "https://github.com/zaheer/cli-api-tester",
     color: "#4ECDC4",
