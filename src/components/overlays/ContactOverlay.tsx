@@ -54,7 +54,7 @@ const ContactOverlay: React.FC<ContactOverlayProps> = ({ onClose }) => {
       icon: Phone,
       title: "Phone",
       value: "+91 97898 93978",
-      action: "tel:+919876543210",
+      action: "tel:+919789893978",
       description: "Available for calls",
       color: "#00ff88",
       available: "9 AM - 6 PM IST"

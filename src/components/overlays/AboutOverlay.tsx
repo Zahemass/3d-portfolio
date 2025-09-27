@@ -7,7 +7,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import * as THREE from "three";
 import { useGLTF } from "@react-three/drei";
 
-
 interface AboutOverlayProps {
   onClose: () => void;
   firstTime: boolean;
@@ -24,11 +23,16 @@ const achievements = [
   { icon: "🌟", title: "Innovation Seeker", desc: "Always exploring new tech", unlocked: true },
 ];
 
+// 🚀 Floating 3D Avatar with Hologram Effect
 
 
-  // 🚀 Floating 3D Avatar with Hologram Effect
-const HologramAvatar: React.FC = () => {
-  const { scene } = useGLTF("/models/avatar.glb"); // <-- your man model
+interface HologramAvatarProps {
+  isMobile: boolean;
+  isVerySmall: boolean;
+}
+
+const HologramAvatar: React.FC<HologramAvatarProps> = ({ isMobile, isVerySmall }) => {
+  const { scene } = useGLTF("/models/avatar.glb"); // ✅ real model
   const avatarRef = useRef<THREE.Group>(null);
   const hologramRef = useRef<THREE.Mesh>(null);
 
@@ -44,6 +48,10 @@ const HologramAvatar: React.FC = () => {
     }
   });
 
+  // 📱 Responsive scale & Y offset
+  const scale = isVerySmall ? 1.4 : isMobile ? 1.8 : 2.2;
+  const yOffset = isVerySmall ? -0.8 : isMobile ? -1 : -1.2;
+
   return (
     <group>
       {/* Hologram Base */}
@@ -51,16 +59,21 @@ const HologramAvatar: React.FC = () => {
         <ringGeometry args={[1.5, 2, 32]} />
         <meshBasicMaterial color="#00ffff" transparent opacity={0.3} />
       </mesh>
-      
+
       {/* Hologram Cylinder */}
       <mesh ref={hologramRef} position={[0, 0, 0]}>
         <cylinderGeometry args={[2, 2, 4, 32, 1, true]} />
-        <meshBasicMaterial color="#00ffff" transparent opacity={0.1} side={THREE.DoubleSide} />
+        <meshBasicMaterial
+          color="#00ffff"
+          transparent
+          opacity={0.1}
+          side={THREE.DoubleSide}
+        />
       </mesh>
 
       {/* Avatar Model */}
-      <group ref={avatarRef}>
-        <primitive object={scene} scale={2.2} position={[0, -1, 0]} />
+      <group ref={avatarRef} scale={[scale, scale, scale]} position={[0, yOffset, 0]}>
+        <primitive object={scene} />
       </group>
 
       {/* Floating Particles */}
@@ -94,8 +107,6 @@ const FloatingParticle: React.FC<{ index: number }> = ({ index }) => {
   );
 };
 
-
-
 const AboutOverlay: React.FC<AboutOverlayProps> = ({
   onClose,
   firstTime,
@@ -106,10 +117,13 @@ const AboutOverlay: React.FC<AboutOverlayProps> = ({
   const [level, setLevel] = useState(12);
   const [showStats, setShowStats] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [isVerySmall, setIsVerySmall] = useState(false);
 
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 768);
+      const width = window.innerWidth;
+      setIsMobile(width <= 768);
+      setIsVerySmall(width <= 480);
     };
     
     checkMobile();
@@ -123,7 +137,7 @@ const AboutOverlay: React.FC<AboutOverlayProps> = ({
     };
   }, []);
 
-  const show3D = currentSection === 'intro' || currentSection === 'journey';
+  const show3D = !isMobile && (currentSection === 'intro' || currentSection === 'journey');
 
   const containerStyle: React.CSSProperties = {
     position: "fixed",
@@ -138,13 +152,14 @@ const AboutOverlay: React.FC<AboutOverlayProps> = ({
   };
 
   const headerStyle: React.CSSProperties = {
-    padding: isMobile ? "10px 15px" : "20px",
-    background: "linear-gradient(to bottom, rgba(0,0,0,0.8), transparent)",
+    padding: isMobile ? "15px" : "20px",
+    background: "linear-gradient(to bottom, rgba(0,0,0,0.9), rgba(0,0,0,0.7))",
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
     zIndex: 3000,
     flexShrink: 0,
+    borderBottom: "1px solid #00ffff30",
   };
 
   const mainContentStyle: React.CSSProperties = {
@@ -152,33 +167,38 @@ const AboutOverlay: React.FC<AboutOverlayProps> = ({
     display: "flex",
     flexDirection: isMobile ? "column" : "row",
     overflow: "hidden",
+    background: isMobile ? "rgba(0,0,0,0.3)" : "transparent",
   };
 
   const navigationStyle: React.CSSProperties = {
-    padding: isMobile ? "10px" : "20px",
+    padding: isMobile ? "15px" : "20px",
     display: "flex",
     flexDirection: isMobile ? "row" : "column",
-    gap: isMobile ? "5px" : "10px",
+    gap: isMobile ? "8px" : "10px",
     flexShrink: 0,
     justifyContent: isMobile ? "center" : "flex-start",
     overflowX: isMobile ? "auto" : "visible",
+    background: isMobile ? "rgba(0,0,0,0.6)" : "transparent",
+    borderBottom: isMobile ? "1px solid #00ffff30" : "none",
   };
 
   const contentAreaStyle: React.CSSProperties = {
-    flex: show3D && !isMobile ? 1 : currentSection === 'achievements' ? 2 : 1,
-    padding: isMobile ? "10px 15px" : "20px",
+    flex: 1,
+    padding: isMobile ? "20px 15px" : "20px",
     overflowY: "auto",
     zIndex: 2000,
+    background: isMobile ? "rgba(0,0,0,0.5)" : "transparent",
+    minHeight: isMobile ? "0" : "auto",
   };
 
   const sceneStyle: React.CSSProperties = {
     flex: 1,
-    borderRadius: isMobile ? "12px" : "16px",
+    borderRadius: "16px",
     overflow: "hidden",
     border: "1px solid #00ffff40",
     background: "rgba(0,0,0,0.3)",
-    margin: isMobile ? "10px" : "0 20px 20px 0",
-    minHeight: isMobile ? "200px" : "auto",
+    margin: "0 20px 20px 0",
+    minHeight: "400px",
   };
 
   return (
@@ -193,19 +213,24 @@ const AboutOverlay: React.FC<AboutOverlayProps> = ({
       <div style={headerStyle}>
         <div>
           <h1 style={{ 
-            fontSize: isMobile ? "16px" : "24px", 
+            fontSize: isVerySmall ? "14px" : isMobile ? "18px" : "24px", 
             color: "#00ffff",
             textShadow: "0 0 10px #00ffff",
             margin: 0,
             display: "flex",
             alignItems: "center",
             gap: "10px",
+            flexWrap: "wrap",
           }}>
             👨‍🚀 DEVELOPER PROFILE
             <motion.span
               animate={{ opacity: [0.5, 1, 0.5] }}
               transition={{ duration: 2, repeat: Infinity }}
-              style={{ fontSize: isMobile ? "10px" : "12px", color: "#ff6b6b" }}
+              style={{ 
+                fontSize: isVerySmall ? "10px" : isMobile ? "12px" : "12px", 
+                color: "#ff6b6b",
+                whiteSpace: "nowrap",
+              }}
             >
               [ONLINE]
             </motion.span>
@@ -220,22 +245,38 @@ const AboutOverlay: React.FC<AboutOverlayProps> = ({
               animate={{ x: 0, opacity: 1 }}
               style={{
                 display: "flex",
-                gap: isMobile ? "10px" : "20px",
+                gap: isMobile ? "12px" : "20px",
                 alignItems: "center",
+                flexShrink: 0,
               }}
             >
               <div style={{ textAlign: "center" }}>
-                <div style={{ fontSize: isMobile ? "10px" : "12px", opacity: 0.7 }}>LEVEL</div>
-                <div style={{ fontSize: isMobile ? "16px" : "20px", color: "#ffd700", fontWeight: "bold" }}>{level}</div>
+                <div style={{ 
+                  fontSize: isVerySmall ? "10px" : isMobile ? "11px" : "12px", 
+                  opacity: 0.7,
+                  whiteSpace: "nowrap",
+                }}>LEVEL</div>
+                <div style={{ 
+                  fontSize: isVerySmall ? "14px" : isMobile ? "18px" : "20px", 
+                  color: "#ffd700", 
+                  fontWeight: "bold" 
+                }}>{level}</div>
               </div>
               <div style={{ textAlign: "center" }}>
-                <div style={{ fontSize: isMobile ? "10px" : "12px", opacity: 0.7 }}>XP</div>
-                <div style={{ fontSize: isMobile ? "14px" : "16px", color: "#00ff00" }}>{experience}</div>
+                <div style={{ 
+                  fontSize: isVerySmall ? "10px" : isMobile ? "11px" : "12px", 
+                  opacity: 0.7,
+                  whiteSpace: "nowrap",
+                }}>XP</div>
+                <div style={{ 
+                  fontSize: isVerySmall ? "12px" : isMobile ? "16px" : "16px", 
+                  color: "#00ff00" 
+                }}>{experience}</div>
               </div>
               <button
                 onClick={onClose}
                 style={{
-                  padding: isMobile ? "8px 12px" : "10px 20px",
+                  padding: isVerySmall ? "6px 10px" : isMobile ? "8px 12px" : "10px 20px",
                   background: "linear-gradient(45deg, #ff4757, #ff3838)",
                   border: "none",
                   borderRadius: "8px",
@@ -243,7 +284,8 @@ const AboutOverlay: React.FC<AboutOverlayProps> = ({
                   fontWeight: "bold",
                   cursor: "pointer",
                   boxShadow: "0 0 20px rgba(255,71,87,0.5)",
-                  fontSize: isMobile ? "12px" : "14px",
+                  fontSize: isVerySmall ? "11px" : isMobile ? "12px" : "14px",
+                  whiteSpace: "nowrap",
                 }}
               >
                 ✖ EXIT
@@ -266,7 +308,7 @@ const AboutOverlay: React.FC<AboutOverlayProps> = ({
               whileHover={{ scale: 1.05, x: isMobile ? 0 : 5 }}
               onClick={() => setCurrentSection(tab.key as any)}
               style={{
-                padding: isMobile ? "8px 12px" : "12px 16px",
+                padding: isVerySmall ? "10px 12px" : isMobile ? "12px 14px" : "12px 16px",
                 background: currentSection === tab.key ? 
                   "linear-gradient(45deg, #00ffff, #0099cc)" : 
                   "rgba(0,255,255,0.1)",
@@ -274,13 +316,14 @@ const AboutOverlay: React.FC<AboutOverlayProps> = ({
                 borderRadius: "8px",
                 color: currentSection === tab.key ? "black" : "#00ffff",
                 cursor: "pointer",
-                fontSize: isMobile ? "10px" : "12px",
+                fontSize: isVerySmall ? "11px" : isMobile ? "12px" : "12px",
                 fontWeight: "bold",
                 display: "flex",
                 alignItems: "center",
                 gap: "6px",
-                minWidth: isMobile ? "80px" : "120px",
+                minWidth: isVerySmall ? "70px" : isMobile ? "90px" : "120px",
                 whiteSpace: "nowrap",
+                justifyContent: "center",
               }}
             >
               {tab.icon}
@@ -302,8 +345,9 @@ const AboutOverlay: React.FC<AboutOverlayProps> = ({
               >
                 <h2 style={{ 
                   color: "#00ffff", 
-                  fontSize: isMobile ? "1.2rem" : "1.8rem", 
-                  marginBottom: "20px" 
+                  fontSize: isVerySmall ? "1.1rem" : isMobile ? "1.3rem" : "1.8rem", 
+                  marginBottom: isMobile ? "15px" : "20px",
+                  textAlign: isMobile ? "center" : "left",
                 }}>
                   👤 About Me
                 </h2>
@@ -323,34 +367,34 @@ My journey into tech started with **Quality Assurance (QA)**, where I spent over
                     cursorChar="|"
                     onComplete={() => setFirstTime(false)}
                     style={{
-                      fontSize: isMobile ? "14px" : "16px",
-                      lineHeight: "1.8",
+                      fontSize: isVerySmall ? "13px" : isMobile ? "15px" : "16px",
+                      lineHeight: isMobile ? "1.6" : "1.8",
                       color: "#f0f0f0",
                     }}
                   />
                 ) : (
                   <div style={{ 
-                    fontSize: isMobile ? "14px" : "16px", 
-                    lineHeight: "1.8", 
-                    color: "#f0f0f0" 
+                    fontSize: isVerySmall ? "13px" : isMobile ? "15px" : "16px", 
+                    lineHeight: isMobile ? "1.6" : "1.8", 
+                    color: "#f0f0f0",
                   }}>
-                    <p>
+                    <p style={{ marginBottom: isMobile ? "15px" : "20px" }}>
                       Hi, I'm <strong style={{ color: "#00ffff" }}>Mohammed Zaheer</strong> — a passionate 
                       <strong> Full Stack Developer & App Developer</strong> based in <strong>Chennai, India</strong>, 
                       currently pursuing my <strong>B.Sc. in Information Technology (Final Year)</strong>.
                     </p>
-                    <p>
+                    <p style={{ marginBottom: isMobile ? "15px" : "20px" }}>
                       I specialize in building <strong style={{ color: "#ffd700" }}>scalable web applications, 
                       mobile apps, and 3D interactive experiences</strong> that merge creativity with functionality.
                     </p>
-                    <p>
+                    <p style={{ marginBottom: isMobile ? "15px" : "20px" }}>
                       Alongside development, I've gained hands-on exposure to 
                       <strong> Quality Assurance (QA)</strong>, which strengthened my skills in 
                       <strong> debugging, problem-solving, and delivering reliable applications</strong>. 
                       This foundation helps me ensure that the products I build are both <strong>quality-driven</strong> 
                       and <strong>user-focused</strong>.
                     </p>
-                    <p>
+                    <p style={{ marginBottom: isMobile ? "15px" : "20px" }}>
                       I've also participated in multiple <strong>hackathons</strong>, earning recognition 
                       for innovative projects in <strong>AI, full-stack development, and interactive apps</strong>. 
                       My goal is to leverage my skills to build <strong>impactful products</strong> while exploring 
@@ -361,10 +405,10 @@ My journey into tech started with **Quality Assurance (QA)**, where I spent over
 
                 {/* Social Links */}
                 <div style={{
-                  marginTop: "30px",
+                  marginTop: isMobile ? "25px" : "30px",
                   display: "flex",
-                  gap: "15px",
-                  justifyContent: isMobile ? "center" : "flex-start",
+                  gap: isMobile ? "12px" : "15px",
+                  justifyContent: "center",
                   flexWrap: "wrap",
                 }}>
                   {[
@@ -383,8 +427,8 @@ My journey into tech started with **Quality Assurance (QA)**, where I spent over
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        width: isMobile ? "44px" : "50px",
-                        height: isMobile ? "44px" : "50px",
+                        width: isMobile ? "48px" : "50px",
+                        height: isMobile ? "48px" : "50px",
                         background: "linear-gradient(45deg, #00ffff20, #0099cc20)",
                         border: "1px solid #00ffff",
                         borderRadius: "12px",
@@ -409,13 +453,14 @@ My journey into tech started with **Quality Assurance (QA)**, where I spent over
               >
                 <h2 style={{ 
                   color: "#00ffff", 
-                  fontSize: isMobile ? "1.2rem" : "1.8rem", 
-                  marginBottom: "20px" 
+                  fontSize: isVerySmall ? "1.1rem" : isMobile ? "1.3rem" : "1.8rem", 
+                  marginBottom: isMobile ? "15px" : "20px",
+                  textAlign: isMobile ? "center" : "left",
                 }}>
                   🚀 My Tech Journey
                 </h2>
                 
-                <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: isMobile ? "15px" : "20px" }}>
                   {[
                     { phase: "QA Engineer", years: "2.5+", desc: "Manual & Automation Testing", color: "#ff6b6b" },
                     { phase: "Full Stack Dev", years: "Current", desc: "React, Node.js, Flutter", color: "#4ecdc4" },
@@ -430,16 +475,16 @@ My journey into tech started with **Quality Assurance (QA)**, where I spent over
                       style={{
                         display: "flex",
                         alignItems: "center",
-                        gap: "15px",
-                        padding: isMobile ? "12px" : "15px",
+                        gap: isMobile ? "12px" : "15px",
+                        padding: isMobile ? "15px" : "15px",
                         background: `linear-gradient(45deg, ${item.color}20, transparent)`,
                         border: `1px solid ${item.color}40`,
                         borderRadius: "12px",
                       }}
                     >
                       <div style={{
-                        width: isMobile ? "40px" : "50px",
-                        height: isMobile ? "40px" : "50px",
+                        width: isMobile ? "45px" : "50px",
+                        height: isMobile ? "45px" : "50px",
                         background: item.color,
                         borderRadius: "50%",
                         display: "flex",
@@ -447,22 +492,25 @@ My journey into tech started with **Quality Assurance (QA)**, where I spent over
                         justifyContent: "center",
                         fontWeight: "bold",
                         color: "black",
-                        fontSize: isMobile ? "10px" : "12px",
+                        fontSize: isVerySmall ? "9px" : isMobile ? "11px" : "12px",
+                        flexShrink: 0,
                       }}>
                         {item.years}
                       </div>
-                      <div>
+                      <div style={{ flex: 1 }}>
                         <h3 style={{ 
                           color: item.color, 
                           margin: 0, 
-                          fontSize: isMobile ? "14px" : "16px" 
+                          fontSize: isVerySmall ? "14px" : isMobile ? "16px" : "16px",
+                          marginBottom: "4px",
                         }}>
                           {item.phase}
                         </h3>
                         <p style={{ 
-                          margin: "5px 0 0 0", 
-                          opacity: 0.8, 
-                          fontSize: isMobile ? "12px" : "14px" 
+                          margin: 0, 
+                          opacity: 0.9, 
+                          fontSize: isVerySmall ? "12px" : isMobile ? "14px" : "14px",
+                          color: "#f0f0f0",
                         }}>
                           {item.desc}
                         </p>
@@ -483,8 +531,8 @@ My journey into tech started with **Quality Assurance (QA)**, where I spent over
               >
                 <h2 style={{ 
                   color: "#00ffff", 
-                  fontSize: isMobile ? "1.2rem" : "1.8rem", 
-                  marginBottom: "20px",
+                  fontSize: isVerySmall ? "1.1rem" : isMobile ? "1.3rem" : "1.8rem", 
+                  marginBottom: isMobile ? "20px" : "20px",
                   textAlign: "center",
                 }}>
                   🏆 Achievements Unlocked
@@ -492,8 +540,8 @@ My journey into tech started with **Quality Assurance (QA)**, where I spent over
                 
                 <div style={{ 
                   display: "grid", 
-                  gridTemplateColumns: isMobile ? "repeat(auto-fit, minmax(140px, 1fr))" : "repeat(auto-fit, minmax(200px, 1fr))", 
-                  gap: isMobile ? "12px" : "15px",
+                  gridTemplateColumns: isVerySmall ? "repeat(2, 1fr)" : isMobile ? "repeat(2, 1fr)" : "repeat(auto-fit, minmax(200px, 1fr))", 
+                  gap: isMobile ? "15px" : "15px",
                   maxWidth: "100%",
                 }}>
                   {achievements.map((achievement, i) => (
@@ -503,7 +551,7 @@ My journey into tech started with **Quality Assurance (QA)**, where I spent over
                       animate={{ scale: 1, rotate: 0 }}
                       transition={{ delay: i * 0.1, type: "spring", stiffness: 200 }}
                       style={{
-                        padding: isMobile ? "12px" : "15px",
+                        padding: isMobile ? "15px" : "15px",
                         background: achievement.unlocked ? 
                           "linear-gradient(45deg, #ffd70020, #ff851b20)" : 
                           "rgba(100,100,100,0.1)",
@@ -513,20 +561,26 @@ My journey into tech started with **Quality Assurance (QA)**, where I spent over
                         opacity: achievement.unlocked ? 1 : 0.5,
                       }}
                     >
-                      <div style={{ fontSize: isMobile ? "20px" : "24px", marginBottom: "8px" }}>
+                      <div style={{ 
+                        fontSize: isMobile ? "24px" : "24px", 
+                        marginBottom: "10px" 
+                      }}>
                         {achievement.icon}
                       </div>
                       <h4 style={{ 
                         color: achievement.unlocked ? "#ffd700" : "#999", 
-                        margin: "0 0 5px 0",
-                        fontSize: isMobile ? "12px" : "14px"
+                        margin: "0 0 8px 0",
+                        fontSize: isVerySmall ? "12px" : isMobile ? "14px" : "14px",
+                        lineHeight: "1.2",
                       }}>
                         {achievement.title}
                       </h4>
                       <p style={{ 
                         margin: 0, 
-                        fontSize: isMobile ? "10px" : "12px", 
-                        opacity: 0.8 
+                        fontSize: isVerySmall ? "11px" : isMobile ? "12px" : "12px", 
+                        opacity: 0.8,
+                        lineHeight: "1.3",
+                        color: "#f0f0f0",
                       }}>
                         {achievement.desc}
                       </p>
@@ -538,7 +592,7 @@ My journey into tech started with **Quality Assurance (QA)**, where I spent over
           </AnimatePresence>
         </div>
 
-        {/* 3D Scene - Only for intro and journey */}
+        {/* 3D Scene - Only for desktop */}
         {show3D && (
           <div style={sceneStyle}>
             <Canvas camera={{ position: [0, 0, 8], fov: 50 }}>
@@ -548,8 +602,7 @@ My journey into tech started with **Quality Assurance (QA)**, where I spent over
               <directionalLight position={[10, 10, 5]} intensity={1} />
               <pointLight position={[0, 0, 0]} intensity={0.5} color="#00ffff" />
 
-              {currentSection === 'intro' && <HologramAvatar />}
-              {currentSection === 'journey' && <HologramAvatar />}
+              <HologramAvatar isMobile={isMobile} isVerySmall={isVerySmall} />
 
               <OrbitControls 
                 enableZoom={true} 
