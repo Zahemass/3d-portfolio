@@ -15,12 +15,17 @@ interface SpaceshipProps {
   mobileBoost?: boolean;
   cameraControl?: {
     isDragging: boolean;
+    lastMouse?: { x: number; y: number };
     lastTouch: { x: number; y: number };
     rotation: { horizontal: number; vertical: number };
     sensitivity: number;
+    touchSensitivity?: number;
+    mouseSensitivity?: number;
     distance?: number;
     minDistance?: number;
     maxDistance?: number;
+    smoothing?: number;
+    verticalLimit?: number;
   };
 }
 
@@ -28,6 +33,7 @@ interface SpaceshipProps {
  * Spaceship component
  * - Handles physics, movement, effects, and HUD updates
  * - Accepts both keyboard input and mobile joystick input
+ * - Enhanced PUBG/Free Fire style TPS camera system
  */
 const Spaceship: React.FC<SpaceshipProps> = ({
   setHud,
@@ -48,6 +54,10 @@ const Spaceship: React.FC<SpaceshipProps> = ({
   const acceleration = 0.08;
   const friction = 0.96;
   const velocity = useRef(new Vector3(0, 0, 0));
+
+  /** === Camera tracking refs === */
+  const cameraPosition = useRef(new Vector3());
+  const cameraTarget = useRef(new Vector3());
 
   /** === Effects refs === */
   const exhaustRef = useRef<any>(null);
@@ -235,7 +245,7 @@ const Spaceship: React.FC<SpaceshipProps> = ({
 
     shipRef.current.position.add(velocity.current);
 
-    /** === Camera System === */
+    /** === Ship Rotation & Animation === */
     shipRef.current.rotation.z = MathUtils.lerp(
       shipRef.current.rotation.z,
       tilt,
@@ -248,49 +258,67 @@ const Spaceship: React.FC<SpaceshipProps> = ({
       0.1
     );
 
+    // Idle floating animation
     if (currentSpeed < 0.1) {
       shipRef.current.position.y += Math.sin(time * 2) * 0.02;
       shipRef.current.rotation.y += Math.sin(time * 1.5) * 0.005;
     }
 
-    /** === Enhanced PUBG-Style Camera System === */
-const baseHeight = 4;
-let cameraDistance = 12;
-let cameraAngleH = 0;
-let cameraAngleV = 0;
+    /** === Enhanced PUBG/Free Fire Style TPS Camera System === */
+    const baseHeight = 4;
+    let cameraDistance = 12;
+    let cameraAngleH = 0;
+    let cameraAngleV = 0;
+    let smoothing = 0.08; // Default smoothing
 
-if (cameraControl) {
-  cameraAngleH = cameraControl.rotation.horizontal;
-  cameraAngleV = cameraControl.rotation.vertical;
-  cameraDistance = cameraControl.distance ?? 12;
-}
+    // Get camera control values
+    if (cameraControl) {
+      cameraAngleH = cameraControl.rotation.horizontal;
+      cameraAngleV = cameraControl.rotation.vertical;
+      cameraDistance = cameraControl.distance ?? 12;
+      smoothing = cameraControl.smoothing ?? 0.08;
+    }
 
-const velocityInfluence = velocity.current.length() * 0.5;
-const dynamicDistance = cameraDistance + velocityInfluence;
+    // Dynamic camera distance based on velocity (for cinematic effect)
+    const velocityInfluence = velocity.current.length() * 0.8;
+    const dynamicDistance = Math.max(8, Math.min(20, cameraDistance + velocityInfluence));
 
-const cameraOffset = new Vector3(
-  Math.sin(cameraAngleH) * dynamicDistance,
-  baseHeight + Math.sin(cameraAngleV) * 8,
-  Math.cos(cameraAngleH) * dynamicDistance
-);
+    // Calculate camera offset based on spherical coordinates
+    const cameraOffset = new Vector3(
+      Math.sin(cameraAngleH) * Math.cos(cameraAngleV) * dynamicDistance,
+      baseHeight + Math.sin(cameraAngleV) * dynamicDistance * 0.8,
+      Math.cos(cameraAngleH) * Math.cos(cameraAngleV) * dynamicDistance
+    );
 
-const targetCamPos = shipRef.current.position.clone().add(cameraOffset);
-camera.position.lerp(targetCamPos, 0.06);
+    // Target camera position
+    const targetCamPos = shipRef.current.position.clone().add(cameraOffset);
+    
+    // Smooth camera position interpolation
+    cameraPosition.current.lerp(targetCamPos, smoothing);
+    camera.position.copy(cameraPosition.current);
 
-const lookTarget = shipRef.current.position.clone();
-lookTarget.y += Math.sin(cameraAngleV) * 3;
-lookTarget.x += Math.sin(cameraAngleH) * 2;
-camera.lookAt(lookTarget);
+    // Calculate look target with offset for better view
+    const lookTarget = shipRef.current.position.clone();
+    lookTarget.y += 1; // Slightly above the ship
+    
+    // Add camera rotation influence to look target for more dynamic view
+    lookTarget.x += Math.sin(cameraAngleH) * 1.5;
+    lookTarget.z += Math.cos(cameraAngleH) * 1.5;
+    lookTarget.y += Math.sin(cameraAngleV) * 2;
 
-if (cameraControl && Math.abs(cameraAngleH) > 0.1) {
-  const shipTargetRotY = cameraAngleH * 0.2;
-  shipRef.current.rotation.y = MathUtils.lerp(
-    shipRef.current.rotation.y,
-    shipTargetRotY,
-    0.03
-  );
-}
+    // Smooth look target interpolation
+    cameraTarget.current.lerp(lookTarget, smoothing * 1.2);
+    camera.lookAt(cameraTarget.current);
 
+    // Ship rotation follows camera (subtle effect for immersion)
+    if (cameraControl && Math.abs(cameraAngleH) > 0.1) {
+      const shipTargetRotY = cameraAngleH * 0.1; // Reduced influence
+      shipRef.current.rotation.y = MathUtils.lerp(
+        shipRef.current.rotation.y,
+        shipTargetRotY,
+        0.02 // Slower interpolation for smoother effect
+      );
+    }
 
     /** === HUD Update === */
     setIsThrusting(isUsingThrust);

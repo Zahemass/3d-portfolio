@@ -18,8 +18,6 @@ import ProjectsOverlay from "./overlays/ProjectsOverlay";
 import SkillsOverlay from "./overlays/SkillsOverlay";
 import ContactOverlay from "./overlays/ContactOverlay";
 
-
-
 // CSS styles
 import "../styles/spacegame.css";
 
@@ -47,8 +45,6 @@ const SpaceGame: React.FC<SpaceGameProps> = ({ darkMode, setDarkMode }) => {
   }
 }, []);
 
-
-
   useEffect(() => {
     // Detect if it's a mobile device
     const checkIfMobile = () => {
@@ -63,8 +59,6 @@ const SpaceGame: React.FC<SpaceGameProps> = ({ darkMode, setDarkMode }) => {
     
     return () => window.removeEventListener('resize', checkIfMobile);
   }, []);
-
-  // If you're still getting errors, use this even simpler version:
 
 useEffect(() => {
   // Simple orientation detection based on dimensions only
@@ -143,16 +137,82 @@ useEffect(() => {
   const [mobileVertical, setMobileVertical] = useState<'up' | 'down' | null>(null);
   const [mobileBoost, setMobileBoost] = useState(false);
 
-  // ⬇️ Add here
-const [cameraControl, setCameraControl] = useState({
-  isDragging: false,
-  lastTouch: { x: 0, y: 0 },
-  rotation: { horizontal: 0, vertical: 0 },
-  sensitivity: 0.005,
-  distance: 12, // For zoom support (snippet 3)
-  minDistance: 6,
-  maxDistance: 25
-});
+  // Enhanced camera control for PUBG/Free Fire style TPS
+  const [cameraControl, setCameraControl] = useState({
+    isDragging: false,
+    lastMouse: { x: 0, y: 0 },
+    lastTouch: { x: 0, y: 0 },
+    rotation: { horizontal: 0, vertical: 0 },
+    sensitivity: 0.003, // Increased sensitivity for better responsiveness
+    touchSensitivity: 0.004, // Separate sensitivity for touch
+    mouseSensitivity: 0.002, // Separate sensitivity for mouse
+    distance: 12,
+    minDistance: 6,
+    maxDistance: 25,
+    smoothing: 0.1, // For smooth camera movement
+    verticalLimit: Math.PI / 3 // Limit vertical rotation
+  });
+
+  // Mouse controls for desktop
+  useEffect(() => {
+    if (isMobileDevice) return; // Only for desktop
+
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!cameraControl.isDragging) return;
+
+      const deltaX = e.clientX - cameraControl.lastMouse.x;
+      const deltaY = e.clientY - cameraControl.lastMouse.y;
+
+      setCameraControl(prev => ({
+        ...prev,
+        rotation: {
+          horizontal: prev.rotation.horizontal + deltaX * prev.mouseSensitivity,
+          vertical: Math.max(-prev.verticalLimit, Math.min(prev.verticalLimit, 
+            prev.rotation.vertical - deltaY * prev.mouseSensitivity))
+        },
+        lastMouse: { x: e.clientX, y: e.clientY }
+      }));
+    };
+
+    const handleMouseDown = (e: MouseEvent) => {
+      // Only right mouse button for camera control
+      if (e.button === 2) {
+        e.preventDefault();
+        setCameraControl(prev => ({
+          ...prev,
+          isDragging: true,
+          lastMouse: { x: e.clientX, y: e.clientY }
+        }));
+      }
+    };
+
+    const handleMouseUp = (e: MouseEvent) => {
+      if (e.button === 2) {
+        setCameraControl(prev => ({
+          ...prev,
+          isDragging: false
+        }));
+      }
+    };
+
+    const handleContextMenu = (e: MouseEvent) => {
+      e.preventDefault(); // Prevent right-click menu
+    };
+
+    // Add event listeners
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mousedown', handleMouseDown);
+    window.addEventListener('mouseup', handleMouseUp);
+    window.addEventListener('contextmenu', handleContextMenu);
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mousedown', handleMouseDown);
+      window.removeEventListener('mouseup', handleMouseUp);
+      window.removeEventListener('contextmenu', handleContextMenu);
+    };
+  }, [cameraControl.isDragging, cameraControl.lastMouse, isMobileDevice]);
+
   const [hud, setHud] = useState<any>({
     speed: "0.00",
     position: new Vector3(),
@@ -163,10 +223,7 @@ const [cameraControl, setCameraControl] = useState({
 
   const [paused, setPaused] = useState(false);
   const [gameMode, setGameMode] = useState<"exploration" | "professional">("exploration");
-
   const [activeStation, setActiveStation] = useState<string | null>(null);
-
-
   const [nearbyStation, setNearbyStation] = useState<string | null>(null);
   const [scannerActive, setScannerActive] = useState(false);
   const [experience, setExperience] = useState(0);
@@ -270,9 +327,6 @@ const [cameraControl, setCameraControl] = useState({
   }, [paused, gameMode, isLandscape, isMobileDevice]);
 
   return (
-
-    
-
     <div className="spacegame-container">
       {/* 3D Scene */}
       <Canvas
@@ -299,61 +353,59 @@ const [cameraControl, setCameraControl] = useState({
 
         {/* Stations */}
         <AboutStation
-  shipPos={hud.position}
-  activeStation={activeStation}
-  onOpen={() => {
-    setPaused(true);
-    setActiveStation("about");
-    gainExperience(25);
-  }}
-/>
+          shipPos={hud.position}
+          activeStation={activeStation}
+          onOpen={() => {
+            setPaused(true);
+            setActiveStation("about");
+            gainExperience(25);
+          }}
+        />
 
-<ProjectsStation
-  shipPos={hud.position}
-  activeStation={activeStation}
-  onOpen={() => {
-    setPaused(true);
-    setActiveStation("projects");
-    gainExperience(25);
-  }}
-/>
+        <ProjectsStation
+          shipPos={hud.position}
+          activeStation={activeStation}
+          onOpen={() => {
+            setPaused(true);
+            setActiveStation("projects");
+            gainExperience(25);
+          }}
+        />
 
-<SkillsStation
-  shipPos={hud.position}
-  activeStation={activeStation}
-  onOpen={() => {
-    setPaused(true);
-    setActiveStation("skills");
-    gainExperience(25);
-  }}
-/>
+        <SkillsStation
+          shipPos={hud.position}
+          activeStation={activeStation}
+          onOpen={() => {
+            setPaused(true);
+            setActiveStation("skills");
+            gainExperience(25);
+          }}
+        />
 
-<ContactStation
-  shipPos={hud.position}
-  activeStation={activeStation}
-  onOpen={() => {
-    setPaused(true);
-    setActiveStation("contact");
-    gainExperience(25);
-  }}
-/>
-
-
+        <ContactStation
+          shipPos={hud.position}
+          activeStation={activeStation}
+          onOpen={() => {
+            setPaused(true);
+            setActiveStation("contact");
+            gainExperience(25);
+          }}
+        />
 
         {/* Controls only when paused */}
         {paused && <OrbitControls enablePan={false} enableZoom={true} />}
       </Canvas>
 
-{/* Background Music */}
-<audio
-  id="bg-music"
-  loop
-  hidden
-  autoPlay
->
-  <source src="/sounds/Interstellar-Theme.mp3" type="audio/mpeg" />
-  Your browser does not support the audio element.
-</audio>
+      {/* Background Music */}
+      <audio
+        id="bg-music"
+        loop
+        hidden
+        autoPlay
+      >
+        <source src="/sounds/Interstellar-Theme.mp3" type="audio/mpeg" />
+        Your browser does not support the audio element.
+      </audio>
 
       {/* HUD Overlay - show in landscape */}
       <AnimatePresence>
@@ -391,31 +443,27 @@ const [cameraControl, setCameraControl] = useState({
               {/* Controls */}
               <div className="hud-controls">
                 <button onClick={() => setScannerActive(!scannerActive)} style={{ zIndex: 1000 }}>📊 SCAN</button>
-               <button
-  onClick={() => {
-    const audio = document.getElementById("bg-music") as HTMLAudioElement | null;
-    if (!audio) return;
+                <button
+                  onClick={() => {
+                    const audio = document.getElementById("bg-music") as HTMLAudioElement | null;
+                    if (!audio) return;
 
-    if (musicOn) {
-      // Turn OFF
-      audio.pause();
-      setMusicOn(false);
-    } else {
-      // Turn ON (this counts as user interaction)
-      audio.muted = false;
-      audio.play()
-        .then(() => console.log("🎵 Music started"))
-        .catch(err => console.warn("⚠️ Could not play audio:", err));
-      setMusicOn(true);
-    }
-  }}
->
-  {musicOn ? "🔊 Music ON" : "🔇 Music OFF"}
-</button>
-
-
-
-
+                    if (musicOn) {
+                      // Turn OFF
+                      audio.pause();
+                      setMusicOn(false);
+                    } else {
+                      // Turn ON (this counts as user interaction)
+                      audio.muted = false;
+                      audio.play()
+                        .then(() => console.log("🎵 Music started"))
+                        .catch(err => console.warn("⚠️ Could not play audio:", err));
+                      setMusicOn(true);
+                    }
+                  }}
+                >
+                  {musicOn ? "🔊 Music ON" : "🔇 Music OFF"}
+                </button>
               </div>
             </div>
 
@@ -439,266 +487,233 @@ const [cameraControl, setCameraControl] = useState({
         )}
       </AnimatePresence>
 
-      {/* Professional Mode */}
-      
       {/* Overlays */}
       <AnimatePresence mode="wait">
-  {activeStation === "skills" && (
-    <SkillsOverlay onClose={() => { setActiveStation(null); setPaused(false); }} />
-  )}
-  {activeStation === "about" && (
-    <AboutOverlay 
-      onClose={() => { setActiveStation(null); setPaused(false); setFirstTimeAbout(false); }}
-      firstTime={firstTimeAbout}
-      setFirstTime={setFirstTimeAbout}
-    />
-  )}
-  {activeStation === "projects" && (
-    <ProjectsOverlay onClose={() => { setActiveStation(null); setPaused(false); }} />
-  )}
-  {activeStation === "contact" && (
-    <ContactOverlay onClose={() => { setActiveStation(null); setPaused(false); }} />
-  )}
-</AnimatePresence>
+        {activeStation === "skills" && (
+          <SkillsOverlay onClose={() => { setActiveStation(null); setPaused(false); }} />
+        )}
+        {activeStation === "about" && (
+          <AboutOverlay 
+            onClose={() => { setActiveStation(null); setPaused(false); setFirstTimeAbout(false); }}
+            firstTime={firstTimeAbout}
+            setFirstTime={setFirstTimeAbout}
+          />
+        )}
+        {activeStation === "projects" && (
+          <ProjectsOverlay onClose={() => { setActiveStation(null); setPaused(false); }} />
+        )}
+        {activeStation === "contact" && (
+          <ContactOverlay onClose={() => { setActiveStation(null); setPaused(false); }} />
+        )}
+      </AnimatePresence>
 
-
-      {/* MOBILE CONTROLS - Force show with inline styles for testing */}
       {/* MOBILE CONTROLS - Simplified with force visibility */}
-{!paused && gameMode === "exploration" && isMobileDevice && (
-  <div 
-    style={{ 
-      position: 'fixed',
-      bottom: '0',
-      left: '0',
-      right: '0',
-      height: '160px',
-      zIndex: '99999',
-      display: isLandscape ? 'flex' : 'none',
-      justifyContent: 'space-between',
-      alignItems: 'flex-end',
-      padding: '0 30px 20px 30px',
-      pointerEvents: 'none',
-     // Debug background
-    }}
-  >
-    {/* Debug info */}
-    
+      {!paused && gameMode === "exploration" && isMobileDevice && (
+        <div 
+          style={{ 
+            position: 'fixed',
+            bottom: '0',
+            left: '0',
+            right: '0',
+            height: '160px',
+            zIndex: '99999',
+            display: isLandscape ? 'flex' : 'none',
+            justifyContent: 'space-between',
+            alignItems: 'flex-end',
+            padding: '0 30px 20px 30px',
+            pointerEvents: 'none',
+          }}
+        >
+          {/* Left side: Joystick */}
+          <div style={{ pointerEvents: 'auto' }}>
+            <Joystick
+              size={80}
+              baseColor="rgba(0,255,255,0.3)"
+              stickColor="#00ffff"
+              move={(e) => {
+                if (e && e.x !== null && e.y !== null) {
+                  const nx = (e.x / 50) * 10;
+                  const ny = (e.y / 50) * 10;
+                  console.log("Joystick:", nx, ny);
+                  setJoystickDir({ x: nx, y: ny });
+                }
+              }}
+              stop={() => {
+                console.log("Joystick stopped");
+                setJoystickDir({ x: 0, y: 0 });
+              }}
+            />
+          </div>
 
-    {/* Left side: Joystick */}
-    <div style={{ pointerEvents: 'auto' }}>
-      <Joystick
-        size={80}
-        baseColor="rgba(0,255,255,0.3)"
-        stickColor="#00ffff"
-        move={(e) => {
-          if (e && e.x !== null && e.y !== null) {
-            const nx = (e.x / 50) * 10;
-            const ny = (e.y / 50) * 10;
-            console.log("Joystick:", nx, ny);
-            setJoystickDir({ x: nx, y: ny });
-          }
-        }}
-        stop={() => {
-          console.log("Joystick stopped");
-          setJoystickDir({ x: 0, y: 0 });
-        }}
-      />
-    </div>
+          {/* Right side: Action buttons */}
+          <div style={{ 
+            display: 'flex', 
+            gap: '10px', 
+            alignItems: 'flex-end',
+            pointerEvents: 'auto'
+          }}>
+            {/* UP Button */}
+            <button 
+              style={{
+                width: '50px',
+                height: '50px',
+                borderRadius: '50%',
+                background: 'rgba(0, 255, 100, 0.2)',
+                border: '2px solid #00ff64',
+                color: '#00ff64',
+                fontSize: '20px',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                touchAction: 'none',
+                cursor: 'pointer'
+              }}
+              onTouchStart={(e) => { 
+                e.preventDefault(); 
+                setMobileVertical('up'); 
+                console.log('UP pressed');
+              }}
+              onTouchEnd={(e) => { 
+                e.preventDefault(); 
+                setMobileVertical(null); 
+                console.log('UP released');
+              }}
+              onMouseDown={() => setMobileVertical('up')}
+              onMouseUp={() => setMobileVertical(null)}
+              onMouseLeave={() => setMobileVertical(null)}
+            >
+              ↑
+            </button>
+            
+            {/* DOWN Button */}
+            <button 
+              style={{
+                width: '50px',
+                height: '50px',
+                borderRadius: '50%',
+                background: 'rgba(100, 100, 255, 0.2)',
+                border: '2px solid #6464ff',
+                color: '#6464ff',
+                fontSize: '20px',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                touchAction: 'none',
+                cursor: 'pointer'
+              }}
+              onTouchStart={(e) => { 
+                e.preventDefault(); 
+                setMobileVertical('down');
+                console.log('DOWN pressed');
+              }}
+              onTouchEnd={(e) => { 
+                e.preventDefault(); 
+                setMobileVertical(null);
+                console.log('DOWN released');
+              }}
+              onMouseDown={() => setMobileVertical('down')}
+              onMouseUp={() => setMobileVertical(null)}
+              onMouseLeave={() => setMobileVertical(null)}
+            >
+              ↓
+            </button>
 
-    {/* Right side: Action buttons */}
-    <div style={{ 
-      display: 'flex', 
-      gap: '10px', 
-      alignItems: 'flex-end',
-      pointerEvents: 'auto'
-    }}>
-      {/* UP Button */}
-      <button 
-        style={{
-          width: '50px',
-          height: '50px',
-          borderRadius: '50%',
-          background: 'rgba(0, 255, 100, 0.2)',
-          border: '2px solid #00ff64',
-          color: '#00ff64',
-          fontSize: '20px',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          touchAction: 'none',
-          cursor: 'pointer'
-        }}
-        onTouchStart={(e) => { 
-          e.preventDefault(); 
-          setMobileVertical('up'); 
-          console.log('UP pressed');
-        }}
-        onTouchEnd={(e) => { 
-          e.preventDefault(); 
-          setMobileVertical(null); 
-          console.log('UP released');
-        }}
-        onMouseDown={() => setMobileVertical('up')}
-        onMouseUp={() => setMobileVertical(null)}
-        onMouseLeave={() => setMobileVertical(null)}
-      >
-        ↑
-      </button>
-      
-      {/* DOWN Button */}
-      <button 
-        style={{
-          width: '50px',
-          height: '50px',
-          borderRadius: '50%',
-          background: 'rgba(100, 100, 255, 0.2)',
-          border: '2px solid #6464ff',
-          color: '#6464ff',
-          fontSize: '20px',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          touchAction: 'none',
-          cursor: 'pointer'
-        }}
-        onTouchStart={(e) => { 
-          e.preventDefault(); 
-          setMobileVertical('down');
-          console.log('DOWN pressed');
-        }}
-        onTouchEnd={(e) => { 
-          e.preventDefault(); 
-          setMobileVertical(null);
-          console.log('DOWN released');
-        }}
-        onMouseDown={() => setMobileVertical('down')}
-        onMouseUp={() => setMobileVertical(null)}
-        onMouseLeave={() => setMobileVertical(null)}
-      >
-        ↓
-      </button>
+            {/* BOOST Button */}
+            <button 
+              style={{
+                width: '60px',
+                height: '60px',
+                borderRadius: '50%',
+                background: 'rgba(255, 100, 0, 0.2)',
+                border: '2px solid #ff6400',
+                color: '#ff6400',
+                fontSize: '24px',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                touchAction: 'none',
+                cursor: 'pointer',
+                opacity: hud.fuel < 10 ? 0.3 : 1
+              }}
+              onTouchStart={(e) => { 
+                e.preventDefault(); 
+                if (hud.fuel >= 10) {
+                  setMobileBoost(true);
+                  console.log('BOOST pressed');
+                }
+              }}
+              onTouchEnd={(e) => { 
+                e.preventDefault(); 
+                setMobileBoost(false);
+                console.log('BOOST released');
+              }}
+              onMouseDown={() => hud.fuel >= 10 && setMobileBoost(true)}
+              onMouseUp={() => setMobileBoost(false)}
+              onMouseLeave={() => setMobileBoost(false)}
+              disabled={hud.fuel < 10}
+            >
+              ⚡
+            </button>
+          </div>
+        </div>
+      )}
 
-      {/* BOOST Button */}
-      <button 
-        style={{
-          width: '60px',
-          height: '60px',
-          borderRadius: '50%',
-          background: 'rgba(255, 100, 0, 0.2)',
-          border: '2px solid #ff6400',
-          color: '#ff6400',
-          fontSize: '24px',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          touchAction: 'none',
-          cursor: 'pointer',
-          opacity: hud.fuel < 10 ? 0.3 : 1
-        }}
-        onTouchStart={(e) => { 
-          e.preventDefault(); 
-          if (hud.fuel >= 10) {
-            setMobileBoost(true);
-            console.log('BOOST pressed');
-          }
-        }}
-        onTouchEnd={(e) => { 
-          e.preventDefault(); 
-          setMobileBoost(false);
-          console.log('BOOST released');
-        }}
-        onMouseDown={() => hud.fuel >= 10 && setMobileBoost(true)}
-        onMouseUp={() => setMobileBoost(false)}
-        onMouseLeave={() => setMobileBoost(false)}
-        disabled={hud.fuel < 10}
-      >
-        ⚡
-      </button>
-    </div>
-  </div>
-)}
+      {/* Camera Control Overlay for Mobile - PUBG Style */}
+      {!paused && gameMode === "exploration" && isMobileDevice && isLandscape && (
+        <div 
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: '160px',
+            zIndex: 1,
+            background: 'transparent',
+            touchAction: 'none',
+            pointerEvents: 'auto',
+          }}
+          onTouchStart={(e) => {
+            const target = e.target as HTMLElement;
+            if (target.closest('.hud-controls') || target.closest('button')) return;
 
-{/* Camera Control Overlay - PUBG Style */}
-{/* Camera Control Overlay */}
-{!paused && gameMode === "exploration" && isMobileDevice && isLandscape && (
-  <div 
-    style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: '160px',
-      zIndex: 1, // put under HUD
-      background: 'transparent',
-      touchAction: 'none', // ✅ disable native scrolling
-      pointerEvents: 'auto', // needed for touchmove
-    }}
-    onTouchStart={(e) => {
-      // only activate if NOT touching inside HUD
-      const target = e.target as HTMLElement;
-      if (target.closest('.hud-controls')) return; // ✅ don't steal HUD touches
+            if (e.touches.length === 1) {
+              const touch = e.touches[0];
+              setCameraControl(prev => ({
+                ...prev,
+                isDragging: true,
+                lastTouch: { x: touch.clientX, y: touch.clientY }
+              }));
+            }
+          }}
+          onTouchMove={(e) => {
+            if (cameraControl.isDragging && e.touches.length === 1) {
+              const touch = e.touches[0];
+              const deltaX = touch.clientX - cameraControl.lastTouch.x;
+              const deltaY = touch.clientY - cameraControl.lastTouch.y;
 
-      if (e.touches.length === 1) {
-        const touch = e.touches[0];
-        setCameraControl(prev => ({
-          ...prev,
-          isDragging: true,
-          lastTouch: { x: touch.clientX, y: touch.clientY }
-        }));
-      }
-    }}
-    onTouchMove={(e) => {
-      if (cameraControl.isDragging && e.touches.length === 1) {
-        const touch = e.touches[0];
-        const deltaX = touch.clientX - cameraControl.lastTouch.x;
-        const deltaY = touch.clientY - cameraControl.lastTouch.y;
+              setCameraControl(prev => ({
+                ...prev,
+                rotation: {
+                  horizontal: prev.rotation.horizontal + deltaX * prev.touchSensitivity,
+                  vertical: Math.max(-prev.verticalLimit, Math.min(prev.verticalLimit, 
+                    prev.rotation.vertical - deltaY * prev.touchSensitivity))
+                },
+                lastTouch: { x: touch.clientX, y: touch.clientY }
+              }));
+            }
+          }}
+          onTouchEnd={() => {
+            setCameraControl(prev => ({
+              ...prev,
+              isDragging: false
+            }));
+          }}
+        />
+      )}
 
-        setCameraControl(prev => ({
-          ...prev,
-          rotation: {
-            horizontal: prev.rotation.horizontal + deltaX * prev.sensitivity,
-            vertical: Math.max(-Math.PI/3, Math.min(Math.PI/3, prev.rotation.vertical - deltaY * prev.sensitivity))
-          },
-          lastTouch: { x: touch.clientX, y: touch.clientY }
-        }));
-      }
-    }}
-    onTouchEnd={() => {
-      setCameraControl(prev => ({
-        ...prev,
-        isDragging: false
-      }));
-    }}
-  />
-)}
-
-
-
-{/* Orientation Overlay - Show on mobile portrait */}
-{!isLandscape && isMobileDevice && (
-  <div style={{
-    position: 'fixed',
-    inset: '0',
-    background: 'black',
-    color: 'white',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontSize: '20px',
-    zIndex: '9999',
-    textAlign: 'center',
-    fontFamily: "'Space Mono', monospace"
-  }}>
-    🔄 Please rotate your device to landscape
-    <br />
-    <small style={{ marginTop: '10px', fontSize: '14px' }}>
-      Current: {window.innerWidth}x{window.innerHeight}
-    </small>
-  </div>
-)}
       {/* Desktop Controls - Show on desktop in landscape */}
       {!paused && gameMode === "exploration" && isLandscape && !isMobileDevice && (
         <motion.div className="desktop-controls" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
@@ -709,6 +724,8 @@ const [cameraControl, setCameraControl] = useState({
           <div>SHIFT - Ascend</div>
           <div>CONTROL - Descend</div>
           <div>E - BOOST</div>
+          <div><strong>📹 CAMERA:</strong></div>
+          <div>Right Mouse - Look Around</div>
           <div><strong>🎯 INTERACTION:</strong></div>
           <div>Approach stations to dock</div>
         </motion.div>
