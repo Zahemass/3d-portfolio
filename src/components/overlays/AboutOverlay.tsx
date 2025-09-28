@@ -20,7 +20,7 @@ const highlightCards = [
     desc: "Kon'nichiwa music channel",
     color: "#ff4757",
     glow: "rgba(255,71,87,0.4)",
-    level: 85
+    
   },
   { 
     icon: "💡", 
@@ -28,7 +28,7 @@ const highlightCards = [
     desc: "Creative problem solver",
     color: "#ffd700",
     glow: "rgba(255,215,0,0.4)",
-    level: 92
+    
   },
   { 
     icon: "🏆", 
@@ -36,7 +36,7 @@ const highlightCards = [
     desc: "Multiple wins & recognitions",
     color: "#00ff88",
     glow: "rgba(0,255,136,0.4)",
-    level: 88
+    
   },
   { 
     icon: "👨‍💻", 
@@ -44,7 +44,7 @@ const highlightCards = [
     desc: "Full-stack & Mobile apps",
     color: "#00ffff",
     glow: "rgba(0,255,255,0.4)",
-    level: 95
+    
   },
   { 
     icon: "📚", 
@@ -52,7 +52,7 @@ const highlightCards = [
     desc: "Sharing knowledge & guidance",
     color: "#9b59b6",
     glow: "rgba(155,89,182,0.4)",
-    level: 78
+    
   }
 ];
 
@@ -264,19 +264,9 @@ const AboutOverlay: React.FC<AboutOverlayProps> = ({
                   fontSize: isVerySmall ? "14px" : isMobile ? "18px" : "20px", 
                   color: "#ffd700", 
                   fontWeight: "bold" 
-                }}>{level}</div>
+                }}>Entry</div>
               </div>
-              <div style={{ textAlign: "center" }}>
-                <div style={{ 
-                  fontSize: isVerySmall ? "10px" : isMobile ? "11px" : "12px", 
-                  opacity: 0.7,
-                  whiteSpace: "nowrap",
-                }}>XP</div>
-                <div style={{ 
-                  fontSize: isVerySmall ? "12px" : isMobile ? "16px" : "16px", 
-                  color: "#00ff00" 
-                }}>{experience}</div>
-              </div>
+              
               <button
                 onClick={onClose}
                 style={{
@@ -482,20 +472,7 @@ const AboutOverlay: React.FC<AboutOverlayProps> = ({
                       />
 
                       {/* Level Progress Bar */}
-                      <div style={{
-                        position: "absolute",
-                        top: "8px",
-                        right: "8px",
-                        fontSize: isVerySmall ? "8px" : "10px",
-                        color: card.color,
-                        fontWeight: "bold",
-                        background: `${card.color}20`,
-                        padding: "2px 6px",
-                        borderRadius: "8px",
-                        border: `1px solid ${card.color}60`,
-                      }}>
-                        LV.{card.level}
-                      </div>
+                      
 
                       <motion.div 
                         whileHover={{ scale: 1.2, rotate: 10 }}
@@ -535,27 +512,8 @@ const AboutOverlay: React.FC<AboutOverlayProps> = ({
                       </p>
 
                       {/* Skill Progress Bar */}
-                      <div style={{
-                        width: "100%",
-                        height: "4px",
-                        background: "rgba(255,255,255,0.1)",
-                        borderRadius: "2px",
-                        overflow: "hidden",
-                        position: "relative",
-                        zIndex: 2,
-                      }}>
-                        <motion.div
-                          initial={{ width: 0 }}
-                          animate={{ width: `${card.level}%` }}
-                          transition={{ delay: 2 + i * 0.1 + 0.5, duration: 1 }}
-                          style={{
-                            height: "100%",
-                            background: `linear-gradient(90deg, ${card.color}, ${card.color}80)`,
-                            borderRadius: "2px",
-                            boxShadow: `0 0 10px ${card.color}60`,
-                          }}
-                        />
-                      </div>
+                      
+                     
 
                       {/* Corner Accent */}
                       <div style={{
