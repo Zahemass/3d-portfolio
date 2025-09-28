@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect } from "react";
-import { ReactTyped } from "react-typed";
 import { Github, Linkedin, Mail } from "lucide-react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { OrbitControls, Stars } from "@react-three/drei";
@@ -132,6 +131,292 @@ const FloatingParticle: React.FC<{ index: number }> = ({ index }) => {
       <sphereGeometry args={[0.02, 8, 8]} />
       <meshBasicMaterial color="#00ffff" />
     </mesh>
+  );
+};
+
+// Custom Animated Text Component
+const AnimatedIntroText: React.FC<{ 
+  firstTime: boolean, 
+  setFirstTime: (val: boolean) => void,
+  isMobile: boolean,
+  isVerySmall: boolean 
+}> = ({ firstTime, setFirstTime, isMobile, isVerySmall }) => {
+  const [showText, setShowText] = useState(!firstTime);
+
+  useEffect(() => {
+    if (firstTime) {
+      const timer = setTimeout(() => {
+        setShowText(true);
+        setFirstTime(false);
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [firstTime, setFirstTime]);
+
+  const text = `Hi, I'm Mohammed Zaheer — a passionate Computer Science Student and aspiring Software Engineer based in Chennai, India, currently in my Final Year of B.Sc. Information Technology.
+
+I specialize in building scalable web applications, mobile apps, and 3D interactive experiences that merge creativity with cutting-edge technology.`;
+
+  const words = text.split(' ');
+
+  if (firstTime && !showText) {
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        style={{
+          fontSize: isVerySmall ? "13px" : isMobile ? "15px" : "16px",
+          lineHeight: isMobile ? "1.6" : "1.8",
+          color: "#f0f0f0",
+          position: "relative",
+        }}
+      >
+        <motion.div
+          animate={{
+            background: [
+              "linear-gradient(45deg, #00ffff, #ff4757, #ffd700, #00ff88)",
+              "linear-gradient(45deg, #ff4757, #ffd700, #00ff88, #00ffff)",
+              "linear-gradient(45deg, #ffd700, #00ff88, #00ffff, #ff4757)",
+              "linear-gradient(45deg, #00ff88, #00ffff, #ff4757, #ffd700)"
+            ]
+          }}
+          transition={{ duration: 2, repeat: Infinity }}
+          style={{
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            backgroundClip: "text",
+            fontSize: isVerySmall ? "14px" : isMobile ? "16px" : "18px",
+            fontWeight: "bold",
+            textAlign: "center",
+            padding: "20px 0",
+          }}
+        >
+          🚀 INITIALIZING DEVELOPER PROFILE...
+        </motion.div>
+        
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+          style={{
+            width: "40px",
+            height: "40px",
+            border: "3px solid transparent",
+            borderTop: "3px solid #00ffff",
+            borderRadius: "50%",
+            margin: "20px auto",
+          }}
+        />
+      </motion.div>
+    );
+  }
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.8 }}
+      style={{
+        fontSize: isVerySmall ? "13px" : isMobile ? "15px" : "16px",
+        lineHeight: isMobile ? "1.6" : "1.8",
+        color: "#f0f0f0",
+      }}
+    >
+      <motion.div
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.6 }}
+        style={{
+          marginBottom: isMobile ? "15px" : "20px",
+          background: "linear-gradient(145deg, rgba(0,255,255,0.1), rgba(255,215,0,0.1))",
+          padding: isMobile ? "15px" : "20px",
+          borderRadius: "16px",
+          border: "1px solid rgba(0,255,255,0.3)",
+          position: "relative",
+          overflow: "hidden",
+        }}
+      >
+        {/* Animated Background */}
+        <motion.div
+          animate={{
+            background: [
+              "radial-gradient(circle at 0% 0%, rgba(0,255,255,0.2) 0%, transparent 50%)",
+              "radial-gradient(circle at 100% 100%, rgba(255,215,0,0.2) 0%, transparent 50%)",
+              "radial-gradient(circle at 100% 0%, rgba(255,71,87,0.2) 0%, transparent 50%)",
+              "radial-gradient(circle at 0% 100%, rgba(0,255,136,0.2) 0%, transparent 50%)"
+            ]
+          }}
+          transition={{ duration: 4, repeat: Infinity }}
+          style={{
+            position: "absolute",
+            inset: 0,
+            borderRadius: "16px",
+          }}
+        />
+
+        <div style={{ position: "relative", zIndex: 2 }}>
+          {words.map((word, i) => (
+            <motion.span
+              key={i}
+              initial={{ opacity: 0, y: 20, filter: "blur(10px)" }}
+              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+              transition={{ 
+                delay: firstTime ? i * 0.1 : 0,
+                duration: 0.8,
+                ease: "easeOut"
+              }}
+              style={{
+                display: "inline-block",
+                marginRight: "0.3em",
+                color: word.includes("Mohammed") || word.includes("Zaheer") ? "#00ffff" :
+                       word.includes("Computer") || word.includes("Science") || word.includes("Software") || word.includes("Engineer") ? "#ffd700" :
+                       word.includes("Chennai") || word.includes("India") ? "#ff4757" :
+                       word.includes("Final") || word.includes("Year") ? "#00ff88" : "#f0f0f0",
+                fontWeight: word.includes("Mohammed") || word.includes("Zaheer") || 
+                           word.includes("Computer") || word.includes("Science") || 
+                           word.includes("Software") || word.includes("Engineer") ? "bold" : "normal",
+                textShadow: word.includes("Mohammed") || word.includes("Zaheer") ? "0 0 10px #00ffff" : "none"
+              }}
+              whileHover={{
+                scale: 1.05,
+                textShadow: "0 0 15px currentColor",
+              }}
+            >
+              {word}
+            </motion.span>
+          ))}
+        </div>
+
+        {/* Glowing Corner Effects */}
+        <div style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width: "30px",
+          height: "30px",
+          background: "linear-gradient(45deg, #00ffff, transparent)",
+          borderRadius: "0 0 30px 0",
+        }} />
+        <div style={{
+          position: "absolute",
+          bottom: 0,
+          right: 0,
+          width: "30px",
+          height: "30px",
+          background: "linear-gradient(225deg, #ffd700, transparent)",
+          borderRadius: "30px 0 0 0",
+        }} />
+      </motion.div>
+
+      <motion.p
+        initial={{ opacity: 0, x: -30 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.5, duration: 0.8 }}
+        style={{ 
+          marginBottom: isMobile ? "15px" : "20px",
+          padding: isMobile ? "12px" : "15px",
+          background: "linear-gradient(145deg, rgba(255,215,0,0.1), rgba(0,255,136,0.1))",
+          borderRadius: "12px",
+          border: "1px solid rgba(255,215,0,0.3)",
+        }}
+      >
+        I specialize in building{" "}
+        <motion.strong 
+          animate={{ 
+            color: ["#ffd700", "#00ff88", "#00ffff", "#ff4757", "#ffd700"] 
+          }}
+          transition={{ duration: 3, repeat: Infinity }}
+          style={{ 
+            textShadow: "0 0 10px currentColor"
+          }}
+        >
+          scalable web applications, mobile apps, and 3D interactive experiences
+        </motion.strong>{" "}
+        that merge creativity with cutting-edge technology.
+      </motion.p>
+
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.8, duration: 0.8 }}
+        style={{ 
+          marginBottom: isMobile ? "15px" : "20px",
+          padding: isMobile ? "15px" : "18px",
+          background: "linear-gradient(145deg, rgba(255,71,87,0.1), rgba(155,89,182,0.1))",
+          borderRadius: "12px",
+          border: "1px solid rgba(255,71,87,0.3)",
+        }}
+      >
+        <motion.div
+          animate={{ opacity: [0.7, 1, 0.7] }}
+          transition={{ duration: 2, repeat: Infinity }}
+          style={{ 
+            fontSize: isVerySmall ? "14px" : isMobile ? "15px" : "16px",
+            fontWeight: "bold",
+            color: "#ff4757",
+            marginBottom: "10px",
+            textShadow: "0 0 10px #ff4757"
+          }}
+        >
+          🏆 HACKATHON ACHIEVEMENTS:
+        </motion.div>
+        
+        {[
+          "🥈 Semi-Finalist – Inde-Hub Hackathon (Swift Community)",
+          "🥉 2nd Runner-Up – BTI Ignite Incubation Council",
+          "🚀 Active Participant – Multiple inter-college hackathons with recognition for innovative projects in AI, full-stack development, and interactive applications."
+        ].map((achievement, i) => (
+          <motion.div
+            key={i}
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 1 + i * 0.2, duration: 0.6 }}
+            style={{ 
+              marginBottom: "8px",
+              paddingLeft: "10px",
+              borderLeft: "2px solid #ff4757",
+              fontSize: isVerySmall ? "12px" : isMobile ? "13px" : "14px"
+            }}
+          >
+            {achievement}
+          </motion.div>
+        ))}
+      </motion.div>
+
+      <motion.p
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 1.5, duration: 0.8 }}
+        style={{ 
+          marginBottom: isMobile ? "15px" : "20px",
+          padding: isMobile ? "15px" : "18px",
+          background: "linear-gradient(145deg, rgba(155,89,182,0.1), rgba(0,255,255,0.1))",
+          borderRadius: "12px",
+          border: "1px solid rgba(155,89,182,0.3)",
+          textAlign: "center",
+        }}
+      >
+        💡 My goal is to leverage my student perspective and fresh ideas to build{" "}
+        <motion.strong 
+          animate={{ 
+            textShadow: [
+              "0 0 5px #9b59b6",
+              "0 0 15px #9b59b6",
+              "0 0 25px #9b59b6",
+              "0 0 15px #9b59b6",
+              "0 0 5px #9b59b6"
+            ]
+          }}
+          transition={{ duration: 2, repeat: Infinity }}
+          style={{ color: "#9b59b6" }}
+        >
+          impactful products
+        </motion.strong>{" "}
+        while exploring emerging technologies like{" "}
+        <strong style={{ color: "#00ffff" }}>AI</strong>,{" "}
+        <strong style={{ color: "#ffd700" }}>3D Web</strong>, and{" "}
+        <strong style={{ color: "#00ff88" }}>Blockchain</strong>.
+      </motion.p>
+    </motion.div>
   );
 };
 
@@ -342,66 +627,12 @@ const AboutOverlay: React.FC<AboutOverlayProps> = ({
                 👤 About Me
               </h2>
               
-              {firstTime ? (
-                <ReactTyped
-                  strings={[
-                    `Hi, I'm **Mohammed Zaheer** — a passionate **Computer Science Student** and aspiring **Software Engineer** based in **Chennai, India**, currently in my **Final Year of B.Sc. Information Technology**.
-
-I specialize in building **scalable web applications, mobile apps, and 3D interactive experiences** that merge creativity with cutting-edge technology.`
-                  ]}
-                  typeSpeed={50}
-                  backSpeed={0}
-                  showCursor={true}
-                  cursorChar="|"
-                  onComplete={() => setFirstTime(false)}
-                  style={{
-                    fontSize: isVerySmall ? "13px" : isMobile ? "15px" : "16px",
-                    lineHeight: isMobile ? "1.6" : "1.8",
-                    color: "#f0f0f0",
-                  }}
-                />
-              ) : (
-                <div style={{
-                  fontSize: isVerySmall ? "13px" : isMobile ? "15px" : "16px",
-                  lineHeight: isMobile ? "1.6" : "1.8",
-                  color: "#f0f0f0",
-                }}>
-                  <p style={{ marginBottom: isMobile ? "15px" : "20px" }}>
-                    Hi, I'm <strong style={{ color: "#00ffff" }}>Mohammed Zaheer</strong> — a passionate{" "}
-                    <strong>Computer Science Student</strong> and aspiring{" "}
-                    <strong>Software Engineer</strong> based in{" "}
-                    <strong>Chennai, India</strong>, currently in my{" "}
-                    <strong>Final Year of B.Sc. Information Technology</strong>.
-                  </p>
-
-                  <p style={{ marginBottom: isMobile ? "15px" : "20px" }}>
-                    I specialize in building{" "}
-                    <strong style={{ color: "#ffd700" }}>
-                      scalable web applications, mobile apps, and 3D interactive experiences
-                    </strong>{" "}
-                    that merge creativity with cutting-edge technology.
-                  </p>
-
-                  <p style={{ marginBottom: isMobile ? "15px" : "20px" }}>
-                    🏆 <strong>Hackathon Achievements:</strong>
-                    <br />
-                    🥈 Semi-Finalist – Inde-Hub Hackathon (Swift Community)
-                    <br />
-                    🥉 2nd Runner-Up – BTI Ignite Incubation Council
-                    <br />
-                    🚀 Active Participant – Multiple inter-college hackathons with recognition
-                    for innovative projects in <strong>AI</strong>,{" "}
-                    <strong>full-stack development</strong>, and{" "}
-                    <strong>interactive applications</strong>.
-                  </p>
-
-                  <p style={{ marginBottom: isMobile ? "15px" : "20px" }}>
-                    💡 My goal is to leverage my student perspective and fresh ideas to build{" "}
-                    <strong>impactful products</strong> while exploring emerging technologies like{" "}
-                    <strong>AI</strong>, <strong>3D Web</strong>, and <strong>Blockchain</strong>.
-                  </p>
-                </div>
-              )}
+              <AnimatedIntroText 
+                firstTime={firstTime}
+                setFirstTime={setFirstTime}
+                isMobile={isMobile}
+                isVerySmall={isVerySmall}
+              />
 
               {/* Enhanced Highlight Cards */}
               <div style={{ marginTop: isMobile ? "25px" : "30px" }}>

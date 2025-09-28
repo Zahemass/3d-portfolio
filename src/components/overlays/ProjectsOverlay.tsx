@@ -919,8 +919,8 @@ const projects = [
     Features offline-first architecture with SQLite caching, real-time sync with Firebase, and community-driven discovery.
     Built with performance optimization and seamless user experience in mind.`,
     youtube: "https://www.youtube.com/embed/H9KO_E6jXW0",
-    tech: ["Flutter", "Dart", "Firebase", "Google Maps API", "SQLite", "Real-time Sync"],
-    github: "https://github.com/zaheer/local-lens",
+    tech: ["Flutter", "Dart", "Supabase", "Google Maps API", "Real-time Sync", "Multilingual Support"],
+    github: "https://github.com/Zahemass/local-guide-application",
     color: "#FF6B6B",
     impact: "Social Impact",
     demoType: "app",
@@ -932,8 +932,8 @@ const projects = [
     this lightweight solution allows devs to quickly test endpoints, headers, and request bodies directly from the terminal.
     Features support for GET, POST, PUT, DELETE requests with custom headers and authentication.`,
     youtube: "https://www.youtube.com/embed/9VhiTQuhDLw",
-    tech: ["Python", "Click", "Requests", "PyTest", "JSON Parser", "OAuth"],
-    github: "https://github.com/zaheer/cli-api-tester",
+    tech: ["Python", "React", "Requests", "cli testing", "JSON Parser", "OAuth"],
+    github: "https://github.com/Zahemass/coimbatore-hackathon",
     color: "#4ECDC4",
     impact: "Tools & Automation",
     demoType: "cli",
@@ -964,8 +964,8 @@ $ apitest post https://api.example.com/users \\
     Uses computer vision to analyze emotional states and provides personalized recommendations for journaling, meditation, and music therapy.
     Privacy-first approach with local processing and encrypted data storage.`,
     youtube: null,
-    tech: ["React", "Node.js", "TensorFlow.js", "OpenCV", "Flask", "WebRTC", "Emotion AI"],
-    github: "https://github.com/zaheer/mental-health-ai",
+    tech: ["React", "python", "TensorFlow", "OpenCV", "Flask", "WebRTC", "Emotion AI"],
+    github: "https://github.com/Zahemass/mental-ai",
     color: "#845EC2",
     impact: "Healthcare",
     demoType: "ai",
@@ -977,8 +977,8 @@ $ apitest post https://api.example.com/users \\
     It ensures transparency, prevents duplicate votes, and provides real-time results while keeping votes encrypted and anonymous.
     Features OTP-based authentication, tamper-proof storage, and real-time dashboard.`,
     
-    tech: ["React", "Node.js", "PostgreSQL", "JWT", "WebSockets", "Encryption", "OTP Auth"],
-    github: "https://github.com/zaheer/secure-voting",
+    tech: ["React", "Node.js", "solidity", "JWT", "WebSockets", "Encryption", "OTP Auth"],
+    github: "https://github.com/Zahemass/DAPP-Voting-System",
     color: "#F39C12",
     impact: "Blockchain",
     demoType: "voting",
@@ -990,8 +990,8 @@ $ apitest post https://api.example.com/users \\
     It bridges communication between students, faculty, and administration through a mobile-first approach.
     Features real-time notifications, role-based access, and cross-platform compatibility.`,
 
-    tech: ["Flutter", "React", "Node.js", "Firebase", "PostgreSQL", "FCM", "RBAC"],
-    github: "https://github.com/zaheer/measi-management",
+    tech: ["Flutter", "React", "Node.js", "Google Sheets API", "RBAC"],
+    github: "https://github.com/Zahemass/measi-app",
     color: "#9B59B6",
     impact: "Human Resources",
     demoType: "platform",

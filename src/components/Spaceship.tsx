@@ -131,12 +131,12 @@ const Spaceship: React.FC<SpaceshipProps> = ({
     ).normalize();
 
     /** === Simplified Input Detection === */
-    let forward = keys.current["w"];
-    let backward = keys.current["s"];
+    let forward = keys.current["s"];
+    let backward = keys.current["w"];
     let left = keys.current["a"];
     let right = keys.current["d"];
-    let upPressed = keys.current[" "] || keys.current["shift"]; // Space or Shift
-    let downPressed = keys.current["control"];
+    let upPressed = keys.current["j"]; // Space or Shift
+    let downPressed = keys.current["k"];
     let boostPressed = keys.current["e"];
 
     /** === Mobile Override === */

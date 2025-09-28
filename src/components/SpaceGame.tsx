@@ -664,43 +664,7 @@ useEffect(() => {
               ↓
             </button>
 
-            {/* BOOST Button */}
-            <button 
-              style={{
-                width: '60px',
-                height: '60px',
-                borderRadius: '50%',
-                background: 'rgba(255, 100, 0, 0.2)',
-                border: '2px solid #ff6400',
-                color: '#ff6400',
-                fontSize: '24px',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                touchAction: 'none',
-                cursor: 'pointer',
-                opacity: hud.fuel < 10 ? 0.3 : 1
-              }}
-              onTouchStart={(e) => { 
-                e.preventDefault(); 
-                if (hud.fuel >= 10) {
-                  setMobileBoost(true);
-                  console.log('BOOST pressed');
-                }
-              }}
-              onTouchEnd={(e) => { 
-                e.preventDefault(); 
-                setMobileBoost(false);
-                console.log('BOOST released');
-              }}
-              onMouseDown={() => hud.fuel >= 10 && setMobileBoost(true)}
-              onMouseUp={() => setMobileBoost(false)}
-              onMouseLeave={() => setMobileBoost(false)}
-              disabled={hud.fuel < 10}
-            >
-              ⚡
-            </button>
+            
           </div>
 
           {/* Right side: Camera Rotation Joystick - ENHANCED */}
@@ -743,11 +707,9 @@ useEffect(() => {
         <motion.div className="desktop-controls" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
           <div><strong>🎮 PUBG-STYLE CONTROLS:</strong></div>
           <div>W A S D - Move (Camera Relative)</div>
-          <div>SPACE/SHIFT - Ascend</div>
-          <div>CTRL - Descend</div>
-          <div>E - BOOST</div>
-          <div><strong>📹 CAMERA:</strong></div>
-          <div>Right Mouse - Look Around</div>
+          <div>j- Ascend</div>
+          <div>k- Descend</div>
+          <div><strong>📹 CAMERA: right click to Look Around</strong></div>
           <div><strong>🎯 INTERACTION:</strong></div>
           <div>Approach stations to dock</div>
         </motion.div>
